@@ -32,7 +32,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-title" content="DrapesUI" />
       </head>
-      <body className={`min-h-screen w-full bg-[#0a0a0a] relative ${fontSans.variable} ${fontMono.variable} ${fontSerif.variable}`}>
+      <body className={`min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative ${fontSans.variable} ${fontMono.variable} ${fontSerif.variable}`}>
         <div
           aria-hidden='true'
           className="inset-0 z-0 fixed"
@@ -47,7 +47,7 @@ export default function RootLayout({
         />
         <div
           aria-hidden='true'
-          className="relative z-10 min-h-screen m-4 rounded-xl overflow-hidden"
+          className="relative z-10 min-h-screen lg:m-4 lg:rounded-xl overflow-hidden"
           style={{
             background: "rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(35px)",
