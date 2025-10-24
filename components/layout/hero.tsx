@@ -1,5 +1,4 @@
-'use client'
-import { GithubLogoIcon } from "@phosphor-icons/react"
+import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr"
 
 export const HeroSection = () => {
   return (

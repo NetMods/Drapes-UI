@@ -1,5 +1,4 @@
-'use client'
-import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react"
+import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react/dist/ssr"
 import Image from "next/image"
 
 export const Navbar = () => {
