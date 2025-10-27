@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { fontMono, fontSans, fontSerif } from "./font";
-import { GlobalSidebar, SidebarProvider } from "@/components/ui/sidebar";
+import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
+import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 
 export const metadata: Metadata = {
   title: "DrapesUI",
@@ -34,37 +35,40 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="DrapesUI" />
       </head>
       <body className={`min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative ${fontSans.variable} ${fontMono.variable} ${fontSerif.variable}`}>
-        <SidebarProvider>
-          <div
-            aria-hidden='true'
-            className="inset-0 z-0 fixed"
-            style={{
-              backgroundImage: `
+        <div
+          aria-hidden='true'
+          className="inset-0 z-0 fixed"
+          style={{
+            backgroundImage: `
                 radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.4) 0%, transparent 60%),
                 radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
                 radial-gradient(ellipse at 60% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
                 radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.2) 0%, transparent 65%)
               `,
-            }}
-          />
-          <div
-            aria-hidden='true'
-            className="relative z-10 min-h-screen lg:m-4 lg:rounded-xl overflow-hidden"
-            style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              backdropFilter: "blur(35px)",
-              border: "2px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 0 80px rgba(0, 0, 0, 0.25)",
-            }}
-          >
-            <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
+          }}
+        />
+        <div
+          aria-hidden='true'
+          className="relative z-10 min-h-screen  overflow-hidden"
+          style={{
+            background: "rgba(255, 255, 255, 0.05)",
+            backdropFilter: "blur(35px)",
+            border: "2px solid rgba(255, 255, 255, 0.1)",
+            boxShadow: "0 0 80px rgba(0, 0, 0, 0.25)",
+          }}
+        >
+          <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
 
-            <div className="relative z-10 w-full max-w-800 mx-auto">
-              {children}
-            </div>
-          </div>
-          <GlobalSidebar />
-        </SidebarProvider>
+          <CodeSidebarProvider>
+            <SettingsSidebarProvider>
+              <div className="relative z-10 w-full h-full max-w-800 mx-auto">
+                {children}
+              </div>
+              <SettingsSidebar />
+              <CodeSidebar />
+            </SettingsSidebarProvider>
+          </CodeSidebarProvider>
+        </div>
       </body>
     </html>
   );

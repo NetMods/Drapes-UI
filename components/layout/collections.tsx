@@ -1,22 +1,15 @@
 'use client'
 import { StarIcon } from "@phosphor-icons/react/dist/ssr"
-import { useSidebar } from "../ui/sidebar";
+import { useCodeSidebar } from "../ui/code-sidebar";
+import { useRouter } from "next/navigation";
+import { backgrounds } from "@/backgrounds";
 
 export const Collections = () => {
-  const backgrounds = [
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
-    { name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } }
-  ]
+  const router = useRouter()
 
-  const { openSidebar } = useSidebar()
+  const { openCodeSidebar } = useCodeSidebar()
   const handleShowCode = (item: any) => {
-    openSidebar({
+    openCodeSidebar({
       name: item.name,
       usage: `
 import { Sexiest } from '@/components/sex.tsx'
@@ -136,7 +129,10 @@ export default function TodoApp() {
               <div className="group-hover:-translate-y-28 p-2 border-t border-white/20 w-full transition-all ease-out absolute top-100">
                 <span className="font-serif text-3xl italic">{item.name}</span>
                 <div className="pt-2 space-x-2">
-                  <button className="inline-flex px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear">
+                  <button
+                    className="inline-flex px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                    onClick={() => router.push(`/bg?id=${item.id}`)}
+                  >
                     Preview
                   </button>
                   <button

@@ -4,54 +4,56 @@ import { Drawer } from 'vaul';
 import { createContext, useContext, useState, ReactNode, MouseEvent } from 'react';
 import { CheckIcon, XIcon } from '@phosphor-icons/react';
 import { ClipboardTextIcon } from '@phosphor-icons/react/dist/ssr';
+import { usePathname } from 'next/navigation';
 
-interface SidebarData {
+interface CodeSidebarData {
   name: string;
   usage: string;
   js: string;
   ts: string;
 }
 
-interface SidebarContextType {
+interface CodeSidebarContextType {
   isOpen: boolean;
-  data: SidebarData | null;
-  openSidebar: (data: SidebarData) => void;
-  closeSidebar: () => void;
+  data: CodeSidebarData | null;
+  openCodeSidebar: (data: CodeSidebarData) => void;
+  closeCodeSidebar: () => void;
 }
 
-const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
+const CodeSidebarContext = createContext<CodeSidebarContextType | undefined>(undefined);
 
-export function SidebarProvider({ children }: { children: ReactNode }) {
+export function CodeSidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState<SidebarData | null>(null);
+  const [data, setData] = useState<CodeSidebarData | null>(null);
 
-  const openSidebar = (newData: SidebarData) => {
+  const openCodeSidebar = (newData: CodeSidebarData) => {
     setData(newData);
     setIsOpen(true);
   };
 
-  const closeSidebar = () => {
+  const closeCodeSidebar = () => {
     setIsOpen(false);
   };
 
   return (
-    <SidebarContext.Provider value={{ isOpen, data, openSidebar, closeSidebar }}>
+    <CodeSidebarContext.Provider value={{ isOpen, data, openCodeSidebar, closeCodeSidebar }}>
       {children}
-    </SidebarContext.Provider>
+    </CodeSidebarContext.Provider>
   );
 }
 
-export function useSidebar() {
-  const context = useContext(SidebarContext);
+export function useCodeSidebar() {
+  const context = useContext(CodeSidebarContext);
   if (context === undefined) {
     throw new Error('useSidebar must be used within a SidebarProvider');
   }
   return context;
 }
 
-export function GlobalSidebar() {
-  const { isOpen, data, closeSidebar } = useSidebar();
+export function CodeSidebar() {
+  const { isOpen, data, closeCodeSidebar } = useCodeSidebar();
   const [activeTab, setActiveTab] = useState('ts');
+  const pathname = usePathname()
 
   const copyCode = (e: MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
@@ -63,7 +65,7 @@ export function GlobalSidebar() {
   return (
     <Drawer.Root
       open={isOpen}
-      onOpenChange={(open) => !open && closeSidebar()}
+      onOpenChange={(open) => !open && closeCodeSidebar()}
       direction="right"
     >
       <Drawer.Portal>
@@ -74,10 +76,10 @@ export function GlobalSidebar() {
           <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
               <span className='text-4xl font-serif'>
-                {data?.name}
+                {pathname === '/' ? data?.name : "Code"}
               </span>
               <button
-                onClick={closeSidebar}
+                onClick={closeCodeSidebar}
                 className="text-white cursor-pointer p-1 rounded-lg bg-base-content/20 border border-base-content/20 transition-colors"
               >
                 <XIcon size={17} weight='bold' />
