@@ -1,4 +1,8 @@
+import { RangeSlider } from "@/components/ui/slider";
+import { Toggle } from "@/components/ui/toggle";
+
 export const backgrounds = [
+  {},
   { id: "1", name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
   { id: "2", name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },
   { id: "3", name: 'Radial Dots', component: <span className="p-3"></span>, code: { js: "", ts: "" } },

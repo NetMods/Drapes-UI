@@ -2,6 +2,7 @@
 import { backgrounds } from "@/backgrounds"
 import { useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
+import { Toggle } from "@/components/ui/toggle"
 import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
 
@@ -40,7 +41,7 @@ export default function Page() {
       <div className="flex justify-between items-center p-1 text-base-content/70">
         <button
           className="font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={() => openSettingsSidebar(<span>ji</span>)}
+          onClick={() => background.settings ? openSettingsSidebar(background.settings) : {}}
         >
           Settings
         </button>
@@ -74,7 +75,6 @@ export default function Page() {
       <div className="inset-0 fixed top-0 left-0 -z-10">
         {background.component}
       </div>
-
     </div>
   )
 }
