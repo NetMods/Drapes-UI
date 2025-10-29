@@ -40,7 +40,7 @@ export default function Page() {
       <div className="flex justify-between items-center p-1 text-base-content/70">
         <button
           className="font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={() => openSettingsSidebar(<span>ji</span>)}
+          onClick={() => openSettingsSidebar(background.settings)}
         >
           Settings
         </button>
@@ -74,7 +74,6 @@ export default function Page() {
       <div className="inset-0 fixed top-0 left-0 -z-10">
         {background.component}
       </div>
-
     </div>
   )
 }
