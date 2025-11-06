@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "generate-codes": "NODE_NO_WARNINGS=1 pnpx ts-node backgrounds/generate-code-txt.ts",
-    "dev": "next dev --turbo",
-    "build": "next build",
+    "dev": "pnpm run generate-codes && next dev --turbo",
+    "build": "pnpm run generate-codes && next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"
@@ -29,6 +29,7 @@
     "@types/react-dom": "^19",
     "glob": "^11.0.3",
     "postcss": "^8.5.6",
+    "shiki": "^3.15.0",
     "typescript": "^5"
   }
 }

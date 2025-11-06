@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+/backgrounds/*/code.ts
 
 # dependencies
 /node_modules
@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+backgrounds/wave-gradient/code.ts
+backgrounds/wave-gradient/code.ts
+backgrounds/wave-gradient/code.ts
