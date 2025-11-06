@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
 import "./globals.css";
+
+import type { Metadata } from "next";
 import { fontMono, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
+import { BackgroundProvider } from "@/lib/background-context";
 
 export const metadata: Metadata = {
   title: "DrapesUI",
@@ -59,15 +61,17 @@ export default function RootLayout({
         >
           <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
 
-          <CodeSidebarProvider>
-            <SettingsSidebarProvider>
-              <div className="relative z-10 w-full h-full max-w-800 mx-auto">
-                {children}
-              </div>
-              <SettingsSidebar />
-              <CodeSidebar />
-            </SettingsSidebarProvider>
-          </CodeSidebarProvider>
+          <BackgroundProvider>
+            <CodeSidebarProvider>
+              <SettingsSidebarProvider>
+                <div className="relative z-10 w-full h-full max-w-800 mx-auto">
+                  {children}
+                </div>
+                <SettingsSidebar />
+                <CodeSidebar />
+              </SettingsSidebarProvider>
+            </CodeSidebarProvider>
+          </BackgroundProvider>
         </div>
       </body>
     </html>
