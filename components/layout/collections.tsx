@@ -36,7 +36,7 @@ export const Collections = () => {
                 <img src={config.thumbnail} className='rounded-2xl scale-110' />
               </div>
 
-              <div className="group-hover:-translate-y-28 bg-base-content/20 rounded-b-2xl p-2 border-t border-white/20 w-full absolute top-100"
+              <div className="group-hover:-translate-y-[5.9rem] bg-base-content/20 rounded-b-2xl p-2 border-t border-white/20 w-full top-100"
                 style={{
                   transitionProperty: "transform, border-radius",
                   transition: "ease-out",

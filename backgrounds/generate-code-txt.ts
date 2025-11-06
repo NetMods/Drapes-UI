@@ -13,7 +13,7 @@ export function generateUsageCode(
     })
     .join('\n');
 
-  return `import { ${componentName} } from '@/components/backgrounds';
+  return `import ${componentName} from '@/components/ui/background';
 
 export default function MyPage() {
   return (
@@ -67,7 +67,7 @@ const backgrounds = glob.sync('backgrounds/*/index.tsx');
 backgrounds.forEach(file => {
   console.log(`\n- Processing file: ${file}`);
 
-  let tsxCode: string = "\n";
+  let tsxCode: string = "";
   try {
     tsxCode += readFileSync(file, 'utf-8');
     console.log(`✓ Read TSX file (${tsxCode.trim().split('\n').length} lines)`);
@@ -76,7 +76,7 @@ backgrounds.forEach(file => {
     return;
   }
 
-  let jsxCode: string = "\n";
+  let jsxCode: string = "";
   try {
     jsxCode += convertTsToJs(tsxCode);
     console.log(`✓ Converted TSX → JSX`);
@@ -91,7 +91,7 @@ backgrounds.forEach(file => {
   console.log(`✓ Component Name: ${componentName}`);
 
   const configPath = join(dir, 'config.ts');
-  let usageCode = '\n';
+  let usageCode = '';
 
   if (!existsSync(configPath)) {
     console.warn(`⚠️ Config file not found: ${configPath}`);

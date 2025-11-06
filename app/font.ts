@@ -1,4 +1,4 @@
-import { JetBrains_Mono as FontMono, Baskervville as FontSerif, Instrument_Sans as FontSans } from "next/font/google";
+import { Martian_Mono as FontMono, Baskervville as FontSerif, Instrument_Sans as FontSans } from "next/font/google";
 
 export const fontMono = FontMono({
   subsets: ["latin"],
