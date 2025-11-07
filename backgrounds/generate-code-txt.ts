@@ -15,7 +15,7 @@ export function generateUsageCode(
 
   return `import ${componentName} from '@/components/ui/background';
 
-export default function MyPage() {
+export default function Page() {
   return (
     <div style={{ position: 'relative', minHeight: '100vh' }}>
       <${componentName}

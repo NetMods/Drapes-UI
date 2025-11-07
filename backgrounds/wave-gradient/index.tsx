@@ -7,6 +7,9 @@ interface WaveGradientProps {
   amplitude?: number;
   frequency?: number;
   speed?: number;
+  showWave?: boolean;
+  waveDirection?: 'leftToRight' | 'rightToLeft';
+  waveShape?: 'sine' | 'cosine' | 'triangle';
 }
 
 export default function WaveGradient({
@@ -15,6 +18,9 @@ export default function WaveGradient({
   amplitude = 50,
   frequency = 2,
   speed = 1,
+  showWave = true,
+  waveDirection = 'leftToRight',
+  waveShape = 'sine',
 }: WaveGradientProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -33,37 +39,70 @@ export default function WaveGradient({
 
     let animationId: number;
     let offset = 0;
+
+    // Helper function to generate wave y based on shape
+    const getWaveY = (x: number, height: number) => {
+      const base = (x * frequency + offset) * 0.01;
+      switch (waveShape) {
+        case 'cosine':
+          return height / 2 + Math.cos(base) * amplitude;
+        case 'triangle':
+          const period = 2 * Math.PI / frequency;
+          const normalizedX = (x % period) / period;
+          return height / 2 + (normalizedX < 0.5 ? normalizedX * 2 : 2 - normalizedX * 2) * amplitude;
+        default: // sine
+          return height / 2 + Math.sin(base) * amplitude;
+      }
+    };
+
     const animate = () => {
       if (!ctx || !canvas) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       // Create gradient
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
       gradient.addColorStop(0, color1);
       gradient.addColorStop(1, color2);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // Draw wave
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height / 2);
-      for (let x = 0; x < canvas.width; x++) {
-        const y = canvas.height / 2 + Math.sin((x * frequency + offset) * 0.01) * amplitude;
-        ctx.lineTo(x, y);
+
+      // Draw wave only if enabled
+      if (showWave) {
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+
+        // Reverse direction if rightToLeft
+        const startX = waveDirection === 'rightToLeft' ? canvas.width : 0;
+        const endX = waveDirection === 'rightToLeft' ? 0 : canvas.width;
+        const step = waveDirection === 'rightToLeft' ? -1 : 1;
+
+        for (let x = startX; x !== endX; x += step) {
+          const y = getWaveY(Math.abs(x), canvas.height);
+          ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(endX, canvas.height);
+        ctx.lineTo(startX, canvas.height);
+        ctx.closePath();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fill();
       }
-      ctx.lineTo(canvas.width, canvas.height);
-      ctx.lineTo(0, canvas.height);
-      ctx.closePath();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.fill();
-      offset += speed;
+
+      // Adjust offset based on direction
+      offset += (waveDirection === 'rightToLeft' ? -speed : speed);
+
       animationId = requestAnimationFrame(animate);
     };
+
     animate();
 
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationId);
     };
-  }, [color1, color2, amplitude, frequency, speed]);
+  }, [color1, color2, amplitude, frequency, speed, showWave, waveDirection, waveShape]);
 
   return (
     <canvas

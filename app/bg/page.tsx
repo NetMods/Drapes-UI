@@ -61,16 +61,27 @@ export default function Page() {
     router.replace(`?id=${newId}`)
   }
 
+  const handleSettingSidebar = () => {
+    const controlpanel = <ControlPanel controls={config.controls} />
+    openSettingsSidebar(controlpanel, handleCodeSidebar)
+  }
+
+  const handleCodeSidebar = () => {
+    const data = {
+      name: config.name,
+      usage: generateUsageCode(),
+      js: config.code.jsx,
+      ts: config.code.tsx,
+    }
+    openCodeSidebar(data, handleSettingSidebar)
+  }
+
   return (
     <div>
       <div className="flex justify-between items-center p-1 text-base-content/70">
         <button
           className="font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={() => openSettingsSidebar(
-            <ControlPanel
-              controls={config.controls}
-            />
-          )}
+          onClick={handleSettingSidebar}
         >
           Settings
         </button>
@@ -93,12 +104,7 @@ export default function Page() {
         </div>
         <button
           className="font-sans text-lg cursor-pointer  hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={() => openCodeSidebar({
-            name: config.name,
-            usage: generateUsageCode(),
-            js: config.code.jsx,
-            ts: config.code.tsx,
-          })}
+          onClick={handleCodeSidebar}
         >
           Code
         </button>

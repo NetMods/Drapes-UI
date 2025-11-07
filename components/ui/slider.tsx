@@ -7,9 +7,10 @@ interface RangeSliderProps {
   min: number;
   max: number;
   step?: number;
+  description: string | undefined;
 }
 
-export const RangeSlider = ({ label, min, max, step, onChange, value }: RangeSliderProps) => {
+export const RangeSlider = ({ label, min, max, step, onChange, value, description }: RangeSliderProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const sliderRef = useRef<HTMLDivElement | null>(null)
   const markerRef = useRef<HTMLDivElement | null>(null)
@@ -135,7 +136,7 @@ export const RangeSlider = ({ label, min, max, step, onChange, value }: RangeSli
       ref={containerRef}
     >
       <div
-        className="h-10 bg-base-content/30 w-0 absolute left-0 rounded-r-lg"
+        className="h-10 bg-base-content/20 w-0 absolute left-0 rounded-r-lg"
         ref={sliderRef}
       />
       <div
@@ -143,14 +144,14 @@ export const RangeSlider = ({ label, min, max, step, onChange, value }: RangeSli
         style={{ width: "2px" }}
         ref={markerRef}
       />
-      <span className="z-10 pointer-events-none text-base-content/80" ref={labelRef}>
+      <span className="z-10 pointer-events-none text-base-content/80 text-xs font-mono" ref={labelRef}>
         {label}
       </span>
       <div
-        className="group-hover:text-base-content z-10 flex flex-col items-center justify-center transitiona-all ease-linear"
+        className="group-hover:text-base-content font-mono text-[0.8rem] z-10 flex flex-col items-center justify-center transitiona-all ease-linear"
         ref={valueRef}
       >
-        {currentValue}
+        {Math.round(currentValue)}
       </div>
     </div>
   )

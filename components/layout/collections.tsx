@@ -33,7 +33,10 @@ export const Collections = () => {
           >
             <div className={`size-full bg-base-content/20 rounded-2xl overflow-hidden group border border-white/20`} >
               <div className='size-full object-cover flex'>
-                <img src={config.thumbnail} className='rounded-2xl scale-110' />
+                <img
+                  src={config.thumbnail} className='rounded-2xl scale-110'
+                  onClick={() => router.push(`/bg?id=${config.id}`)}
+                />
               </div>
 
               <div className="group-hover:-translate-y-[5.9rem] bg-base-content/20 rounded-b-2xl p-2 border-t border-white/20 w-full top-100"

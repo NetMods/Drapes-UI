@@ -1,74 +1,69 @@
-import React from 'react';
-import { Control } from '@/lib/types';
-import { useBackgroundProps } from '@/lib/background-context';
+import { useBackgroundProps } from "@/lib/background-context";
+import { ColorPicker } from "./color-picker";
+import { Select } from "./select";
+import { RangeSlider } from "./slider";
+import { Toggle } from "./toggle";
 
-interface ControlPanelProps {
-  controls: Control[];
+interface Control {
+  type: 'slider' | 'color' | 'toggle' | 'select';
+  key: string;
+  label: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: string[];
+  description?: string;
 }
 
-export const ControlPanel: React.FC<ControlPanelProps> = ({ controls }) => {
+export const ControlPanel = ({ controls }: { controls: Control[] }) => {
+
   const { props: values, updateProp } = useBackgroundProps();
 
   const renderControl = (control: Control) => {
     switch (control.type) {
       case 'slider':
         return (
-          <div key={control.key} className="control-group">
-            <label>
-              {control.label}
-              <span>{values[control.key]}</span>
-            </label>
-            <input
-              type="range"
-              min={control.min}
-              max={control.max}
-              step={control.step}
-              value={values[control.key]}
-              onChange={(e) => updateProp(control.key, parseFloat(e.target.value))}
-            />
-            {control.description && <small>{control.description}</small>}
-          </div>
+          <RangeSlider
+            key={control.key}
+            label={control.label}
+            min={control.min ?? 0}
+            max={control.max ?? 100}
+            step={control.step}
+            value={values[control.key]}
+            onChange={(value) => updateProp(control.key, value)}
+            description={control.description}
+          />
         );
       case 'color':
         return (
-          <div key={control.key} className="control-group">
-            <label>{control.label}</label>
-            <input
-              type="color"
-              value={values[control.key]}
-              onChange={(e) => updateProp(control.key, e.target.value)}
-            />
-            {control.description && <small>{control.description}</small>}
-          </div>
+          <ColorPicker
+            key={control.key}
+            label={control.label}
+            value={values[control.key]}
+            onChange={(value) => updateProp(control.key, value)}
+            description={control.description}
+          />
         );
       case 'toggle':
         return (
-          <div key={control.key} className="control-group">
-            <label>
-              <input
-                type="checkbox"
-                checked={values[control.key]}
-                onChange={(e) => updateProp(control.key, e.target.checked)}
-              />
-              {control.label}
-            </label>
-            {control.description && <small>{control.description}</small>}
-          </div>
+          <Toggle
+            key={control.key}
+            label={control.label}
+            value={values[control.key]}
+            onChange={(value) => updateProp(control.key, value)}
+            description={control.description}
+          />
         );
       case 'select':
         return (
-          <div key={control.key} className="control-group">
-            <label>{control.label}</label>
-            <select
-              value={values[control.key]}
-              onChange={(e) => updateProp(control.key, e.target.value)}
-            >
-              {control.options?.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
-            {control.description && <small>{control.description}</small>}
-          </div>
+          <Select
+            key={control.key}
+            label={control.label}
+            value={values[control.key]}
+            onChange={(value) => updateProp(control.key, value)}
+            options={control.options ?? []}
+            description={control.description}
+          />
         );
       default:
         return null;
@@ -76,7 +71,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ controls }) => {
   };
 
   return (
-    <div className="control-panel">
+    <div className="flex flex-col gap-2 bg-base-200/30 p-2 rounded-lg">
       {controls.map(renderControl)}
     </div>
   );

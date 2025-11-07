@@ -33,7 +33,7 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
     <div className='bg-base-100/30 rounded-lg'>
       <div className='flex justify-between items-center pl-4 p-2 bg-base-100/30 rounded-t-lg'>
         {filename &&
-          <div className="text-xs font-medium font-mono ">
+          <div className="text-xs font-medium font-mono">
             {filename.split('/').map((item, i, arr) => (
               <span key={i} className='inline-flex justify-center items-center'>
                 <span

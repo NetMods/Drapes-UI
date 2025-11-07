@@ -20,7 +20,7 @@ export interface BackgroundConfig {
 export interface Control {
   key: string;
   label: string;
-  type: 'slider' | 'color' | 'select' | 'toggle' | 'number';
+  type: 'slider' | 'color' | 'select' | 'toggle';
   min?: number;
   max?: number;
   step?: number;
