@@ -4,7 +4,7 @@ import { registry } from '@/lib/registry';
 import { ControlPanel } from '@/components/ui/control-panel';
 import { useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
-import { ArrowLeftIcon, ArrowRightIcon } from "@phosphor-icons/react"
+import { GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect } from "react";
 import { useBackgroundProps } from '@/lib/background-context';
@@ -78,40 +78,77 @@ export default function Page() {
 
   return (
     <div>
-      <div className="flex justify-between items-center p-1 text-base-content/70">
-        <button
-          className="font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={handleSettingSidebar}
-        >
-          Settings
-        </button>
+      <div className="flex justify-between items-center p-1 text-base-content/70 max-sm:justify-center">
+        <SettingsButton action={handleSettingSidebar} className='max-sm:hidden' />
+
         <div className="flex justify-center gap-3 items-center">
-          <button
-            onClick={handleLeft}
-            className="enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed"
-            disabled={currentId === 1}
-          >
-            <ArrowLeftIcon size={25} weight="bold" />
-          </button>
+          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden' />
           <span className="font-serif text-3xl">{config.name}</span>
-          <button
-            onClick={handleRight}
-            className="enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed"
-            disabled={currentId === totalBackground}
-          >
-            <ArrowRightIcon size={25} weight="bold" />
-          </button>
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden' />
         </div>
-        <button
-          className="font-sans text-lg cursor-pointer  hover:bg-base-content/20 p-2 rounded-sm transition-colors"
-          onClick={handleCodeSidebar}
-        >
-          Code
-        </button>
+
+        <CodeButton action={handleCodeSidebar} className='max-sm:hidden' />
       </div>
+
       <div className="inset-0 fixed top-0 left-0 -z-10">
         <Component {...props} />
       </div>
+
+      <LeftButton action={handleLeft} isDisabled={currentId === 1} className='fixed top-1/2 translate-y-[-50%]' />
+      <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='fixed top-1/2 right-0 translate-y-[-50%]' />
+
+      <div className='border border-white/30 rounded-xl fixed bottom-4 left-1/2 translate-x-[-50%] text-base-content/70 sm:hidden bg-white/10 backdrop-blur-lg'>
+        <SettingsButton action={handleSettingSidebar} />
+        <CodeButton action={handleCodeSidebar} />
+      </div>
     </div>
+  )
+}
+
+const LeftButton = ({ action, isDisabled, className }: { action: () => void, isDisabled: boolean, className?: string }) => {
+  return (
+    <button
+      onClick={action}
+      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed ${className}`}
+      disabled={isDisabled}
+    >
+      <ArrowLeftIcon size={25} weight="bold" />
+    </button>
+  )
+}
+
+const RightButton = ({ action, isDisabled, className }: { action: () => void, isDisabled: boolean, className?: string }) => {
+  return (
+    <button
+      onClick={action}
+      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed ${className}`}
+      disabled={isDisabled}
+    >
+      <ArrowRightIcon size={25} weight="bold" />
+    </button>
+  )
+}
+
+const SettingsButton = ({ action, className }: { action: () => void, className?: string }) => {
+  return (
+    <button
+      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors ${className}`}
+      onClick={action}
+    >
+      <span className='block md:hidden'> <GearIcon weight='bold' size={23} /> </span>
+      <span className='md:block hidden'> Settings </span>
+    </button>
+  )
+}
+
+const CodeButton = ({ action, className }: { action: () => void, className?: string }) => {
+  return (
+    <button
+      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors ${className}`}
+      onClick={action}
+    >
+      <span className='block md:hidden'> <CodeIcon size={23} weight='bold' /> </span>
+      <span className='md:block hidden'> Code </span>
+    </button>
   )
 }

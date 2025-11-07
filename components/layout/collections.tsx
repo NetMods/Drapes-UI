@@ -31,7 +31,7 @@ export const Collections = () => {
             className={`relative w-full h-96 overflow-hidden ${index % 2 === 0 ? 'justify-self-end' : 'justify-self-start'}`}
             key={index}
           >
-            <div className={`size-full bg-base-content/20 rounded-2xl overflow-hidden group border border-white/20`} >
+            <div className={`size-full bg-base-content/20 rounded-2xl overflow-hidden group  border-white/50`} >
               <div className='size-full object-cover flex'>
                 <img
                   src={config.thumbnail} className='rounded-2xl scale-110'

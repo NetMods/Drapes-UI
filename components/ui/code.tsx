@@ -69,7 +69,10 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
       </div >
 
       <div
-        className=" overflow-hidden rounded text-sm [&>pre]:overflow-x-auto [&>pre]:bg-transparent! [&>pre]:py-3 [&>pre]:pl-4 [&>pre]:pr-5 [&>pre]:leading-snug [&_code]:block [&_code]:w-fit [&_code]:min-w-full"
+        className="overflow-hidden rounded text-sm [&>pre]:overflow-x-auto [&>pre]:bg-transparent! [&>pre]:py-3
+        [&>pre]:pl-4 [&>pre]:pr-5 [&>pre]:leading-snug [&_code]:block [&_code]:w-fit [&_code]:min-w-full
+        sm:max-w-[500px]
+        "
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div >

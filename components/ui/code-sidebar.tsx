@@ -5,6 +5,7 @@ import { PuzzlePieceIcon, FileTsxIcon, FileJsxIcon, XIcon, GearIcon } from '@pho
 import { usePathname } from 'next/navigation';
 import Code from './code';
 import { CodeIcon } from '@phosphor-icons/react/dist/ssr';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface CodeSidebarData {
   name: string;
@@ -17,7 +18,7 @@ interface CodeSidebarContextType {
   isOpen: boolean;
   data: CodeSidebarData | null;
   settingsOpener: (() => void) | null;
-  openCodeSidebar: (data: CodeSidebarData, SettingsSidebarHelper: () => void) => void;
+  openCodeSidebar: (data: CodeSidebarData, SettingsSidebarHelper?: () => void) => void;
   closeCodeSidebar: () => void;
 }
 
@@ -28,7 +29,7 @@ export function CodeSidebarProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<CodeSidebarData | null>(null);
   const [settingsOpener, setSettingsOpener] = useState<(() => void) | null>(null);
 
-  const openCodeSidebar = (newData: CodeSidebarData, SettingsSidebarHelper: () => void) => {
+  const openCodeSidebar = (newData: CodeSidebarData, SettingsSidebarHelper?: () => void) => {
     setSettingsOpener(() => SettingsSidebarHelper);
     setData(newData);
     setIsOpen(true);
@@ -64,22 +65,25 @@ export function CodeSidebar() {
   const { isOpen, data, closeCodeSidebar, settingsOpener } = useCodeSidebar();
   const [activeTab, setActiveTab] = useState('ts');
   const pathname = usePathname();
+  const { isMobile } = useMediaQuery()
 
   return (
     <Drawer.Root
       open={isOpen}
       onOpenChange={(open) => !open && closeCodeSidebar()}
-      direction="right"
+      direction={isMobile ? "bottom" : "right"}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-base-200/30 z-200" />
         <Drawer.Content
           data-vaul-no-drag
-          className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col rounded-l-[10px] h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/3 mt-24 fixed bottom-0 right-0 text-base-content"
+          className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
+          sm:rounded-l-[10px] rounded-t-[10px] h-2/3 sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/3
+          mt-24 fixed bottom-0 right-0 text-base-content"
         >
           <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
-              <span className='text-4xl font-serif inline-flex justify-center items-center gap-2'>
+              <span className='text-3xl sm:text-4xl font-serif inline-flex justify-center items-center gap-2'>
                 <CodeIcon />
                 {pathname === '/' ? data?.name : "Code"}
               </span>
@@ -112,7 +116,7 @@ export function CodeSidebar() {
               </div>
               <div className='relative mt-1'>
                 {data &&
-                  <Code lang='javascript' filename='app/page.tsx'>
+                  <Code lang='javascript' filename='app/page.jsx'>
                     {data?.usage}
                   </Code>
                 }
@@ -127,7 +131,7 @@ export function CodeSidebar() {
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}
                 >
-                  <FileTsxIcon size={20} />
+                  <FileTsxIcon size={20} className='shrink-0' />
                   Typescript
                 </button>
                 <button
@@ -137,13 +141,13 @@ export function CodeSidebar() {
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}
                 >
-                  <FileJsxIcon size={20} />
+                  <FileJsxIcon size={20} className='shrink-0' />
                   Javascript
                 </button>
               </div>
               <div className='relative'>
                 {data && (activeTab === 'js'
-                  ? <Code lang='javascript' filename='app/components/ui/background.tsx'>{data.js}</Code>
+                  ? <Code lang='javascript' filename='app/components/ui/background.jsx'>{data.js}</Code>
                   : <Code lang='typescript' filename='app/components/ui/background.tsx'>{data.ts}</Code>
                 )}
               </div>
@@ -154,18 +158,3 @@ export function CodeSidebar() {
     </Drawer.Root>
   );
 }
-
-/*
-{settingsOpener && (
-  <button
-    className="flex justify-center items-center gap-2 px-2 py-1 text-sm rounded-lg bg-base-content/10
-  border border-base-content/20 font-medium text-base-content cursor-pointer"
-    onClick={() => {
-      settingsOpener();
-      closeCodeSidebar();
-    }}
-  >
-    Configure
-  </button>
-)}
-*/

@@ -2,6 +2,7 @@
 import { Drawer } from 'vaul';
 import { createContext, useContext, useState, ReactNode, ReactElement } from 'react';
 import { XIcon, GearIcon, CodeIcon } from '@phosphor-icons/react';
+import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface SettingsSidebarContextType {
   isOpen: boolean;
@@ -52,21 +53,24 @@ export function useSettingsSidebar() {
 
 export function SettingsSidebar() {
   const { isOpen, settingsComponent, closeSettingsSidebar, codeSidebarOpener } = useSettingsSidebar();
+  const { isMobile } = useMediaQuery()
 
   return (
     <Drawer.Root
       open={isOpen}
       onOpenChange={(open) => !open && closeSettingsSidebar()}
-      direction="left"
+      direction={isMobile ? "bottom" : "left"}
     >
       <Drawer.Portal>
         <Drawer.Content
           data-vaul-no-drag
-          className=" bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col rounded-r-[10px] h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 mt-24 fixed bottom-0 left-0 text-base-content"
+          className=" bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
+          sm:rounded-r-[10px] h-2/3 rounded-t-[10px] sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 mt-24 fixed bottom-0
+          left-0 text-base-content"
         >
           <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
-              <span className='text-4xl font-serif inline-flex justify-center items-center gap-1'>
+              <span className='text-3xl sm:text-4xl font-serif inline-flex justify-center items-center gap-1'>
                 <GearIcon />
                 Settings
               </span>
@@ -99,20 +103,3 @@ export function SettingsSidebar() {
     </Drawer.Root>
   );
 }
-
-/*
-{codeSidebarOpener && (
-  <button
-    className="inline-flex w-full gap-2 justify-center items-center border border-base-content/10 
-    cursor-pointer p-1 rounded-lg bg-base-content/10 transition-all ease-linear
-    mt-2
-    "
-    onClick={() => {
-      codeSidebarOpener();
-      closeSettingsSidebar();
-    }}
-  >
-    Show Code
-  </button>
-)}
-*/
