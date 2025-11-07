@@ -31,9 +31,9 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
 
   return (
     <div className='bg-base-100/30 rounded-lg'>
-      <div className='flex justify-between items-center pl-4 p-2 bg-base-100/30 rounded-t-lg'>
+      <div className='flex justify-between items-center px-4 py-1.5 pb-1 bg-base-100/30 rounded-t-lg border-b border-white/25'>
         {filename &&
-          <div className="text-xs font-medium font-mono">
+          <div className="text-[0.70rem] sm:text-xs font-medium font-mono">
             {filename.split('/').map((item, i, arr) => (
               <span key={i} className='inline-flex justify-center items-center'>
                 <span

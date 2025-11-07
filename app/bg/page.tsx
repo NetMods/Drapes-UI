@@ -4,9 +4,9 @@ import { registry } from '@/lib/registry';
 import { ControlPanel } from '@/components/ui/control-panel';
 import { useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
-import { GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
+import { CaretUpIcon, GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useBackgroundProps } from '@/lib/background-context';
 
 export default function Page() {
@@ -28,7 +28,7 @@ export default function Page() {
   if (!currentId || !entry) {
     return (
       <div className=" flex justify-center items-center text-base-content/80 font-sans font-semibold text-xl min-h-screen">
-        Get your ass off from this website. you insect !!
+        No background available with this id.
       </div>
     )
   }
@@ -94,13 +94,20 @@ export default function Page() {
         <Component {...props} />
       </div>
 
-      <LeftButton action={handleLeft} isDisabled={currentId === 1} className='fixed top-1/2 translate-y-[-50%]' />
-      <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='fixed top-1/2 right-0 translate-y-[-50%]' />
-
-      <div className='border border-white/30 rounded-xl fixed bottom-4 left-1/2 translate-x-[-50%] text-base-content/70 sm:hidden bg-white/10 backdrop-blur-lg'>
-        <SettingsButton action={handleSettingSidebar} />
-        <CodeButton action={handleCodeSidebar} />
-      </div>
+      <LeftButton
+        action={handleLeft}
+        isDisabled={currentId === 1}
+        className='fixed top-1/2 translate-y-[-50%]'
+      />
+      <RightButton
+        action={handleRight}
+        isDisabled={currentId === totalBackground}
+        className='fixed top-1/2 right-0 translate-y-[-50%]'
+      />
+      <MobileControls
+        handleSettingSidebar={handleSettingSidebar}
+        handleCodeSidebar={handleCodeSidebar}
+      />
     </div>
   )
 }
@@ -150,5 +157,33 @@ const CodeButton = ({ action, className }: { action: () => void, className?: str
       <span className='block md:hidden'> <CodeIcon size={23} weight='bold' /> </span>
       <span className='md:block hidden'> Code </span>
     </button>
+  )
+}
+
+const MobileControls = ({ handleSettingSidebar, handleCodeSidebar }: { handleSettingSidebar: () => void; handleCodeSidebar: () => void }) => {
+  const [isClicked, setIsClicked] = useState(false);
+
+  return (
+    <div className='border border-white/30 rounded-xl fixed bottom-4 left-1/2 translate-x-[-50%] text-base-content/70
+      sm:hidden bg-white/10 backdrop-blur-lg
+    '>
+      {!isClicked && (
+        <CaretUpIcon className='left-1/2 translate-x-[-50%] top-[-25] animate-bounce absolute' weight='bold' size={24} />
+      )}
+
+      <SettingsButton
+        action={() => {
+          handleSettingSidebar();
+          setIsClicked(true);
+        }}
+      />
+
+      <CodeButton
+        action={() => {
+          handleCodeSidebar();
+          setIsClicked(true);
+        }}
+      />
+    </div>
   )
 }
