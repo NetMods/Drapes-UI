@@ -10,6 +10,8 @@ import WaveGradient from './wave-gradient';
 import Confetti from './confetti'
 import Hexagons from './hexagons/'
 import FestivalLight from './festival-lights';
+import Spirals from './spirals'
+import NoiseFlow from './noise-flow'
 
 
 //import config
@@ -17,6 +19,8 @@ import waveGradientConfig from './wave-gradient/config';
 import confettiConfig from './confetti/config'
 import hexagonsConfig from './hexagons/config'
 import festivalLightConfig from './festival-lights/config';
+import spiralConfig from './spirals/config'
+import noiseFlowConfig from './noise-flow/config'
 
 const registerEntry: BackgroundEntry[] = [
   {
@@ -34,6 +38,14 @@ const registerEntry: BackgroundEntry[] = [
   {
     config: festivalLightConfig,
     component: FestivalLight
+  },
+  {
+    config: spiralConfig,
+    component: Spirals
+  },
+  {
+    config: noiseFlowConfig,
+    component: NoiseFlow
   }
 ]
 

@@ -159,7 +159,7 @@ class Particle {
 }
 
 const FlowFieldParticles = ({
-  backgroundColor = '#eee9e9',
+  backgroundColor = 'black',
   particleNum = 1000,
   step = 5,
   base = 1000,
@@ -287,19 +287,18 @@ const FlowFieldParticles = ({
   }, [backgroundColor, particleNum, step, base, zInc]);
 
   return (
-    <div className="h-screen w-screen" style={{ backgroundColor: '#eee9e9' }}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          cursor: 'pointer',
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        cursor: 'pointer',
+        backgroundColor
+      }}
+    />
   );
 };
 
