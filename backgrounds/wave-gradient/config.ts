@@ -7,7 +7,6 @@ export default {
   description: 'Smooth animated wave patterns with gradient colors',
   author: 'John',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     color1: '#6366f1',
     color2: '#8b5cf6',
