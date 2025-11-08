@@ -1,3 +1,4 @@
+import { roundToDecimalPlaces } from "@/lib/utils";
 import { useEffect, useRef, useState, useCallback } from "react"
 
 interface RangeSliderProps {
@@ -151,7 +152,7 @@ export const RangeSlider = ({ label, min, max, step, onChange, value, descriptio
         className="group-hover:text-base-content font-mono text-[0.8rem] z-10 flex flex-col items-center justify-center transitiona-all ease-linear"
         ref={valueRef}
       >
-        {Math.round(currentValue)}
+        {roundToDecimalPlaces(currentValue, 2)}
       </div>
     </div>
   )

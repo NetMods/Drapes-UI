@@ -5,7 +5,7 @@ export default {
   id: '1',
   name: 'Wave Gradient',
   description: 'Smooth animated wave patterns with gradient colors',
-  author: 'John',
+  author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
   thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {

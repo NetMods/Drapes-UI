@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-codes": "NODE_NO_WARNINGS=1 pnpx ts-node backgrounds/generate-code-txt.ts",
+    "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code-txt.ts",
     "dev": "pnpm run generate-codes && next dev --turbo",
     "build": "pnpm run generate-codes && next build",
     "start": "next start",
@@ -30,6 +30,8 @@
     "glob": "^11.0.3",
     "postcss": "^8.5.6",
     "shiki": "^3.15.0",
+    "tsx": "^4.20.6",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
 }
