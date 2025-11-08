@@ -1,10 +1,10 @@
 "use client";
 import { Drawer } from 'vaul';
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { PuzzlePieceIcon, FileTsxIcon, FileJsxIcon, XIcon, GearIcon } from '@phosphor-icons/react';
 import { usePathname } from 'next/navigation';
 import Code from './code';
-import { CodeIcon } from '@phosphor-icons/react/dist/ssr';
+import { CodeIcon, EyeIcon } from '@phosphor-icons/react/dist/ssr';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 interface CodeSidebarData {
@@ -14,11 +14,16 @@ interface CodeSidebarData {
   ts: string;
 }
 
+interface Opener {
+  type: 'settings' | 'preview';
+  callback: () => void;
+}
+
 interface CodeSidebarContextType {
   isOpen: boolean;
   data: CodeSidebarData | null;
-  settingsOpener: (() => void) | null;
-  openCodeSidebar: (data: CodeSidebarData, SettingsSidebarHelper?: () => void) => void;
+  opener: Opener | null;
+  openCodeSidebar: (data: CodeSidebarData, openerHelper?: Opener) => void;
   closeCodeSidebar: () => void;
 }
 
@@ -27,24 +32,31 @@ const CodeSidebarContext = createContext<CodeSidebarContextType | undefined>(und
 export function CodeSidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<CodeSidebarData | null>(null);
-  const [settingsOpener, setSettingsOpener] = useState<(() => void) | null>(null);
+  const [opener, setOpener] = useState<Opener | null>(null);
 
-  const openCodeSidebar = (newData: CodeSidebarData, SettingsSidebarHelper?: () => void) => {
-    setSettingsOpener(() => SettingsSidebarHelper);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+    setOpener(null);
+  }, [pathname]);
+
+  const openCodeSidebar = (newData: CodeSidebarData, openerHelper?: Opener) => {
+    setOpener(openerHelper || null);
     setData(newData);
     setIsOpen(true);
   };
 
   const closeCodeSidebar = () => {
     setIsOpen(false);
-    setSettingsOpener(null);
+    setOpener(null);
   };
 
   return (
     <CodeSidebarContext.Provider value={{
       isOpen,
       data,
-      settingsOpener,
+      opener,
       openCodeSidebar,
       closeCodeSidebar
     }}>
@@ -56,16 +68,16 @@ export function CodeSidebarProvider({ children }: { children: ReactNode }) {
 export function useCodeSidebar() {
   const context = useContext(CodeSidebarContext);
   if (context === undefined) {
-    throw new Error('useSidebar must be used within a SidebarProvider');
+    throw new Error('useCodeSidebar must be used within a CodeSidebarProvider');
   }
   return context;
 }
 
 export function CodeSidebar() {
-  const { isOpen, data, closeCodeSidebar, settingsOpener } = useCodeSidebar();
+  const { isOpen, data, closeCodeSidebar, opener } = useCodeSidebar();
   const [activeTab, setActiveTab] = useState('ts');
   const pathname = usePathname();
-  const { isMobile } = useMediaQuery()
+  const { isMobile } = useMediaQuery();
 
   return (
     <Drawer.Root
@@ -78,25 +90,29 @@ export function CodeSidebar() {
         <Drawer.Content
           data-vaul-no-drag
           className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
-          sm:rounded-l-[10px] rounded-t-[10px] h-2/3 sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/3
-          mt-24 fixed bottom-0 right-0 text-base-content"
+          sm:rounded-l-[10px] max-sm:rounded-t-[10px] h-2/3 sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/3
+          mt-24 fixed bottom-0 right-0 text-base-content scrollbar"
         >
-          <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
+          <div className="p-4 pt-0 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
-              <span className='text-3xl sm:text-4xl font-serif inline-flex justify-center items-center gap-2'>
+              <span className='text-3xl sm:text-4xl font-serif inline-flex justify-center items-center gap-2 mt-4'>
                 <CodeIcon />
                 {pathname === '/' ? data?.name : "Code"}
               </span>
               <div className="flex items-center gap-2">
-                {settingsOpener && (
+                {opener && (
                   <button
                     onClick={() => {
-                      settingsOpener();
+                      opener.callback();
                       closeCodeSidebar();
                     }}
                     className="text-white cursor-pointer p-1 rounded-lg bg-base-content/20 border border-base-content/20 transition-colors hover:bg-base-content/30"
                   >
-                    <GearIcon size={17} weight='bold' />
+                    {opener.type === 'settings' ? (
+                      <GearIcon size={17} weight='bold' />
+                    ) : (
+                      <EyeIcon size={17} weight='bold' />
+                    )}
                   </button>
                 )}
                 <button
@@ -115,18 +131,18 @@ export function CodeSidebar() {
                 </div>
               </div>
               <div className='relative mt-1'>
-                {data &&
+                {data && (
                   <Code lang='javascript' filename='app/page.jsx'>
                     {data?.usage}
                   </Code>
-                }
+                )}
               </div>
             </div>
             <div className='mt-4'>
               <div className="flex w-full mb-4 font-sans">
                 <button
                   onClick={() => setActiveTab('ts')}
-                  className={`max-sm:text-xs flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-l-lg transition-colors ${activeTab === 'ts'
+                  className={`max-sm:text-[0.9rem] flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-l-lg transition-colors ${activeTab === 'ts'
                     ? 'bg-base-content/20 text-base-content border border-base-content/20 inset-shadow-2xs'
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}
@@ -136,7 +152,7 @@ export function CodeSidebar() {
                 </button>
                 <button
                   onClick={() => setActiveTab('js')}
-                  className={`max-sm:text-xs flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-r-lg transition-colors ${activeTab === 'js'
+                  className={`max-sm:text-[0.9rem] flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-r-lg transition-colors ${activeTab === 'js'
                     ? 'bg-base-content/20 text-base-content border border-base-content/20'
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}

@@ -73,7 +73,7 @@ export default function Page() {
       js: config.code.jsx,
       ts: config.code.tsx,
     }
-    openCodeSidebar(data, handleSettingSidebar)
+    openCodeSidebar(data, { type: "settings", callback: handleSettingSidebar })
   }
 
   return (

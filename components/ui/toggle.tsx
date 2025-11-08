@@ -28,7 +28,7 @@ export const Toggle = ({ label, value, onChange, description }: ToggleProps) => 
           {label}
           <Tooltip description={description} />
         </label>
-        <div>
+        <div className='flex justify-center items-center gap-1'>
           <button
             type="button"
             role="switch"

@@ -69,6 +69,7 @@ export default {
       max: 200,
       step: 5,
       defaultValue: 50,
+      description: 'Shape of the wave pattern',
     },
     {
       key: 'frequency',
@@ -78,6 +79,7 @@ export default {
       max: 5,
       step: 0.1,
       defaultValue: 2,
+      description: 'Shape of the wave pattern',
     },
     {
       key: 'speed',
@@ -86,6 +88,7 @@ export default {
       min: 0,
       max: 3,
       step: 0.1,
+      description: 'Shape of the wave pattern',
       defaultValue: 1,
     },
   ],

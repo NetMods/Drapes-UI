@@ -13,13 +13,17 @@ export const Collections = () => {
   const backgrounds = registry.getAll();
 
   const { openCodeSidebar } = useCodeSidebar()
+
+  const OpenPreview = (id: string) => router.push(`/bg?id=${id}`);
+
   const handleShowCode = (item: BackgroundConfig) => {
-    openCodeSidebar({
+    const data = {
       name: item.name,
       usage: item.code.usage,
       ts: item.code.tsx,
       js: item.code.jsx
-    });
+    }
+    openCodeSidebar(data, { type: "preview", callback: () => OpenPreview(item.id) })
   };
 
   return (
@@ -35,7 +39,7 @@ export const Collections = () => {
               <div className='size-full object-cover flex'>
                 <img
                   src={config.thumbnail} className='rounded-2xl scale-110 '
-                  onClick={() => router.push(`/bg?id=${config.id}`)}
+                  onClick={() => OpenPreview(config.id)}
                 />
               </div>
 

@@ -1,8 +1,9 @@
 "use client";
 import { Drawer } from 'vaul';
-import { createContext, useContext, useState, ReactNode, ReactElement } from 'react';
+import { createContext, useContext, useState, ReactNode, ReactElement, useEffect } from 'react';
 import { XIcon, GearIcon, CodeIcon } from '@phosphor-icons/react';
 import { useMediaQuery } from '@/hooks/use-media-query';
+import { usePathname } from 'next/navigation';
 
 interface SettingsSidebarContextType {
   isOpen: boolean;
@@ -18,6 +19,13 @@ export function SettingsSidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [settingsComponent, setSettingsComponent] = useState<ReactElement | null>(null);
   const [codeSidebarOpener, setCodeSidebarOpener] = useState<(() => void) | null>(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+    setSettingsComponent(null);
+    setCodeSidebarOpener(null);
+  }, [pathname]);
 
   const openSettingsSidebar = (component: ReactElement, CodeSidebarHelper: () => void) => {
     setCodeSidebarOpener(() => CodeSidebarHelper);
@@ -54,7 +62,6 @@ export function useSettingsSidebar() {
 export function SettingsSidebar() {
   const { isOpen, settingsComponent, closeSettingsSidebar, codeSidebarOpener } = useSettingsSidebar();
   const { isMobile } = useMediaQuery()
-
   return (
     <Drawer.Root
       open={isOpen}
@@ -65,8 +72,8 @@ export function SettingsSidebar() {
         <Drawer.Content
           data-vaul-no-drag
           className=" bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
-          sm:rounded-r-[10px] h-2/3 rounded-t-[10px] sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 mt-24 fixed bottom-0
-          left-0 text-base-content"
+          sm:rounded-r-[10px] h-2/3 max-sm:rounded-t-[10px] sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 mt-24 fixed bottom-0
+          left-0 text-base-content scrollbar"
         >
           <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
