@@ -215,20 +215,18 @@ const Page = ({
   ]);
 
   return (
-    <div className='h-screen w-screen'>
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: backgroundColor,
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: backgroundColor,
+      }}
+    />
   );
 }
 
-export default Page
+export default Page 

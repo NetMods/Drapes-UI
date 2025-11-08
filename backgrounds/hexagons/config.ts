@@ -3,7 +3,7 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '3',
-  name: 'Glowing Heaxagons',
+  name: 'Glowing Hexagons',
   description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],

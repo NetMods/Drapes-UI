@@ -9,12 +9,14 @@ interface BackgroundEntry {
 import WaveGradient from './wave-gradient';
 import Confetti from './confetti'
 import Hexagons from './hexagons/'
+import FestivalLight from './festival-lights';
 
 
 //import config
 import waveGradientConfig from './wave-gradient/config';
 import confettiConfig from './confetti/config'
 import hexagonsConfig from './hexagons/config'
+import festivalLightConfig from './festival-lights/config';
 
 const registerEntry: BackgroundEntry[] = [
   {
@@ -28,6 +30,10 @@ const registerEntry: BackgroundEntry[] = [
   {
     config: hexagonsConfig,
     component: Hexagons
+  },
+  {
+    config: festivalLightConfig,
+    component: FestivalLight
   }
 ]
 

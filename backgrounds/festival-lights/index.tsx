@@ -2,11 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-interface FestivalLightsProps {
-  numberOfCircles: number;
-  backgroundGradientStart: string;
-  backgroundGradientEnd: string
-}
+
 type Entrance = 'bottomRight' | 'bottomCenter' | 'bottomLeft';
 
 function rndNum(max: number, min: number = 0, floor: boolean = false) {
@@ -156,8 +152,18 @@ class Circle {
   }
 }
 
+
+interface FestivalLightsProps {
+  numberOfCircles: number;
+  radiusMultiplier: number;
+  backgroundGradientStart: string,
+  backgroundGradientEnd: string
+}
+
+
 const FestivalLight = ({
   numberOfCircles = 50,
+  radiusMultiplier = 3,
   backgroundGradientStart = "#1a0003",
   backgroundGradientEnd = '#d58801'
 }: FestivalLightsProps) => {
@@ -170,13 +176,11 @@ const FestivalLight = ({
     if (!ctx) return;
 
     const resizeCanvas = () => {
-      // optional: scale for devicePixelRatio if you want crisper canvas
       const dpr = window.devicePixelRatio || 1;
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
-      // reset transform so drawings use CSS pixels
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resizeCanvas();
@@ -226,7 +230,7 @@ const FestivalLight = ({
         ],
       ];
       const targetGrd = possibleGradients[rndNum(possibleGradients.length, 0, true)];
-      const radius = rndNum(Math.min(canvas!.offsetWidth, canvas!.offsetHeight) / 3, Math.min(canvas!.offsetWidth, canvas!.offsetHeight) / 4);
+      const radius = rndNum(Math.min(canvas!.offsetWidth, canvas!.offsetHeight) / radiusMultiplier, Math.min(canvas!.offsetWidth, canvas!.offsetHeight) / (radiusMultiplier + 1));
 
       const circle = new Circle(
         targetEntrance,
@@ -241,15 +245,12 @@ const FestivalLight = ({
       circles.push(circle);
     }
 
-    // Pre-populate so animation starts immediately
     for (let i = 0; i < numberOfCircles; i++) addNewCircle();
 
-    // If you prefer staggered spawn, you can replace the above for-loop with an interval that adds while circles.length < numberOfCircles.
     let addingInterval = window.setInterval(() => {
       if (circles.length < numberOfCircles) {
         addNewCircle();
       } else {
-        // stop interval once we've reached target
         clearInterval(addingInterval);
       }
     }, 300);
@@ -269,7 +270,7 @@ const FestivalLight = ({
       cancelAnimationFrame(rafId);
       clearInterval(addingInterval);
     };
-  }, [numberOfCircles]);
+  }, [numberOfCircles, radiusMultiplier, backgroundGradientStart, backgroundGradientEnd]);
 
   return (
     <div className="h-screen w-screen">
