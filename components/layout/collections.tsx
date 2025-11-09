@@ -6,9 +6,14 @@ import { useCodeSidebar } from "../ui/code-sidebar";
 import { useRouter } from "next/navigation";
 import { registry } from '@/lib/registry';
 import { BackgroundConfig } from '@/lib/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { cn } from '@/lib/utils';
 
 export const Collections = () => {
   const router = useRouter()
+  const { value: favourite, toggleInArray: toggleFavourite } = useLocalStorage<string[]>('favourite', [])
+
+  console.log(favourite)
 
   const backgrounds = registry.getAll();
 
@@ -21,6 +26,10 @@ export const Collections = () => {
       js: item.code.jsx
     });
   };
+
+  const handleFavourite = (id: string) => {
+    toggleFavourite(id)
+  }
 
   return (
     <div className="flex flex-col items-center text-base-content w-full mb-5">
@@ -65,9 +74,16 @@ export const Collections = () => {
               </div>
             </div>
 
-            <div className="absolute top-0 right-0 m-2 p-2 rounded-xl cursor-pointer bg-base-content/20 group">
-              <StarIcon className="group-hover:text-yellow-500 transition-colors ease-linear" weight="fill" />
-            </div>
+            <button
+              className="absolute top-0 right-0 m-2 p-2 rounded-xl cursor-pointer bg-base-content/20 group"
+              onClick={() => handleFavourite(config.id)}
+            >
+              <StarIcon
+                className={cn(
+                  "group-hover:text-yellow-500 transition-colors ease-linear",
+                  favourite.includes(config.id) ? 'text-yellow-500' : ''
+                )} weight="fill" />
+            </button>
           </div>
         ))}
       </div>
