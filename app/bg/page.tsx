@@ -83,7 +83,7 @@ export default function Page() {
 
         <div className="flex justify-center gap-3 items-center">
           <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden' />
-          <span className="font-serif text-3xl">{config.name}</span>
+          <div className="font-serif text-xl md:text-2xl lg:text-3xl w-60 flex justify-center items-center">{config.name}</div>
           <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden' />
         </div>
 
