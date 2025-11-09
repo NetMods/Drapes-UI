@@ -1,0 +1,93 @@
+import { BackgroundConfig } from '@/lib/types';
+import { tsxCode, jsxCode, usageCode } from './code'
+
+export default {
+  id: '1',
+  name: 'Dot Grid',
+  description: 'Smooth animated Dot grids',
+  author: 'NetMods',
+  tags: ['animated', 'Dooted-grids', 'waves'],
+  thumbnail: '/thumbnails/wave-gradient.webp',
+  defaultProps: {
+    dotSpacing: 30,
+    dotBaseSize: 2,
+    influenceRadius: 150,
+    maxScale: 8,
+    backgroundColor: '#0a0a0a',
+    glowColor: '#8b5cf6',
+    numLayers: 2,
+  },
+  code: {
+    usage: usageCode,
+    tsx: tsxCode,
+    jsx: jsxCode
+  },
+  controls: [
+    {
+      key: 'backgroundColor',
+      label: 'background Color',
+      type: 'color',
+      defaultValue: '#0a0a0a',
+      description: 'background color',
+    },
+    {
+      key: 'glowColor',
+      label: 'Glow Color',
+      type: 'color',
+      defaultValue: '#8b5cf6',
+      description: 'Scaled Dots Color',
+    },
+    {
+      key: 'showWave',
+      label: 'Show Wave',
+      type: 'toggle',
+      defaultValue: true,
+      description: 'Toggle the wave overlay on/off',
+    },
+    {
+      key: 'dotSpacing',
+      label: 'Dot Spacing',
+      type: 'slider',
+      min: 20,
+      max: 50,
+      step: 10,
+      defaultValue: 30,
+    },
+    {
+      key: 'dotBaseSize',
+      label: 'Dot Size',
+      type: 'slider',
+      min: 0.5,
+      max: 5,
+      step: 0.1,
+      defaultValue: 2,
+    },
+    {
+      key: 'maxScale',
+      label: 'Scalled dots size',
+      type: 'slider',
+      min: 0,
+      max: 20,
+      step: 2,
+      defaultValue: 8,
+    },
+    {
+      key: 'influenceRadius',
+      label: 'Radius',
+      type: 'slider',
+      min: 0,
+      max: 400,
+      step: 10,
+      defaultValue: 150,
+    },
+    {
+      key: 'numLayers',
+      label: 'Num Layers',
+      type: 'slider',
+      min: 0,
+      max: 10,
+      step: 1,
+      defaultValue: 2,
+    },
+  ],
+} as BackgroundConfig;

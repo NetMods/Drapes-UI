@@ -3,11 +3,11 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '3',
-  name: 'Glowing Hexagons',
+  name: 'Hexagons',
   description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/hexagonals.webp',
+  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     lineLength: 20,
     maxLineCount: 50,

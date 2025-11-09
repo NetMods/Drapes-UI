@@ -1,0 +1,77 @@
+'use client';
+import { useEffect, useRef } from 'react';
+
+interface MatrixProps {
+  backgroundColor: string;
+  textColor: string
+}
+
+
+
+const MatrixEffect = ({
+  backgroundColor = 'rgba(0, 0, 0, 0.05)',
+  textColor = '#0F0'
+}: MatrixProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const letters = Array(256).join('1').split('').map(() => Math.floor(Math.random() * 758 + 10)); // Initialize y positions randomly for better effect
+
+    const draw = () => {
+      // Fade background
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Set green text color
+      ctx.fillStyle = textColor;
+
+      letters.forEach((y, i) => {
+        // Generate random character (ASCII 48-80 for digits/symbols resembling katakana)
+        const text = String.fromCharCode(48 + Math.random() * 33);
+        const x = i * 10;
+
+        ctx.fillText(text, x, y);
+
+        // Update y position
+        letters[i] = y > 758 + Math.random() * 10000 ? 0 : y + 10;
+      });
+    };
+
+    const interval = setInterval(draw, 60);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      clearInterval(interval);
+    };
+  }, [backgroundColor, textColor]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1, // Optional: behind other content
+      }}
+    />
+  );
+};
+
+export default MatrixEffect;

@@ -3,11 +3,11 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '2',
-  name: 'Confetti',
+  name: 'Particles',
   description: 'Smooth animated Confetti that follows your mouse',
   author: 'NetMods',
   tags: ['animated', 'confetti', 'Follow'],
-  thumbnail: '/thumbnails/confetti.webp',
+  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     numConfetti: 350
   },
