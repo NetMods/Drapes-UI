@@ -7,19 +7,19 @@ interface SpiralAnimationProps {
   spacing?: number;
   pointsPerLap?: number;
   shadowStrength?: number;
-  strokeColor?: string;
-  shadowColor?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
   lineWidth?: number;
   initialVelocity?: number;
 }
 
 const SpiralAnimation = ({
   maxOffset = 400,
-  spacing = 4,
+  spacing = 3,
   pointsPerLap = 6,
   shadowStrength = 6,
-  strokeColor = '#fff',
-  shadowColor = '#fff',
+  primaryColor = '#fff',
+  secondaryColor = '#fff',
   lineWidth = 2,
   initialVelocity = 0.1,
 }: SpiralAnimationProps) => {
@@ -65,8 +65,8 @@ const SpiralAnimation = ({
       const cy = height / 2;
 
       ctx.globalCompositeOperation = 'lighter';
-      ctx.strokeStyle = strokeColor;
-      ctx.shadowColor = shadowColor;
+      ctx.strokeStyle = primaryColor;
+      ctx.shadowColor = secondaryColor;
       ctx.lineWidth = lineWidth;
       ctx.beginPath();
 
@@ -174,7 +174,7 @@ const SpiralAnimation = ({
       document.removeEventListener('touchstart', onTouchStart);
       cancelAnimationFrame(rafId);
     };
-  }, [maxOffset, spacing, pointsPerLap, shadowStrength, strokeColor, shadowColor, lineWidth, initialVelocity]);
+  }, [maxOffset, spacing, pointsPerLap, shadowStrength, primaryColor, secondaryColor, lineWidth, initialVelocity]);
 
   return (
     <canvas

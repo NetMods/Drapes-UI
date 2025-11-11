@@ -163,7 +163,7 @@ interface FestivalLightsProps {
 
 const FestivalLight = ({
   numberOfCircles = 50,
-  radiusMultiplier = 3,
+  radiusMultiplier = 9,
   backgroundGradientStart = "#1a0003",
   backgroundGradientEnd = '#d58801'
 }: FestivalLightsProps) => {
@@ -282,6 +282,7 @@ const FestivalLight = ({
           left: 0,
           width: '100%',
           height: '100%',
+          opacity: '70%'
         }}
       />
     </div>

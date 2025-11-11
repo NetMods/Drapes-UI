@@ -9,7 +9,7 @@ interface MatrixProps {
 
 
 const MatrixEffect = ({
-  backgroundColor = 'rgba(0, 0, 0, 0.05)',
+  backgroundColor = 'rgba(0, 0, 0, 1)',
   textColor = '#0F0'
 }: MatrixProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -36,12 +36,10 @@ const MatrixEffect = ({
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Set green text color
       ctx.fillStyle = textColor;
 
       letters.forEach((y, i) => {
-        // Generate random character (ASCII 48-80 for digits/symbols resembling katakana)
-        const text = String.fromCharCode(48 + Math.random() * 33);
+        const text = String.fromCharCode(33 + Math.random() * 92);
         const x = i * 10;
 
         ctx.fillText(text, x, y);
@@ -68,7 +66,8 @@ const MatrixEffect = ({
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -1, // Optional: behind other content
+        zIndex: -1,
+        backgroundColor
       }}
     />
   );

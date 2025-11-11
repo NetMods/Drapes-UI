@@ -13,8 +13,6 @@ export const Collections = () => {
   const router = useRouter()
   const { value: favourite, toggleInArray: toggleFavourite } = useLocalStorage<string[]>('favourite', [])
 
-  console.log(favourite)
-
   const backgrounds = registry.getAll();
 
   const { openCodeSidebar } = useCodeSidebar()

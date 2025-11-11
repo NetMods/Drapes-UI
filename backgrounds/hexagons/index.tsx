@@ -23,16 +23,16 @@ interface HexagonalLightTrailsProps {
 }
 
 const Page = ({
-  lineLength = 20,
-  maxLineCount = 50,
+  lineLength = 25,
+  maxLineCount = 120,
   baseTime = 10,
   addedTime = 10,
-  dieChance = 0.05,
+  dieChance = 0.1,
   spawnChance = 1,
-  sparkChance = 0.1,
+  sparkChance = 0.06,
   sparkDistance = 10,
   sparkSize = 2,
-  baseLight = 20,
+  baseLight = 70,
   addedLight = 3,
   shadowToTimePropMultiplier = 2,
   baseLightInputMultiplier = 0.015,

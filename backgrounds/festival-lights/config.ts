@@ -10,7 +10,7 @@ export default {
   thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     numberOfCircles: 50,
-    radiusMultiplier: 3,
+    radiusMultiplier: 9,
     backgroundGradientStart: "#1a0003",
     backgroundGradientEnd: '#d58801',
   },

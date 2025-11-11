@@ -10,11 +10,11 @@ export default {
   thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     maxOffset: 400,
-    spacing: 4,
+    spacing: 3,
     pointsPerLap: 6,
     shadowStrength: 6,
-    strokeColor: '#fff',
-    shadowColor: '#fff',
+    primaryColor: '#fff',
+    secondaryColor: '#fff',
     lineWidth: 2,
     initialVelocity: 0.1,
   },
@@ -25,15 +25,15 @@ export default {
   },
   controls: [
     {
-      key: 'strokeColor',
-      label: 'Stroke Color',
+      key: 'primaryColor',
+      label: 'Primary Color',
       type: 'color',
       defaultValue: '#ffffff',
       description: 'Stroke color for spiral',
     },
     {
-      key: 'shadowColor',
-      label: 'Shadow Color',
+      key: 'secondaryColor',
+      label: 'Secondary Color',
       type: 'color',
       defaultValue: '#ffffff',
       description: 'Shadow Color for spiral',
@@ -54,7 +54,7 @@ export default {
       min: 3,
       max: 10,
       step: 1,
-      defaultValue: 4,
+      defaultValue: 3,
     },
     {
       key: 'lineWidth',

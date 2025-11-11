@@ -34,15 +34,8 @@ export default {
       key: 'glowColor',
       label: 'Glow Color',
       type: 'color',
-      defaultValue: '#8b5cf6',
+      defaultValue: '#0a0a0a',
       description: 'Scaled Dots Color',
-    },
-    {
-      key: 'showWave',
-      label: 'Show Wave',
-      type: 'toggle',
-      defaultValue: true,
-      description: 'Toggle the wave overlay on/off',
     },
     {
       key: 'dotSpacing',
