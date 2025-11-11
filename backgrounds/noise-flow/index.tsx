@@ -255,30 +255,31 @@ const FlowFieldParticles = ({
         }
         const color = theme.colors[p.paletteIndex];
         return `rgba(${color[0]},${color[1]},${color[2]},${p.alpha})`;
-      } else {
-        let h: number;
-
-        if (theme.useHueRotation) {
-          if (theme.hueRange) {
-            const [minHue, maxHue] = theme.hueRange;
-            const angleNorm = ((angle * 180) / Math.PI + 180) / 360;
-            h = minHue + angleNorm * (maxHue - minHue);
-            h = (h + hueBase) % 360;
-          } else {
-            h = hueBase + (angle * 180) / Math.PI;
-          }
-        } else {
-          h = theme.baseHue || 0;
-        }
-        let l = theme.lightness;
-        if (theme.lightnessVariation) {
-          const angleNorm = ((angle * 180) / Math.PI + 180) / 360;
-          l = theme.lightness + (angleNorm - 0.5) * theme.lightnessVariation;
-        }
-        return `hsla(${h},${theme.saturation * 100}%,${l * 100}%,${p.alpha})`;
       }
-    };
 
+      // Now theme is narrowed to HSL themes
+      let h: number;
+      if (theme.useHueRotation) {
+        if ('hueRange' in theme && theme.hueRange) {
+          const [minHue, maxHue] = theme.hueRange;
+          const angleNorm = ((angle * 180) / Math.PI + 180) / 360;
+          h = minHue + angleNorm * (maxHue - minHue);
+          h = (h + hueBase) % 360;
+        } else {
+          h = hueBase + (angle * 180) / Math.PI;
+        }
+      } else {
+        h = 'baseHue' in theme ? theme.baseHue : 0;
+      }
+
+      let l = theme.lightness;
+      if ('lightnessVariation' in theme && theme.lightnessVariation) {
+        const angleNorm = ((angle * 180) / Math.PI + 180) / 360;
+        l = theme.lightness + (angleNorm - 0.5) * theme.lightnessVariation;
+      }
+
+      return `hsla(${h},${theme.saturation * 100}%,${l * 100}%,${p.alpha})`;
+    };
     const initParticle = (p: Particle) => {
       p.x = p.pastX = screenWidth * Math.random();
       p.y = p.pastY = screenHeight * Math.random();
