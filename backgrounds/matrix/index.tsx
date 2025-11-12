@@ -8,11 +8,17 @@ interface MatrixProps {
 
 
 
-const MatrixEffect = ({
+const Matrix = ({
   backgroundColor = 'rgba(0, 0, 0, 1)',
   textColor = '#0F0'
 }: MatrixProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  (async () => {
+    const { captureCanvasScreenshot } = await import('@/lib/utils');
+    await captureCanvasScreenshot(canvasRef, "matrix.webp", 2000);
+  })()
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -61,16 +67,10 @@ const MatrixEffect = ({
     <canvas
       ref={canvasRef}
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: -1,
         backgroundColor
       }}
     />
   );
 };
 
-export default MatrixEffect;
+export default Matrix;

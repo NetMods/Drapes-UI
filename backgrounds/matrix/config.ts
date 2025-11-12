@@ -7,7 +7,6 @@ export default {
   description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     backgroundColor: 'rgba(0, 0, 0, 0.05)',
     textColor: '#0F0'

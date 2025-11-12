@@ -13,7 +13,7 @@ interface SpiralAnimationProps {
   initialVelocity?: number;
 }
 
-const SpiralAnimation = ({
+const Spirals = ({
   maxOffset = 400,
   spacing = 3,
   pointsPerLap = 6,
@@ -24,6 +24,8 @@ const SpiralAnimation = ({
   initialVelocity = 0.1,
 }: SpiralAnimationProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -190,4 +192,4 @@ const SpiralAnimation = ({
   );
 };
 
-export default SpiralAnimation;
+export default Spirals;

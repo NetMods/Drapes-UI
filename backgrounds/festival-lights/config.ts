@@ -7,7 +7,6 @@ export default {
   description: 'Smooth animated Lights pattern with gradient background',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     numberOfCircles: 50,
     radiusMultiplier: 9,

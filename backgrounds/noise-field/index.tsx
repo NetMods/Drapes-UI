@@ -189,7 +189,7 @@ class Particle {
   }
 }
 
-const FlowFieldParticles = ({
+const NoiseField = ({
   backgroundColor = 'black',
   particleNum = 1000,
   step = 1,
@@ -201,6 +201,10 @@ const FlowFieldParticles = ({
   spawnRate = 5,
 }: FlowFieldParticlesProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+
+
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -217,6 +221,7 @@ const FlowFieldParticles = ({
     let spawnAccumulator = 0;
     const theme = COLOR_THEMES[colorTheme];
     const targetNum = maxLines !== undefined ? maxLines : particleNum;
+    ctx.fillStyle = backgroundColor;
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -390,4 +395,4 @@ const FlowFieldParticles = ({
   );
 };
 
-export default FlowFieldParticles;
+export default NoiseField;

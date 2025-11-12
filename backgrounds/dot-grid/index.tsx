@@ -123,6 +123,15 @@ const InteractiveDotGrid = ({
       cancelAnimationFrame(animationId);
     };
   }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers]);
+
+
+  // (async () => {
+  //   const { captureCanvasScreenshot } = await import('@/lib/utils');
+  //   await captureCanvasScreenshot(canvasRef, "dot-grid.webp", 5000);
+  // })()
+
+
+
   return (
     <canvas
       ref={canvasRef}

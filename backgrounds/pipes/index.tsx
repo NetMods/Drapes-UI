@@ -31,7 +31,7 @@ const fadeInOut = (life: number, ttl: number): number => {
   return 1 - (life - halfTTL) / halfTTL;
 };
 
-const PipeAnimation = ({
+const Pipes = ({
   pipeCount = 30,
   backgroundColor = 'hsla(150,80%,1%,1)',
   baseSpeed = 0.5,
@@ -256,15 +256,8 @@ const PipeAnimation = ({
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-      }}
     />
   );
 };
 
-export default PipeAnimation;
+export default Pipes;

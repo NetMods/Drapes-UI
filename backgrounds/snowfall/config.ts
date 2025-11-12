@@ -3,11 +3,10 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '7',
-  name: 'SnowFlakes',
+  name: 'SnowFall',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     maxSnowflakes: 100,
     snowflakeColor: '#fff',

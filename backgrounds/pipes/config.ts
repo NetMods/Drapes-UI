@@ -3,11 +3,10 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '8',
-  name: 'Pipelines',
+  name: 'Pipes',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     pipeCount: 30,
     backgroundColor: 'hsla(150,80%,1%,1)',

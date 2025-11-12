@@ -7,7 +7,6 @@ export default {
   description: 'Smooth animated Dot grids',
   author: 'NetMods',
   tags: ['animated', 'Dooted-grids', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,

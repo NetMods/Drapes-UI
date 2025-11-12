@@ -9,9 +9,9 @@ interface BackgroundEntry {
 import WaveGradient from './dot-grid'
 import Confetti from './particles'
 import Hexagons from './hexagons/'
-import FestivalLight from './festival-lights';
+import FestivalLights from './festival-lights';
 import Spirals from './spirals'
-import NoiseFlow from './noise-flow'
+import NoiseFlow from './noise-field'
 import Snowfall from './snowfall'
 import Pipes from './pipes'
 import Matrix from './matrix'
@@ -23,7 +23,7 @@ import confettiConfig from './particles//config'
 import hexagonsConfig from './hexagons/config'
 import festivalLightConfig from './festival-lights/config';
 import spiralConfig from './spirals/config'
-import noiseFlowConfig from './noise-flow/config'
+import noiseFlowConfig from './noise-field/config'
 import snowfallConfig from './snowfall/config'
 import pipesConfig from './pipes/config'
 import matrixConfig from './matrix/config'
@@ -43,7 +43,7 @@ const registerEntry: BackgroundEntry[] = [
   },
   {
     config: festivalLightConfig,
-    component: FestivalLight
+    component: FestivalLights
   },
   {
     config: spiralConfig,

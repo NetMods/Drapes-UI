@@ -22,7 +22,7 @@ interface HexagonalLightTrailsProps {
   backgroundColor?: string;
 }
 
-const Page = ({
+const Hexagons = ({
   lineLength = 25,
   maxLineCount = 120,
   baseTime = 10,
@@ -213,7 +213,6 @@ const Page = ({
     hueChange,
     backgroundColor,
   ]);
-
   return (
     <canvas
       ref={canvasRef}
@@ -229,4 +228,4 @@ const Page = ({
   );
 }
 
-export default Page 
+export default Hexagons 

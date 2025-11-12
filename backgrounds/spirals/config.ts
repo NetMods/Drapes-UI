@@ -7,7 +7,6 @@ export default {
   description: 'Mathematical spirals that spins based on your choice of rotaion',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     maxOffset: 400,
     spacing: 3,

@@ -161,7 +161,7 @@ interface FestivalLightsProps {
 }
 
 
-const FestivalLight = ({
+const FestivalLights = ({
   numberOfCircles = 50,
   radiusMultiplier = 9,
   backgroundGradientStart = "#1a0003",
@@ -272,6 +272,8 @@ const FestivalLight = ({
     };
   }, [numberOfCircles, radiusMultiplier, backgroundGradientStart, backgroundGradientEnd]);
 
+
+
   return (
     <div className="h-screen w-screen">
       <canvas
@@ -289,4 +291,4 @@ const FestivalLight = ({
   );
 };
 
-export default FestivalLight;
+export default FestivalLights;

@@ -12,7 +12,7 @@ interface SnowflakesAnimationProps {
   maxSpeed?: number;
 }
 
-class Snowflake {
+class Snowfall {
   x: number = 0;
   y: number = 0;
   xVel: number = 0;
@@ -110,7 +110,7 @@ const SnowflakesAnimation = ({
     let width = 0;
     let height = 0;
     let lastNow = 0;
-    const snowflakes: Snowflake[] = [];
+    const snowflakes: Snowfall[] = [];
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -141,7 +141,7 @@ const SnowflakesAnimation = ({
 
       if (snowflakes.length < maxSnowflakes) {
         snowflakes.push(
-          new Snowflake(width, height, minSize, maxSize, minSpeed, maxSpeed)
+          new Snowfall(width, height, minSize, maxSize, minSpeed, maxSpeed)
         );
       }
 

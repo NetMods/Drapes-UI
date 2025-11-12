@@ -3,11 +3,10 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '6',
-  name: 'Noise-Fields',
+  name: 'Noise Field',
   description: 'Noise fields foloowing the flow field',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     backgroundColor: 'black',
     particleNum: 1000,

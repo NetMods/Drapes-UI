@@ -118,7 +118,7 @@ class Confetti {
   }
 }
 
-const ConfettiAnimation = ({
+const Particles = ({
   colors = DEFAULT_COLORS,
   numConfetti = 350,
   minRadius = 2,
@@ -194,6 +194,9 @@ const ConfettiAnimation = ({
     };
   }, [numConfetti, colors, minRadius, maxRadius, minSpeed, maxSpeed, gravity, fadeSpeed]);
 
+
+
+
   return (
     <canvas
       ref={canvasRef}
@@ -209,4 +212,4 @@ const ConfettiAnimation = ({
   );
 };
 
-export default ConfettiAnimation;
+export default Particles;

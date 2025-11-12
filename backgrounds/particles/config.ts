@@ -7,7 +7,6 @@ export default {
   description: 'Smooth animated Confetti that follows your mouse',
   author: 'NetMods',
   tags: ['animated', 'confetti', 'Follow'],
-  thumbnail: '/thumbnails/wave-gradient.webp',
   defaultProps: {
     numConfetti: 350,
     minRadius: 2,

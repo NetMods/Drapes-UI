@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const developmentPaths = ['/tests'];
   const currentPath = req.nextUrl.pathname;
   const isDevelopmentPath = developmentPaths.some(path => currentPath.startsWith(path));

@@ -47,16 +47,18 @@ export const Collections = () => {
               <div className='size-full object-cover flex relative'>
                 <img
                   src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
-                  className={`rounded-2xl scale-110 absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-0' : 'opacity-100'}`}
+                  className={`rounded-2xl absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-0' : 'opacity-100'}`}
                   onClick={() => OpenPreview(config.id)}
                   alt={config.name}
                 />
 
                 <div
-                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out`}
                   onClick={() => OpenPreview(config.id)}
                 >
-                  <Component {...config.defaultProps} />
+                  {index === hoveredIndex &&
+                    <Component {...config.defaultProps} />
+                  }
                 </div>
               </div>
 
