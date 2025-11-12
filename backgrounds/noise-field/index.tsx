@@ -202,9 +202,6 @@ const NoiseField = ({
 }: FlowFieldParticlesProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-
-
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -237,6 +234,9 @@ const NoiseField = ({
       ctx.lineWidth = 0.3;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      // Draw initial background
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, screenWidth, screenHeight);
     };
 
     const getNoise = (x: number, y: number, z: number): number => {

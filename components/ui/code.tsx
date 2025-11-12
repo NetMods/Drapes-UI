@@ -49,7 +49,7 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
     <div className='bg-base-100/30 rounded-lg'>
       <div
         ref={headerRef}
-        className={`sticky top-0 flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b border-white/25 transition-all
+        className={`sticky top-0 flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b border-white/15 transition-all
           ${isStuck
             ? 'bg-base-100/80 rounded-none'
             : 'bg-base-100/30 rounded-t-lg'

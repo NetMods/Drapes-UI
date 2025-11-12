@@ -6,19 +6,11 @@ interface MatrixProps {
   textColor: string
 }
 
-
-
 const Matrix = ({
   backgroundColor = 'rgba(0, 0, 0, 1)',
   textColor = '#0F0'
 }: MatrixProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  (async () => {
-    const { captureCanvasScreenshot } = await import('@/lib/utils');
-    await captureCanvasScreenshot(canvasRef, "matrix.webp", 2000);
-  })()
-
 
   useEffect(() => {
     const canvas = canvasRef.current;

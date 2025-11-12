@@ -17,15 +17,26 @@ export const Navbar = () => {
 
         <div className="flex gap-1 items-center max-md:scale-95">
           <span className="cursor-pointer p-1 rounded-lg group">
-            <a href="#"> <GithubLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" /> </a>
+            <a
+              href="https://github.com/Netmods/Drapes-ui"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <GithubLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" />
+            </a>
           </span>
 
           <span className="cursor-pointer p-1 rounded-lg group">
-            <a href="#"> <TwitterLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" /> </a>
+            <a
+              href={""}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <TwitterLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" />
+            </a>
           </span>
         </div>
-
       </div>
-    </div>
+    </div >
   )
 }

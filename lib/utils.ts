@@ -48,6 +48,6 @@ export const captureCanvasScreenshot = async (
 /*
 (async () => {
   const { captureCanvasScreenshot } = await import('@/lib/utils');
-  await captureCanvasScreenshot(canvasRef, "wave-gradient.webp");
+  await captureCanvasScreenshot(canvasRef, "example.webp");
 })()
 * */
