@@ -1,0 +1,80 @@
+import { BackgroundConfig } from '@/lib/types';
+import { tsxCode, jsxCode, usageCode } from './code'
+
+export default {
+  id: '2',
+  name: 'Particles',
+  description: 'Smooth animated Confetti that follows your mouse',
+  author: 'NetMods',
+  tags: ['animated', 'confetti', 'Follow'],
+  defaultProps: {
+    numConfetti: 350,
+    minRadius: 2,
+    maxRadius: 6,
+    minSpeed: 1,
+    maxSpeed: 1,
+    gravity: 0.7,
+    fadeSpeed: 0.03,
+  },
+  code: {
+    usage: usageCode,
+    tsx: tsxCode,
+    jsx: jsxCode
+  },
+  controls: [
+    {
+      key: 'numConfetti',
+      label: 'Number pf Confetti',
+      type: 'slider',
+      min: 10,
+      max: 1000,
+      step: 20,
+      defaultValue: 350,
+    },
+    {
+      key: 'minRadius',
+      label: 'Min Radius',
+      type: 'slider',
+      min: 1,
+      max: 10,
+      step: 1,
+      defaultValue: 2,
+    },
+    {
+      key: 'maxRadius',
+      label: 'Max Radius',
+      type: 'slider',
+      min: 1,
+      max: 10,
+      step: 1,
+      defaultValue: 6,
+    },
+    {
+      key: 'minSpeed',
+      label: 'Min Speed',
+      type: 'slider',
+      min: 1,
+      max: 20,
+      step: 1,
+      defaultValue: 1,
+    },
+    {
+      key: 'maxSpeed',
+      label: 'Max Speed',
+      type: 'slider',
+      min: 1,
+      max: 20,
+      step: 1,
+      defaultValue: 1,
+    },
+    {
+      key: 'gravity',
+      label: 'Gravity',
+      type: 'slider',
+      min: 1,
+      max: 2,
+      step: 0.1,
+      defaultValue: 0.7,
+    },
+  ],
+} as BackgroundConfig;

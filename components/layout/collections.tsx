@@ -5,10 +5,13 @@ import { useCodeSidebar } from "../ui/code-sidebar";
 import { useRouter } from "next/navigation";
 import { registry } from '@/lib/registry';
 import { BackgroundConfig } from '@/lib/types';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 export const Collections = () => {
   const router = useRouter()
+  const { value: favourite, toggleInArray: toggleFavourite } = useLocalStorage<string[]>('favourite', [])
   const backgrounds = registry.getAll();
   const { openCodeSidebar } = useCodeSidebar()
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -25,6 +28,10 @@ export const Collections = () => {
     openCodeSidebar(data, { type: "preview", callback: () => OpenPreview(item.id) })
   };
 
+  const handleFavourite = (id: string) => {
+    toggleFavourite(id)
+  }
+
   return (
     <div className="flex flex-col items-center text-base-content w-full mb-5">
       <span className="text-4xl font-serif">Our Collections</span>
@@ -40,16 +47,18 @@ export const Collections = () => {
               <div className='size-full object-cover flex relative'>
                 <img
                   src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
-                  className={`rounded-2xl scale-110 absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-0' : 'opacity-100'}`}
+                  className={`rounded-2xl absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-0' : 'opacity-100'}`}
                   onClick={() => OpenPreview(config.id)}
                   alt={config.name}
                 />
 
                 <div
-                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out ${hoveredIndex === index ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out`}
                   onClick={() => OpenPreview(config.id)}
                 >
-                  <Component {...config.defaultProps} />
+                  {index === hoveredIndex &&
+                    <Component {...config.defaultProps} />
+                  }
                 </div>
               </div>
 
@@ -78,9 +87,16 @@ export const Collections = () => {
                 </div>
               </div>
             </div>
-            <div className="absolute top-0 right-0 m-2 p-2 rounded-xl cursor-pointer bg-base-content/20 group">
-              <StarIcon className="group-hover:text-yellow-500 transition-colors ease-linear" weight="fill" />
-            </div>
+            <button
+              className="absolute top-0 right-0 m-2 p-2 rounded-xl cursor-pointer bg-base-content/20 group"
+              onClick={() => handleFavourite(config.id)}
+            >
+              <StarIcon
+                className={cn(
+                  "group-hover:text-yellow-500 transition-colors ease-linear",
+                  favourite.includes(config.id) ? 'text-yellow-500' : ''
+                )} weight="fill" />
+            </button>
           </div>
         ))}
       </div>

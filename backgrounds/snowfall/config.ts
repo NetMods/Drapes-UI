@@ -1,0 +1,85 @@
+import { BackgroundConfig } from '@/lib/types';
+import { tsxCode, jsxCode, usageCode } from './code'
+
+export default {
+  id: '7',
+  name: 'SnowFall',
+  description: 'Smooth animated Snowfall',
+  author: 'NetMods',
+  tags: ['animated', 'gradient', 'waves'],
+  defaultProps: {
+    maxSnowflakes: 100,
+    snowflakeColor: '#fff',
+    backgroundColor: '#000',
+    minSize: 7,
+    maxSize: 12,
+    minSpeed: 0.02,
+    maxSpeed: 0.1,
+  },
+  code: {
+    usage: usageCode,
+    tsx: tsxCode,
+    jsx: jsxCode
+  },
+  controls: [
+    {
+      key: 'snowflakeColor',
+      label: 'SnowFlake Color',
+      type: 'color',
+      defaultValue: '#000',
+      description: 'Snowfall color',
+    },
+    {
+      key: 'backgroundColor',
+      label: 'background Color',
+      type: 'color',
+      defaultValue: '#fff',
+      description: 'background Color',
+    },
+    {
+      key: 'maxSnowflakes',
+      label: 'Snow flakes',
+      type: 'slider',
+      min: 10,
+      max: 500,
+      step: 20,
+      defaultValue: 100,
+    },
+    {
+      key: 'minSize',
+      label: 'Min Size',
+      type: 'slider',
+      min: 0,
+      max: 50,
+      step: 1,
+      defaultValue: 7,
+    },
+    {
+      key: 'maxSize',
+      label: 'Max Size',
+      type: 'slider',
+      min: 0,
+      max: 50,
+      step: 1,
+      defaultValue: 12,
+    },
+    {
+      key: 'minSpeed',
+      label: 'Min Speed',
+      type: 'slider',
+      min: 0,
+      max: 1,
+      step: 0.02,
+      defaultValue: 0.02,
+    },
+    {
+      key: 'maxSpeed',
+      label: 'Max Speed',
+      type: 'slider',
+      min: 0,
+      max: 1,
+      step: 0.1,
+      defaultValue: 0.1,
+    },
+  ],
+} as BackgroundConfig;

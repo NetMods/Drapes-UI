@@ -1,4 +1,15 @@
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 import { saveThumbnailAction } from "@/actions/saveThumbnail";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function roundToDecimalPlaces(value: number, decimalPlaces: number) {
+  const multiplier = Math.pow(10, decimalPlaces);
+  return Math.round(value * multiplier) / multiplier;
+}
 
 export const captureCanvasScreenshot = async (
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -40,4 +51,3 @@ export const captureCanvasScreenshot = async (
   await captureCanvasScreenshot(canvasRef, "wave-gradient.webp");
 })()
 * */
-

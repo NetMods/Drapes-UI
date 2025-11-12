@@ -9,7 +9,7 @@ export function generateUsageCode(
   const propsString = Object.entries(defaultProps)
     .map(([key, value]) => {
       const propValue = typeof value === 'string' ? `"${value}"` : value;
-      return `        ${key}={${propValue}}`;
+      return `          ${key}={${propValue}}`;
     })
     .join('\n');
 
@@ -17,10 +17,12 @@ export function generateUsageCode(
 
 export default function Page() {
   return (
-    <div style={{ position: 'relative', minHeight: '100vh' }}>
-      <${componentName}
+    <div style={{ position: 'relative', minheight: '100vh' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+        <${componentName} 
 ${propsString}
-      />
+        />
+      </div>
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Your content here */}
       </div>
