@@ -20,6 +20,7 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.16",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "vaul": "^1.1.2"
   },
   "devDependencies": {

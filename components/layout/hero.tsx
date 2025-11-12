@@ -8,7 +8,8 @@ export const HeroSection = () => {
         <p className="font-sans mt-5 text-md sm:text-lg max-md:text-center text-base-content/70 max-w-130">Independent components made using Tailwind and JSX that can easily integrate with your React JS and Next JS app.</p>
 
         <div className="w-full mt-5 flex max-md:justify-center">
-          <a className="font-sans inline-flex gap-2 items-center border border-base-content/30 hover:bg-base-100/20 cursor-pointer p-2 rounded-xl hover:shadow-lg bg-base-content/10 transition-all ease-linear">
+          <a className="font-sans inline-flex gap-2 items-center border border-base-content/30 bg-base-100/20 
+          cursor-pointer p-2 rounded-xl hover:shadow-lg hover:bg-base-content/10 transition-all ease-linear">
             <GithubLogoIcon size={20} />
             Contribute Here
           </a>

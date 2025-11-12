@@ -1,4 +1,4 @@
-import { CaretDownIcon, InfoIcon } from "@phosphor-icons/react/dist/ssr";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
 import { Tooltip } from "./tooltip";
 

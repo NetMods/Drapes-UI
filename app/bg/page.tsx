@@ -73,7 +73,7 @@ export default function Page() {
       js: config.code.jsx,
       ts: config.code.tsx,
     }
-    openCodeSidebar(data, handleSettingSidebar)
+    openCodeSidebar(data, { type: "settings", callback: handleSettingSidebar })
   }
 
   return (
@@ -97,12 +97,12 @@ export default function Page() {
       <LeftButton
         action={handleLeft}
         isDisabled={currentId === 1}
-        className='fixed top-1/2 translate-y-[-50%]'
+        className='fixed top-1/2 translate-y-[-50%] sm:hidden'
       />
       <RightButton
         action={handleRight}
         isDisabled={currentId === totalBackground}
-        className='fixed top-1/2 right-0 translate-y-[-50%]'
+        className='fixed top-1/2 right-0 translate-y-[-50%] sm:hidden'
       />
       <MobileControls
         handleSettingSidebar={handleSettingSidebar}

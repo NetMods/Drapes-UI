@@ -4,7 +4,6 @@ export interface BackgroundConfig {
   description: string;
   author?: string;
   tags: string[];
-  thumbnail?: string;
 
   defaultProps: Record<string, any>;
 
