@@ -1,20 +1,14 @@
 'use client';
-
 import '@/backgrounds';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { registry } from '@/lib/registry';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
-import { ClientOnly } from '../ui/client-only';
 
 export const Collections = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const activeTab = (searchParams.get('tab') as 'all' | 'fav') || 'all';
+  const [activeTab, setActiveTab] = useLocalStorage<'all' | 'fav'>('activeTab', 'all');
   const [favourite, toggleFavourite] = useLocalStorage<string>('favourite', []);
   const backgrounds = registry.getAll();
 
@@ -24,36 +18,32 @@ export const Collections = () => {
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const setActiveTab = (tab: 'all' | 'fav') => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('tab', tab);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }
-
   return (
-    <div className="flex flex-col items-center text-base-content w-full mb-5">
-      <div className="sticky top-5 flex w-full max-w-xl mx-auto mb-6 p-2 border border-white/30 rounded-lg bg-white/10 font-sans">
-        {(['all', 'fav'] as const).map((tab) => {
-          const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
-          const count = tab === 'all' ? backgrounds.length : favourite.length;
-          return (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                'flex-1 p-2 rounded-lg text-lg font-medium transition-colors relative',
-                activeTab === tab
-                  ? 'bg-base-100/30'
-                  : 'text-base-content/70 hover:text-base-content'
-              )}
-            >
-              {label}{' '}
-              <ClientOnly fallback={<span className="ml-1 text-sm opacity-70">(0)</span>}>
-                <span className="ml-1 text-sm opacity-70">({count})</span>
-              </ClientOnly>
-            </button>
-          );
-        })}
+    <div className="text-base-content w-full mb-10">
+      <div className="sticky top-0 z-40 w-full">
+
+        <div className='backdrop-blur-lg flex w-full max-w-xl mx-auto mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
+          {(['all', 'fav'] as const).map((tab) => {
+            const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
+            const count = tab === 'all' ? backgrounds.length : favourite.length;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'flex-1 p-2 rounded-lg text-lg font-medium transition-colors relative',
+                  'outline-none focus:outline-none focus-visible:ring-0 ',
+                  activeTab === tab
+                    ? 'bg-base-100/30'
+                    : 'text-base-content/70 hover:text-base-content'
+                )}
+              >
+                {label}{' '}
+                <span className={`ml-1 text-sm opacity-70 count-${tab}`} suppressHydrationWarning>({count})</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
@@ -81,6 +71,29 @@ export const Collections = () => {
           </div>
         )}
       </div>
+
+      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every three days</p>
+
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              if (typeof window === 'undefined' || !window.localStorage) return;
+              try {
+                const favData = window.localStorage.getItem('favourite');
+                const fav = favData ? JSON.parse(favData) : [];
+                const count = Array.isArray(fav) ? fav.length : 0;
+                const el = document.querySelector('.count-fav');
+                if (el) {
+                  el.textContent = '(' + count + ')';
+                }
+              } catch (e) {
+                console.warn('Failed to load favourite count:', e);
+              }
+            })();
+            `,
+        }}
+      />
     </div>
   );
 };

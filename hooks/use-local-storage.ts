@@ -7,9 +7,8 @@ function useLocalStorage<T>(
   initialValue: StorageValue<T>
 ): [StorageValue<T>, (value: T) => void] {
   const [storedValue, setStoredValue] = useState<StorageValue<T>>(() => {
-    if (typeof window === undefined) return initialValue
-
     try {
+      if (typeof window === 'undefined') return initialValue
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
@@ -21,6 +20,7 @@ function useLocalStorage<T>(
   // Update localStorage whenever storedValue changes
   useEffect(() => {
     try {
+      if (typeof window === 'undefined') return
       window.localStorage.setItem(key, JSON.stringify(storedValue));
     } catch (error) {
       console.error(`Error saving ${key} to localStorage:`, error);

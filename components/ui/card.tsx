@@ -5,7 +5,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useCodeSidebar } from '../ui/code-sidebar';
-import { ClientOnly } from './client-only';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -73,8 +72,9 @@ export const BackgroundCard = ({
 
         <div
           className={cn(
-            'sm:group-hover:-translate-y-[5.9rem] bg-base-content/10 backdrop-blur-3xl sm:bg-base-content/20',
-            'rounded-b-2xl p-2 border-t border-white/20 w-full max-sm:-translate-y-full'
+            'bg-base-content/10 backdrop-blur-3xl sm:bg-base-content/20',
+            'rounded-b-2xl p-2 border-t border-white/20 w-full max-sm:-translate-y-full',
+            isHovered && "-translate-y-[5.9rem] "
           )}
           style={{
             transitionProperty: 'transform, border-radius',
@@ -102,19 +102,45 @@ export const BackgroundCard = ({
       </div>
 
       <button
-        className="absolute top-0 right-0 m-2 p-2 rounded-xl cursor-pointer bg-base-content/20 group"
+        className={cn(
+          "absolute top-0 right-0 m-2 p-2 rounded-xl bg-base-content/20 cursor-pointer",
+          "hover:bg-base-content/30"
+        )}
+        data-fav-id={config.id}
         onClick={() => toggleFavourite(config.id)}
       >
-        <ClientOnly fallback={<StarIcon weight="fill" />}>
-          <StarIcon
-            className={cn(
-              'group-hover:text-yellow-500 transition-colors ease-linear',
-              isFavourite && 'text-yellow-500'
-            )}
-            weight="fill"
-          />
-        </ClientOnly>
+        <StarIcon
+          className={cn(
+            'transition-colors ease-linear',
+            isFavourite && 'text-yellow-500'
+          )}
+          weight="fill"
+        />
       </button>
+
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              if (typeof window === 'undefined' || !window.localStorage) return;
+              try {
+                const favData = window.localStorage.getItem('favourite');
+                const fav = favData ? JSON.parse(favData) : [];
+                const isArray = Array.isArray(fav);
+                const favButton = document.querySelector('[data-fav-id="${config.id}"]');
+                if (favButton) {
+                  const starIcon = favButton.querySelector('svg');
+                  if (starIcon && isArray && fav.includes('${config.id}')) {
+                    starIcon.classList.add('text-yellow-500');
+                  }
+                }
+              } catch (e) {
+                console.warn('Failed to load favourite state:', e);
+              }
+            })();
+          `,
+        }}
+      />
     </div>
   );
 };

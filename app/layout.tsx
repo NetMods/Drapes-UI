@@ -5,6 +5,7 @@ import { fontMono, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 import { BackgroundProvider } from "@/lib/background-context";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "DrapesUI",
@@ -36,7 +37,13 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-title" content="DrapesUI" />
       </head>
-      <body className={`min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative ${fontSans.variable} ${fontMono.variable} ${fontSerif.variable}`}>
+      <body
+        className={cn(
+          "min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative ",
+          fontSans.variable, fontMono.variable, fontSerif.variable
+        )}
+        suppressHydrationWarning
+      >
         <div
           aria-hidden='true'
           className="inset-0 z-0 fixed"
