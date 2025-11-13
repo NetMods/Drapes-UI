@@ -3,7 +3,7 @@ import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
   id: '7',
-  name: 'SnowFall',
+  name: 'Snow Fall',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
   tags: ['animated', 'gradient', 'waves'],

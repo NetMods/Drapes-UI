@@ -134,13 +134,12 @@ const SnowflakesAnimation = ({
 
     const render = (now: number) => {
       if (!isActive) return;
-
       rafId = requestAnimationFrame(render);
-
       const elapsed = now - lastNow;
       lastNow = now;
 
-      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, width, height);
 
       if (snowflakes.length < maxSnowflakes) {
         snowflakes.push(

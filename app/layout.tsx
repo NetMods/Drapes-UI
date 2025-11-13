@@ -64,7 +64,7 @@ export default function RootLayout({
           <BackgroundProvider>
             <CodeSidebarProvider>
               <SettingsSidebarProvider>
-                <div className="relative z-10 w-full h-full max-w-800 mx-auto">
+                <div className="relative z-10 w-full h-full max-w-500 mx-auto">
                   {children}
                 </div>
                 <SettingsSidebar />
