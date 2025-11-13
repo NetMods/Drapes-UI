@@ -10,7 +10,7 @@ interface FlowFieldParticlesProps {
   colorTheme?: 'rainbow' | 'monochrome' | 'warm' | 'cool' | 'gruvbox' | 'pastel' | 'neon';
   fadeSpeed?: number;
   maxLines?: number;
-  spawnRate?: number;
+  spawnRate?: number | undefined; // Made undefined the default for instant spawn
 }
 
 // Color theme definitions
@@ -79,6 +79,7 @@ class SimplexNoise {
   private p: number[];
   private perm: number[];
   private gradP: number[][];
+
   constructor() {
     this.grad3 = [
       [1, 1, 0], [-1, 1, 0], [1, -1, 0], [-1, -1, 0],
@@ -96,9 +97,11 @@ class SimplexNoise {
       this.gradP[i] = this.grad3[this.perm[i] % 12];
     }
   }
+
   private dot(g: number[], x: number, y: number, z: number): number {
     return g[0] * x + g[1] * y + g[2] * z;
   }
+
   noise3D(xin: number, yin: number, zin: number): number {
     let n0, n1, n2, n3;
     const F3 = 1.0 / 3.0;
@@ -125,6 +128,7 @@ class SimplexNoise {
       else if (x0 < z0) { i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1; }
       else { i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0; }
     }
+
     const x1 = x0 - i1 + G3;
     const y1 = y0 - j1 + G3;
     const z1 = z0 - k1 + G3;
@@ -134,6 +138,7 @@ class SimplexNoise {
     const x3 = x0 - 1.0 + 3.0 * G3;
     const y3 = y0 - 1.0 + 3.0 * G3;
     const z3 = z0 - 1.0 + 3.0 * G3;
+
     const ii = i & 255;
     const jj = j & 255;
     const kk = k & 255;
@@ -141,30 +146,35 @@ class SimplexNoise {
     const gi1 = this.gradP[ii + i1 + this.perm[jj + j1 + this.perm[kk + k1]]];
     const gi2 = this.gradP[ii + i2 + this.perm[jj + j2 + this.perm[kk + k2]]];
     const gi3 = this.gradP[ii + 1 + this.perm[jj + 1 + this.perm[kk + 1]]];
+
     let t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
     if (t0 < 0) n0 = 0.0;
     else {
       t0 *= t0;
       n0 = t0 * t0 * this.dot(gi0, x0, y0, z0);
     }
+
     let t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
     if (t1 < 0) n1 = 0.0;
     else {
       t1 *= t1;
       n1 = t1 * t1 * this.dot(gi1, x1, y1, z1);
     }
+
     let t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
     if (t2 < 0) n2 = 0.0;
     else {
       t2 *= t2;
       n2 = t2 * t2 * this.dot(gi2, x2, y2, z2);
     }
+
     let t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
     if (t3 < 0) n3 = 0.0;
     else {
       t3 *= t3;
       n3 = t3 * t3 * this.dot(gi3, x3, y3, z3);
     }
+
     return 32.0 * (n0 + n1 + n2 + n3);
   }
 }
@@ -179,6 +189,7 @@ class Particle {
   alpha: number;
   baseHue?: number;
   paletteIndex?: number;
+
   constructor(x = 0, y = 0) {
     this.x = x;
     this.y = y;
@@ -198,7 +209,7 @@ const NoiseField = ({
   colorTheme = 'monochrome',
   fadeSpeed = 0,
   maxLines = 500,
-  spawnRate = 5,
+  spawnRate, // Default undefined for instant spawn
 }: FlowFieldParticlesProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -207,6 +218,7 @@ const NoiseField = ({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     let screenWidth = 0;
     let screenHeight = 0;
     let centerX = 0;
@@ -216,8 +228,10 @@ const NoiseField = ({
     let simplexNoise: SimplexNoise;
     let zoff = 0;
     let spawnAccumulator = 0;
+
     const theme = COLOR_THEMES[colorTheme];
     const targetNum = maxLines !== undefined ? maxLines : particleNum;
+
     ctx.fillStyle = backgroundColor;
 
     const resizeCanvas = () => {
@@ -261,7 +275,6 @@ const NoiseField = ({
         const color = theme.colors[p.paletteIndex];
         return `rgba(${color[0]},${color[1]},${color[2]},${p.alpha})`;
       }
-
       // Now theme is narrowed to HSL themes
       let h: number;
       if (theme.useHueRotation) {
@@ -276,20 +289,18 @@ const NoiseField = ({
       } else {
         h = 'baseHue' in theme ? theme.baseHue : 0;
       }
-
       let l = theme.lightness;
       if ('lightnessVariation' in theme && theme.lightnessVariation) {
         const angleNorm = ((angle * 180) / Math.PI + 180) / 360;
         l = theme.lightness + (angleNorm - 0.5) * theme.lightnessVariation;
       }
-
       return `hsla(${h},${theme.saturation * 100}%,${l * 100}%,${p.alpha})`;
     };
+
     const initParticle = (p: Particle) => {
       p.x = p.pastX = screenWidth * Math.random();
       p.y = p.pastY = screenHeight * Math.random();
-      p.alpha = 0;
-
+      p.alpha = 0.3; // Start semi-visible for quicker buildup
       if (theme.type === 'palette') {
         p.paletteIndex = Math.floor(Math.random() * theme.colors.length);
       }
@@ -301,11 +312,19 @@ const NoiseField = ({
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, screenWidth, screenHeight);
       ctx.restore();
+
       if (spawnRate !== undefined) {
         particles.length = 0;
         spawnAccumulator = 0;
       } else {
-        particles.forEach(initParticle);
+        // Instant respawn with staggered alphas
+        particles.length = 0;
+        for (let i = 0; i < targetNum; i++) {
+          const p = new Particle();
+          initParticle(p);
+          p.alpha = Math.random() * 0.5; // Staggered initial alpha for organic feel
+          particles.push(p);
+        }
       }
       simplexNoise = new SimplexNoise();
     };
@@ -314,11 +333,12 @@ const NoiseField = ({
     window.addEventListener('resize', resizeCanvas);
     simplexNoise = new SimplexNoise();
 
-    // Initial spawn if no spawnRate (instant spawn all)
+    // Initial spawn: always instant with staggered alphas if no spawnRate
     if (spawnRate === undefined) {
       for (let i = 0; i < targetNum; i++) {
         const p = new Particle();
         initParticle(p);
+        p.alpha = Math.random() * 0.5; // Staggered initial alpha
         particles.push(p);
       }
     }
@@ -356,7 +376,7 @@ const NoiseField = ({
           Math.PI * 6 * getNoise((p.x / base) * 1.75, (p.y / base) * 1.75, zoff);
         p.x += Math.cos(angle) * step;
         p.y += Math.sin(angle) * step;
-        if (p.alpha < 1) p.alpha += 0.003;
+        if (p.alpha < 1) p.alpha += 0.02; // Faster fade-in
         const particleAngle = Math.atan2(centerY - p.y, centerX - p.x);
         p.color = getParticleColor(p, particleAngle);
         ctx.beginPath();
@@ -368,17 +388,21 @@ const NoiseField = ({
           initParticle(p);
         }
       }
+
       hueBase += 0.1;
       zoff += zInc;
       rafId = requestAnimationFrame(update);
     };
+
     rafId = requestAnimationFrame(update);
+
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('click', onCanvasClick);
       cancelAnimationFrame(rafId);
     };
   }, [backgroundColor, particleNum, step, base, zInc, colorTheme, fadeSpeed, maxLines, spawnRate]);
+
   return (
     <canvas
       ref={canvasRef}
