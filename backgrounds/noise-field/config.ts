@@ -2,7 +2,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
-  id: '6',
   name: 'Noise Field',
   description: 'Noise fields foloowing the flow field',
   author: 'NetMods',
@@ -85,4 +84,4 @@ export default {
       description: 'Color Scheme for Noise',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

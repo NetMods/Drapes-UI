@@ -9,7 +9,7 @@ class BackgroundRegistry {
   private backgrounds: Map<string, BackgroundEntry> = new Map();
 
   register(entry: BackgroundEntry) {
-    this.backgrounds.set(entry.config.id, entry);
+    this.backgrounds.set(String(entry.config.id), entry);
   }
 
   get(id: string): BackgroundEntry | undefined {

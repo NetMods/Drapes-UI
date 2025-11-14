@@ -2,7 +2,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
-  id: '2',
   name: 'Particles',
   description: 'Smooth animated Confetti that follows your mouse',
   author: 'NetMods',
@@ -77,4 +76,4 @@ export default {
       defaultValue: 0.7,
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

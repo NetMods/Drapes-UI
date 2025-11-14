@@ -2,7 +2,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
-  id: '5',
   name: 'Spirals',
   description: 'Mathematical spirals that spins based on your choice of rotaion',
   author: 'NetMods',
@@ -75,4 +74,4 @@ export default {
     },
 
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

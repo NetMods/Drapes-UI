@@ -2,7 +2,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
-  id: '7',
   name: 'Snow Fall',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
@@ -82,4 +81,4 @@ export default {
       defaultValue: 0.1,
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

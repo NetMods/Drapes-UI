@@ -2,7 +2,6 @@ import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
 
 export default {
-  id: '3',
   name: 'Hexagons',
   description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
   author: 'NetMods',
@@ -140,4 +139,4 @@ export default {
       description: 'backgroundColor',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

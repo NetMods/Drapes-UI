@@ -45,6 +45,7 @@ export const captureCanvasScreenshot = async (
   }
 };
 
+// For this to work in webgl canvas, u need to have this in bg - canvas.getContext('webgl', { preserveDrawingBuffer: true });
 /*
 (async () => {
   const { captureCanvasScreenshot } = await import('@/lib/utils');

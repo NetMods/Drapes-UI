@@ -2,71 +2,51 @@ import { registry } from '@/lib/registry';
 import { BackgroundConfig } from '@/lib/types';
 
 interface BackgroundEntry {
-  config: BackgroundConfig;
+  config: Omit<BackgroundConfig, 'id'>;
   component: React.ComponentType<any>;
 }
 
 //import components
 import WaveGradient from './dot-grid'
-import Confetti from './particles'
+import Particles from './particles'
 import Hexagons from './hexagons/'
-import FestivalLights from './festival-lights';
 import Spirals from './spirals'
 import NoiseFlow from './noise-field'
 import Snowfall from './snow-fall'
 import Pipes from './pipes'
 import Matrix from './matrix'
+import PlasmaWave from './plasma-wave';
 
 //import config
 import dotGridConfig from './dot-grid/config';
-import confettiConfig from './particles/config'
+import particlesConfig from './particles/config'
 import hexagonsConfig from './hexagons/config'
-import festivalLightConfig from './festival-lights/config';
 import spiralConfig from './spirals/config'
 import noiseFlowConfig from './noise-field/config'
 import snowfallConfig from './snow-fall/config'
 import pipesConfig from './pipes/config'
 import matrixConfig from './matrix/config'
+import plasmaWaveConfig from './plasma-wave/config';
 
 const registerEntry: BackgroundEntry[] = [
-  {
-    config: dotGridConfig,
-    component: WaveGradient
-  },
-  {
-    config: noiseFlowConfig,
-    component: NoiseFlow
-  },
-  {
-    config: snowfallConfig,
-    component: Snowfall
-  },
-  {
-    config: hexagonsConfig,
-    component: Hexagons
-  },
-  {
-    config: confettiConfig,
-    component: Confetti
-  },
-  {
-    config: festivalLightConfig,
-    component: FestivalLights
-  },
-  {
-    config: spiralConfig,
-    component: Spirals
-  },
-  {
-    config: matrixConfig,
-    component: Matrix
-  },
-  {
-    config: pipesConfig,
-    component: Pipes
-  },
+  { config: dotGridConfig, component: WaveGradient },
+  { config: noiseFlowConfig, component: NoiseFlow },
+  { config: snowfallConfig, component: Snowfall },
+  { config: hexagonsConfig, component: Hexagons },
+  { config: plasmaWaveConfig, component: PlasmaWave },
+  { config: spiralConfig, component: Spirals },
+  { config: particlesConfig, component: Particles },
+  { config: pipesConfig, component: Pipes },
+  { config: matrixConfig, component: Matrix },
 ]
 
-registerEntry.forEach((entry: BackgroundEntry) => {
-  registry.register(entry)
+registerEntry.forEach((entry: BackgroundEntry, index) => {
+  const id = String(index + 1);
+
+  const configWithId: BackgroundConfig = { ...entry.config, id };
+
+  registry.register({
+    config: configWithId,
+    component: entry.component,
+  });
 })
