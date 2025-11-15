@@ -14,6 +14,7 @@ export default {
     backgroundColor: '#0a0a0a',
     glowColor: '#8b5cf6',
     numLayers: 2,
+    hiddots: true,
   },
   code: {
     usage: usageCode,
@@ -85,5 +86,12 @@ export default {
       defaultValue: 2,
       description: 'The number of overlapping dot grid layers for added depth.',
     },
+    {
+      key: "hiddots",
+      label: "Hide Dots",
+      value: true,
+      type: 'toggle',
+      description: "Hide the dots and only show when hovered"
+    }
   ],
 } as BackgroundConfig;
