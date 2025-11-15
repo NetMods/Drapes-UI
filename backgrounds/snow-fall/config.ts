@@ -1,12 +1,11 @@
 import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
-
 export default {
   id: '7',
-  name: 'Snow Fall',
-  description: 'Smooth animated Snowfall',
+  name: 'Snowfall',
+  description: 'A tranquil animated background capturing the gentle descent of snowflakes, with customizable sizes, speeds, and colors for a peaceful winter ambiance.',
   author: 'NetMods',
-  tags: ['animated', 'gradient', 'waves'],
+  tags: ['animated', 'snowfall', 'snowflakes', 'particles', 'winter', 'falling', 'atmospheric', 'serene'],
   defaultProps: {
     maxSnowflakes: 100,
     snowflakeColor: '#fff',
@@ -24,26 +23,27 @@ export default {
   controls: [
     {
       key: 'snowflakeColor',
-      label: 'SnowFlake Color',
+      label: 'Snowflake Color',
       type: 'color',
-      defaultValue: '#000',
-      description: 'Snowfall color',
+      defaultValue: '#fff',
+      description: 'The color of the individual snowflakes for a customized wintry glow.',
     },
     {
       key: 'backgroundColor',
-      label: 'background Color',
+      label: 'Background Color',
       type: 'color',
-      defaultValue: '#fff',
-      description: 'background Color',
+      defaultValue: '#000',
+      description: 'The overall background color that sets the night sky or stormy scene for the snowfall.',
     },
     {
       key: 'maxSnowflakes',
-      label: 'Snow flakes',
+      label: 'Max Snowflakes',
       type: 'slider',
       min: 10,
       max: 500,
       step: 20,
       defaultValue: 100,
+      description: 'The maximum number of snowflakes visible in the animation at once.',
     },
     {
       key: 'minSize',
@@ -53,6 +53,7 @@ export default {
       max: 50,
       step: 1,
       defaultValue: 7,
+      description: 'The smallest size for snowflake particles to add variety in scale.',
     },
     {
       key: 'maxSize',
@@ -62,6 +63,7 @@ export default {
       max: 50,
       step: 1,
       defaultValue: 12,
+      description: 'The largest size for snowflake particles to create depth in the falling effect.',
     },
     {
       key: 'minSpeed',
@@ -71,6 +73,7 @@ export default {
       max: 1,
       step: 0.02,
       defaultValue: 0.02,
+      description: 'The slowest falling speed for snowflakes to simulate gentle breezes.',
     },
     {
       key: 'maxSpeed',
@@ -80,6 +83,7 @@ export default {
       max: 1,
       step: 0.1,
       defaultValue: 0.1,
+      description: 'The fastest falling speed for snowflakes to add dynamic variation.',
     },
   ],
 } as BackgroundConfig;

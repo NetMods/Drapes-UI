@@ -39,6 +39,8 @@ export default function Page() {
     const baseCode = config.code.usage;
     let updatedCode = baseCode;
 
+    console.log(props)
+
     Object.entries(props).forEach(([key, value]) => {
       const propValue = typeof value === 'string' ? `"${value}"` : value;
       const regex = new RegExp(`${key}={[^}]+}`, 'g');

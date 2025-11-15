@@ -8,7 +8,7 @@ import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
 
 export const Collections = () => {
-  const [activeTab, setActiveTab] = useLocalStorage<'all' | 'fav'>('activeTab', 'all');
+  const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
   const [favourite, toggleFavourite] = useLocalStorage<string>('favourite', []);
   const backgrounds = registry.getAll();
 
@@ -21,7 +21,6 @@ export const Collections = () => {
   return (
     <div className="text-base-content w-full mb-10">
       <div className="sticky top-0 z-40 w-full">
-
         <div className='backdrop-blur-lg flex w-full max-w-xl mx-auto mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
           {(['all', 'fav'] as const).map((tab) => {
             const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
@@ -39,7 +38,7 @@ export const Collections = () => {
                 )}
               >
                 {label}{' '}
-                <span className={`ml-1 text-sm opacity-70 count-${tab}`} suppressHydrationWarning>({count})</span>
+                <span className={`ml-1 text-sm opacity-70 count-${tab}`} suppressHydrationWarning >({count})</span>
               </button>
             );
           })}
