@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code-txt.ts",
+    "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts",
     "dev": "pnpm run generate-codes && next dev --turbo",
     "build": "pnpm run generate-codes && next build",
     "start": "next start",

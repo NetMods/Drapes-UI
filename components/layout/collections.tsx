@@ -8,7 +8,7 @@ import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
 
 export const Collections = () => {
-  const [activeTab, setActiveTab] = useLocalStorage<'all' | 'fav'>('activeTab', 'all');
+  const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
   const [favourite, toggleFavourite] = useLocalStorage<string>('favourite', []);
   const backgrounds = registry.getAll();
 
@@ -72,7 +72,7 @@ export const Collections = () => {
         )}
       </div>
 
-      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every three days</p>
+      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every week</p>
 
       <script
         dangerouslySetInnerHTML={{
