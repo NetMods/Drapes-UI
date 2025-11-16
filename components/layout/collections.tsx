@@ -3,13 +3,15 @@ import '@/backgrounds';
 import { registry } from '@/lib/registry';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
+import { useCommandPalette } from '../ui/command-palette';
 
 export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
   const [favourite, toggleFavourite] = useLocalStorage<string>('favourite', []);
+  const { toggleOpen } = useCommandPalette()
   const backgrounds = registry.getAll();
 
   const filtered = activeTab === 'fav'
@@ -17,6 +19,23 @@ export const Collections = () => {
     : backgrounds;
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        toggleOpen()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+
+  }, [])
+
 
   return (
     <div className="text-base-content w-full mb-10">
