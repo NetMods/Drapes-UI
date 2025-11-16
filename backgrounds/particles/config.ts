@@ -1,8 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
-  id: '2',
   name: 'Particles',
   description: 'Smooth animated Confetti that follows your mouse',
   author: 'NetMods',
@@ -17,9 +16,10 @@ export default {
     fadeSpeed: 0.03,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -77,4 +77,4 @@ export default {
       defaultValue: 0.7,
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

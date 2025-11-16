@@ -1,8 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
-  id: '9',
   name: 'Matrix',
   description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
   author: 'NetMods',
@@ -12,9 +11,10 @@ export default {
     textColor: '#0F0'
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -32,4 +32,4 @@ export default {
       description: 'Text Color',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

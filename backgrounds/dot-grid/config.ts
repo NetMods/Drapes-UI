@@ -1,8 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
-  id: '1',
   name: 'Dot Grid',
   description: 'Smooth animated Dot grids',
   author: 'NetMods',
@@ -17,9 +16,10 @@ export default {
     numLayers: 2,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -82,4 +82,4 @@ export default {
       defaultValue: 2,
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

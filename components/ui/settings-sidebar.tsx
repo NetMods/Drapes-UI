@@ -71,9 +71,9 @@ export function SettingsSidebar() {
       <Drawer.Portal>
         <Drawer.Content
           data-vaul-no-drag
-          className=" bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
-          sm:rounded-r-[10px] h-2/3 max-sm:rounded-t-[10px] sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 mt-24 fixed bottom-0
-          left-0 text-base-content scrollbar"
+          className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col outline-0
+          sm:rounded-r-[10px] h-2/3 max-sm:rounded-t-[10px] sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/4 
+          fixed bottom-0 left-0 text-base-content scrollbar"
         >
           <div className="p-4 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">

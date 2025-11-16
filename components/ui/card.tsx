@@ -34,6 +34,7 @@ export const BackgroundCard = ({
     const data = {
       name: config.name,
       usage: config.code.usage,
+      rawUsage: config.code.rawUsage,
       ts: config.code.tsx,
       js: config.code.jsx,
     };

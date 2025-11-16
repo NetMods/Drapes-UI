@@ -1,8 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
-  id: '8',
   name: 'Pipes',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
@@ -21,9 +20,10 @@ export default {
     turnCount: 8,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -124,4 +124,4 @@ export default {
       defaultValue: 8,
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

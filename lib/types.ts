@@ -11,6 +11,7 @@ export interface BackgroundConfig {
 
   code: {
     usage: string;
+    rawUsage: string;
     jsx: string;
     tsx: string;
   };
