@@ -1,7 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '9',
   name: 'Matrix',
   description: 'A mesmerizing Matrix-style animation with streams of falling digital numbers and characters cascading down the screen like digital rain.',
   author: 'NetMods',
@@ -11,9 +11,10 @@ export default {
     textColor: '#0F0'
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -31,4 +32,4 @@ export default {
       description: 'The glowing color of the falling numbers and digital characters.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

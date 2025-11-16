@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export function proxy(req: NextRequest) {
-  const developmentPaths = ['/tests'];
+  const developmentPaths = ['/test'];
   const currentPath = req.nextUrl.pathname;
   const isDevelopmentPath = developmentPaths.some(path => currentPath.startsWith(path));
   const isProduction = process.env.NODE_ENV === 'production';

@@ -1,7 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '1',
   name: 'Dot Grid',
   description: 'A dynamic background featuring a grid of dots that smoothly scale and animate on hover interaction.',
   author: 'NetMods',
@@ -17,9 +17,10 @@ export default {
     hiddots: true,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -94,4 +95,4 @@ export default {
       description: "Hide the dots and only show when hovered"
     }
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { glob } from 'glob';
+import { BundledTheme, codeToHtml } from 'shiki';
 
 export function generateUsageCode(
   componentName: string,
@@ -64,9 +65,7 @@ function kebabToPascal(str: string): string {
     .join('');
 }
 
-const backgrounds = glob.sync('backgrounds/*/index.tsx');
-
-backgrounds.forEach(file => {
+async function processFile(file: string) {
   console.log(`\n- Processing file: ${file}`);
 
   let tsxCode: string = "";
@@ -103,7 +102,6 @@ backgrounds.forEach(file => {
       configContent = readFileSync(configPath, 'utf-8');
     } catch (err) {
       console.error(`✗ Failed to read config: ${configPath}`, err);
-      writeOutput(dir, tsxCode, jsxCode, usageCode);
       return;
     }
 
@@ -111,7 +109,6 @@ backgrounds.forEach(file => {
     const exportMatch = configContent.match(/export\s+default\s+([\s\S]*?)(?:as\s+\w+)?\s*;?\s*$/);
     if (!exportMatch) {
       console.warn(`✗ No default export found in config: ${configPath}`);
-      writeOutput(dir, tsxCode, jsxCode, usageCode);
       return;
     }
 
@@ -122,7 +119,6 @@ backgrounds.forEach(file => {
     const defaultPropsMatch = objectStr.match(/defaultProps\s*:\s*({[\s\S]*?})\s*,/);
     if (!defaultPropsMatch) {
       console.warn(`✗ No 'defaultProps' found in exported object`);
-      writeOutput(dir, tsxCode, jsxCode, usageCode);
       return;
     }
 
@@ -134,7 +130,6 @@ backgrounds.forEach(file => {
       console.error(`✓ Found default props`);
     } catch (err) {
       console.error(`✗ Failed to parse defaultProps with Function constructor:`, err);
-      writeOutput(dir, tsxCode, jsxCode, usageCode);
       return;
     }
 
@@ -146,14 +141,30 @@ backgrounds.forEach(file => {
     }
   }
 
-  writeOutput(dir, tsxCode, jsxCode, usageCode);
-});
+  let tsxCodeHTML, jsxCodeHTML, usageCodeHTML
+  const theme = 'material-theme' as BundledTheme;
 
-function writeOutput(dir: string, tsxCode: string, jsxCode: string, usageCode: string) {
-  const tsxOutput = `export const tsxCode = ${JSON.stringify(tsxCode)};`;
-  const jsxOutput = `export const jsxCode = ${JSON.stringify(jsxCode)};`;
-  const usageOutput = `export const usageCode = ${JSON.stringify(usageCode)};`;
-  const output = `${tsxOutput}\n\n${jsxOutput}\n\n${usageOutput}`.trim();
+  try {
+    [tsxCodeHTML, jsxCodeHTML, usageCodeHTML] = await Promise.all([
+      codeToHtml(tsxCode, { lang: 'tsx', theme }),
+      codeToHtml(jsxCode, { lang: 'jsx', theme }),
+      codeToHtml(usageCode, { lang: 'jsx', theme })
+    ]);
+    console.log(`✓ Generated syntax-highlighted HTML for all sections`);
+  } catch (err) {
+    console.error(`Failed to generate HTML with Shiki:`, err);
+    return;
+  }
+
+  writeOutput(dir, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode);
+}
+
+function writeOutput(dir: string, tsxCodeHTML: string, jsxCodeHTML: string, usageCodeHTML: string, usageCode: string) {
+  const tsxOutput = `export const tsxCodeHTML = ${JSON.stringify(tsxCodeHTML)};`;
+  const jsxOutput = `export const jsxCodeHTML = ${JSON.stringify(jsxCodeHTML)};`;
+  const usageOutput = `export const usageCodeHTML = ${JSON.stringify(usageCodeHTML)};`;
+  const usageOutput2 = `export const usageCode = ${JSON.stringify(usageCode)};`;
+  const output = `${tsxOutput}\n\n${jsxOutput}\n\n${usageOutput}\n\n${usageOutput2}`.trim();
 
   const outputPath = join(dir, 'code.ts');
   try {
@@ -163,3 +174,11 @@ function writeOutput(dir: string, tsxCode: string, jsxCode: string, usageCode: s
     console.error(`✗ Failed to write code.ts: ${outputPath}`, err);
   }
 }
+
+(async () => {
+  const backgrounds = glob.sync('backgrounds/*/index.tsx');
+  for (const file of backgrounds) {
+    await processFile(file);
+  }
+  console.log('All components processed.');
+})();

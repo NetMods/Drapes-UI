@@ -10,6 +10,7 @@ import { useMediaQuery } from '@/hooks/use-media-query';
 interface CodeSidebarData {
   name: string;
   usage: string;
+  rawUsage: string;
   js: string;
   ts: string;
 }
@@ -86,12 +87,11 @@ export function CodeSidebar() {
       direction={isMobile ? "bottom" : "right"}
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-base-200/30 z-200" />
         <Drawer.Content
           data-vaul-no-drag
-          className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col
+          className="bg-base-content/5 border border-base-content/20 z-300 shadow backdrop-blur-3xl flex flex-col outline-0
           sm:rounded-l-[10px] max-sm:rounded-t-[10px] h-2/3 sm:h-full max-sm:min-w-[300px] max-sm:w-full sm:min-w-[500px] xl:w-1/3
-          mt-24 fixed bottom-0 right-0 text-base-content scrollbar"
+          fixed bottom-0 right-0 text-base-content scrollbar"
         >
           <div className="p-4 pt-0 rounded-t-[10px] flex-1 overflow-y-auto">
             <Drawer.Title className="font-medium mb-4 flex justify-between items-center">
@@ -132,7 +132,11 @@ export function CodeSidebar() {
               </div>
               <div className='relative mt-1'>
                 {data && (
-                  <Code lang='javascript' filename='app/page.jsx'>
+                  <Code
+                    filename={activeTab === 'js' ? 'app/page.jsx' : 'app/page.tsx'}
+                    language='jsx'
+                    dynamic={data.rawUsage}
+                  >
                     {data?.usage}
                   </Code>
                 )}
@@ -162,15 +166,18 @@ export function CodeSidebar() {
                 </button>
               </div>
               <div className='relative'>
-                {data && (activeTab === 'js'
-                  ? <Code lang='javascript' filename='app/components/ui/background.jsx'>{data.js}</Code>
-                  : <Code lang='typescript' filename='app/components/ui/background.tsx'>{data.ts}</Code>
-                )}
+                {data &&
+                  <Code
+                    filename={activeTab === 'js' ? 'app/components/ui/background.jsx' : 'app/components/ui/background.tsx'}
+                  >
+                    {activeTab === 'js' ? data.js : data.ts}
+                  </Code>
+                }
               </div>
             </div>
           </div>
         </Drawer.Content>
       </Drawer.Portal>
-    </Drawer.Root>
+    </Drawer.Root >
   );
 }

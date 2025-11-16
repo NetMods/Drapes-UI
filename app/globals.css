@@ -11,12 +11,13 @@
   --primary: oklch(0.25 0.16 250);
 }
 
-@theme {
+@theme inline {
   --color-base-100: var(--base-100);
   --color-base-200: var(--base-200);
   --color-base-300: var(--base-300);
   --color-base-content: var(--base-content);
   --color-primary: var(--primary);
+  --font-code: var(--font-mono-code)
 }
 
 .grain-overlay {
@@ -30,8 +31,12 @@
   background: var(--grain);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;

@@ -6,8 +6,9 @@ import { useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
 import { CaretUpIcon, GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useBackgroundProps } from '@/lib/background-context';
+import { cn } from '@/lib/utils';
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -18,6 +19,9 @@ export default function Page() {
   const totalBackground = registry.getSize()
 
   const { props, setProps } = useBackgroundProps();
+  const propsRef = useRef(props);
+
+  useEffect(() => { propsRef.current = props; }, [props]);
 
   useEffect(() => {
     if (entry?.config.defaultProps) {
@@ -36,17 +40,14 @@ export default function Page() {
   const { config, component: Component } = entry;
 
   const generateUsageCode = () => {
-    const baseCode = config.code.usage;
+    const baseCode = config.code.rawUsage;
+
     let updatedCode = baseCode;
-
-    console.log(props)
-
-    Object.entries(props).forEach(([key, value]) => {
-      const propValue = typeof value === 'string' ? `"${value}"` : value;
+    Object.entries(propsRef.current).forEach(([key, value]) => {
+      const propValue = typeof value === 'string' ? `'${value}'` : value;
       const regex = new RegExp(`${key}={[^}]+}`, 'g');
       updatedCode = updatedCode.replace(regex, `${key}={${propValue}}`);
     });
-
     return updatedCode;
   };
 
@@ -71,9 +72,10 @@ export default function Page() {
   const handleCodeSidebar = () => {
     const data = {
       name: config.name,
-      usage: generateUsageCode(),
+      usage: config.code.usage,
+      rawUsage: generateUsageCode(),
       js: config.code.jsx,
-      ts: config.code.tsx,
+      ts: config.code.tsx
     }
     openCodeSidebar(data, { type: "settings", callback: handleSettingSidebar })
   }
@@ -118,7 +120,8 @@ const LeftButton = ({ action, isDisabled, className }: { action: () => void, isD
   return (
     <button
       onClick={action}
-      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed ${className}`}
+      className={cn(`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 
+        enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed`, className)}
       disabled={isDisabled}
     >
       <ArrowLeftIcon size={25} weight="bold" />
@@ -130,7 +133,8 @@ const RightButton = ({ action, isDisabled, className }: { action: () => void, is
   return (
     <button
       onClick={action}
-      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-colors disabled:cursor-not-allowed ${className}`}
+      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 
+        enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed ${className}`}
       disabled={isDisabled}
     >
       <ArrowRightIcon size={25} weight="bold" />

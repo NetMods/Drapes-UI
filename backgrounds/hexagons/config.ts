@@ -1,7 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '3',
   name: 'Hexagons',
   description: 'A captivating animated background of glowing hexagon patterns that leave trailing marks as they dynamically evolve.',
   author: 'NetMods',
@@ -26,9 +26,10 @@ export default {
     backgroundColor: '#000000',
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -149,4 +150,4 @@ export default {
       description: 'The overall background color that contrasts with the glowing hexagons.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

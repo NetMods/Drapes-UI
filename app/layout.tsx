@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { fontMono, fontSans, fontSerif } from "./font";
+import { fontMono, fontMonoCode, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 import { BackgroundProvider } from "@/lib/background-context";
@@ -39,8 +39,8 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          "min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative ",
-          fontSans.variable, fontMono.variable, fontSerif.variable
+          "min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative",
+          fontSans.variable, fontMono.variable, fontSerif.variable, fontMonoCode.variable
         )}
         suppressHydrationWarning
       >

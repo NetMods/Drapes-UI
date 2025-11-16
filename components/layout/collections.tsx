@@ -71,7 +71,7 @@ export const Collections = () => {
         )}
       </div>
 
-      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every three days</p>
+      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every week</p>
 
       <script
         dangerouslySetInnerHTML={{

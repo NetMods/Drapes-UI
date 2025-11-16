@@ -1,7 +1,8 @@
 import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '6',
   name: 'Noise Field',
   description: 'An immersive animated background of noise fields where particles elegantly follow fluid flow patterns, evoking organic, wave-like movements.',
   author: 'NetMods',
@@ -18,9 +19,10 @@ export default {
     spawnRate: 5,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -89,4 +91,4 @@ export default {
       description: 'The overall color palette applied to the particles and lines in the noise animation.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

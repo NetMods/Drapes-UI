@@ -1,7 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '5',
   name: 'Spirals',
   description: 'A hypnotic animated background of mathematical spirals that elegantly spin and expand with smooth rotation, customizable for velocity, colors, and spacing to create mesmerizing geometric flows.',
   author: 'NetMods',
@@ -17,9 +17,10 @@ export default {
     initialVelocity: 0.1,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -77,4 +78,4 @@ export default {
       description: 'The starting rotational speed influencing how quickly the spirals spin and evolve.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

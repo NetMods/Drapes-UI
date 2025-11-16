@@ -1,21 +1,25 @@
 'use client';
+import { cn } from '@/lib/utils';
 import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon } from '@phosphor-icons/react';
-import { useState, useEffect, useRef, MouseEvent } from 'react';
-import { codeToHtml } from 'shiki';
-import type { BundledLanguage, BundledTheme } from 'shiki';
+import { MouseEvent, useEffect, useState } from "react"
+import { BundledLanguage, codeToHtml } from 'shiki';
 
 type Props = {
   children: string;
-  lang?: BundledLanguage;
   filename?: string;
+  dynamic?: string;
+  language?: string;
 };
 
-const theme = 'material-theme' as BundledTheme;
+export default function Code({ children, filename, dynamic, language }: Props) {
+  const [html, setHtml] = useState<string>(children)
 
-export default function Code({ children, lang = 'javascript', filename }: Props) {
-  const [html, setHtml] = useState('');
-  const [isStuck, setIsStuck] = useState(false);
-  const headerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (dynamic) {
+      codeToHtml(dynamic, { lang: language as BundledLanguage, theme: "material-theme" })
+        .then((result) => setHtml(result));
+    }
+  }, [children, dynamic])
 
   const copyCode = (e: MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
@@ -24,48 +28,21 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
     setTimeout(() => button.classList.remove('clicked'), 500);
   };
 
-  useEffect(() => {
-    codeToHtml(children, { lang, theme }).then((result) => {
-      setHtml(result);
-    });
-  }, [children, lang]);
-
-  useEffect(() => {
-    const header = headerRef.current;
-    if (!header) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsStuck(entry.intersectionRatio < 1);
-      },
-      { threshold: [1], rootMargin: '-1px 0px 0px 0px' }
-    );
-
-    observer.observe(header);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className='bg-base-100/30 rounded-lg'>
       <div
-        ref={headerRef}
-        className={`sticky top-0 flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b border-white/15 transition-all
-          ${isStuck
-            ? 'bg-base-100/80 rounded-none'
-            : 'bg-base-100/30 rounded-t-lg'
-          }`}
+        className={cn('flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b',
+          'border-white/15 transition-all bg-base-100/10 backdrop-blur-3xl rounded-t-lg')}
       >
         {filename &&
           <div className="text-[0.70rem] sm:text-xs font-medium font-mono">
             {filename.split('/').map((item, i, arr) => (
               <span key={i} className='inline-flex justify-center items-center'>
                 <span
-                  className={`inline-flex justify-center items-center gap-1
-                    ${i === arr.length - 1
-                      ? 'text-gray-100 '
-                      : 'text-gray-500 hover:text-gray-300 transition-colors'
-                    }`}
-                >
+                  className={cn(
+                    'inline-flex justify-center items-center gap-1',
+                    i === arr.length - 1 ? 'text-gray-100 ' : 'text-gray-500 hover:text-gray-300 transition-colors'
+                  )}>
                   {i < arr.length - 1 ? (
                     <FolderSimpleIcon size={15} weight='duotone' className='inline-block' />
                   ) : (
@@ -90,10 +67,11 @@ export default function Code({ children, lang = 'javascript', filename }: Props)
       </div>
       {html ? (
         <div
-          className="scrollbar overflow-hidden w-full rounded text-sm [&>pre]:overflow-x-auto [&>pre]:bg-transparent! [&>pre]:py-3
-        [&>pre]:pl-4 [&>pre]:pr-5 [&>pre]:leading-snug [&_code]:block [&_code]:w-fit [&_code]:min-w-full
-        sm:max-w-[500px] lg:max-w-none **:select-auto
-        "
+          className={cn(
+            'scrollbar overflow-hidden w-full rounded text-sm [&>pre]:overflow-x-auto [&>pre]:bg-transparent! [&>pre]:py-3',
+            '[&>pre]:pl-4 [&>pre]:pr-5 [&>pre]:leading-snug [&_code]:block [&_code]:w-fit [&_code]:min-w-full',
+            'sm:max-w-[500px] lg:max-w-none **:select-auto [&_code]:font-code outline-0 focus:outline-0'
+          )}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       ) : (

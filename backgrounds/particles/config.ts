@@ -1,7 +1,8 @@
 import { BackgroundConfig } from '@/lib/types';
 import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '2',
   name: 'Particles',
   description: 'An enchanting interactive background of smooth animated confetti particles that gracefully follow your mouse cursor, creating dynamic trails influenced by gravity and speed.',
   author: 'NetMods',
@@ -16,9 +17,10 @@ export default {
     fadeSpeed: 0.03,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -82,4 +84,4 @@ export default {
       description: 'The gravitational force pulling confetti particles downward for realistic motion.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

@@ -1,7 +1,7 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '8',
   name: 'Pipes',
   description: 'A futuristic animated background featuring glowing pipes that dynamically snake, turn, and flow across the screen with vibrant color shifts and smooth motion.',
   author: 'NetMods',
@@ -20,9 +20,10 @@ export default {
     turnCount: 8,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -133,4 +134,4 @@ export default {
       description: 'The number of smooth turns or bends each pipe makes during its animation cycle.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;

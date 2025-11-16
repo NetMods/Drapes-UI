@@ -1,9 +1,9 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
+import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
 export default {
-  id: '7',
-  name: 'Snowfall',
-  description: 'A tranquil animated background capturing the gentle descent of snowflakes, with customizable sizes, speeds, and colors for a peaceful winter ambiance.',
+  name: 'Snow Fall',
+  description: 'Smooth animated Snowfall',
   author: 'NetMods',
   tags: ['animated', 'snowfall', 'snowflakes', 'particles', 'winter', 'falling', 'atmospheric', 'serene'],
   defaultProps: {
@@ -16,9 +16,10 @@ export default {
     maxSpeed: 0.1,
   },
   code: {
-    usage: usageCode,
-    tsx: tsxCode,
-    jsx: jsxCode
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML
   },
   controls: [
     {
@@ -86,4 +87,4 @@ export default {
       description: 'The fastest falling speed for snowflakes to add dynamic variation.',
     },
   ],
-} as BackgroundConfig;
+} as Omit<BackgroundConfig, 'id'>;
