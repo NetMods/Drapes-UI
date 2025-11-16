@@ -1,6 +1,7 @@
 'use client'
 import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react/dist/ssr"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr"
+import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
 import { useCommandPalette } from "../ui/command-palette"
 
@@ -27,14 +28,14 @@ export const Navbar = () => {
 
           <span
             onClick={() => toggleOpen()}
-            className="cursor-pointer p-1 rounded-full text-white bg-white/5 hover:bg-white/10 border border-white/10 shadow-lg backdrop-blur-sm transition-all duration-200 hover:shadow-xl hover:scale-105"
-          >
+            className="cursor-pointer p-1 mr-1 rounded-full text-white bg-white/5 backdrop-blur-sm hover:scale-105" >
             <span className="flex justify-center items-center gap-1 text-[15px] px-1">
-              <MagnifyingGlassIcon size={18} className="hover:opacity-70" />
-              <span className="hidden sm:block sm:hover:opacity-70">⌘K</span>
+              <MagnifyingGlassIcon size={17} />
+              <span className="hidden sm:flex sm:items-center sm:justify-center"><CommandIcon size={17} />K</span>
             </span>
           </span>
 
+          <div className="hidden sm:block h-6 w-px bg-white/20" />
 
           <span className="cursor-pointer p-1 rounded-lg group">
             <a

@@ -21,15 +21,17 @@ export const Collections = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   useEffect(() => {
-
     const handleKeyDown = (event: KeyboardEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
       if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
         toggleOpen()
       }
+      if (event.key === 'Escape') {
+        toggleOpen(false)
+      }
     }
-
     document.addEventListener('keydown', handleKeyDown)
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
@@ -51,7 +53,7 @@ export const Collections = () => {
                 onClick={() => setActiveTab(tab)}
                 className={cn(
                   'flex-1 p-2 rounded-lg text-lg font-medium transition-colors relative',
-                  'outline-none focus:outline-none focus-visible:ring-0 ',
+                  'outline-none focus:outline-none focus-visible:ring-0 cursor-pointer',
                   activeTab === tab
                     ? 'bg-base-100/30'
                     : 'text-base-content/70 hover:text-base-content'

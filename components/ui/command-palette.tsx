@@ -5,14 +5,20 @@ import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface CommandPaletteContextType {
   isOpen: boolean;
-  toggleOpen: () => void;
+  toggleOpen: (value?: boolean) => void;
 }
 
 const CommandPaletteContext = createContext<CommandPaletteContextType | undefined>(undefined)
 
 export function CommandPaletteContextProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const toggleOpen = () => setIsOpen(prev => !prev);
+  const toggleOpen = (value?: boolean) => {
+    if (value !== undefined) {
+      setIsOpen(value)
+    } else {
+      setIsOpen(prev => !prev)
+    }
+  };
 
   return (
     <CommandPaletteContext.Provider value={{
