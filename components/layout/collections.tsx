@@ -19,9 +19,10 @@ export const Collections = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <div className="text-base-content w-full mb-10">
-      <div className="sticky top-0 z-40 w-full">
-        <div className='backdrop-blur-lg flex w-full max-w-xl mx-auto mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
+    <div className="text-base-content w-full ">
+      <div className="sticky top-0 z-40 max-md:px-4 w-full">
+        <div className='backdrop-blur-lg flex w-full max-w-xl 
+        mx-auto mb-10 p-1 border border-white/15 rounded-xl bg-white/10 font-sans'>
           {(['all', 'fav'] as const).map((tab) => {
             const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
             const count = tab === 'all' ? backgrounds.length : favourite.length;
@@ -30,7 +31,7 @@ export const Collections = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  'flex-1 p-2 rounded-lg text-lg font-medium transition-colors relative',
+                  'flex-1 p-1 rounded-lg text-md md:text-lg font-medium transition-colors relative',
                   'outline-none focus:outline-none focus-visible:ring-0 ',
                   activeTab === tab
                     ? 'bg-base-100/30'
@@ -46,6 +47,7 @@ export const Collections = () => {
       </div>
 
       <div className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
+        {/* bg-base-content/10 backdrop-blur-3xl */}
         {filtered.map(({ config, component: Component }, index) => (
           <BackgroundCard
             key={config.id}
@@ -69,9 +71,9 @@ export const Collections = () => {
             </p>
           </div>
         )}
+
       </div>
 
-      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every week</p>
 
       <script
         dangerouslySetInnerHTML={{

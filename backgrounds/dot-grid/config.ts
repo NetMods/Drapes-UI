@@ -90,7 +90,7 @@ export default {
     {
       key: "hiddots",
       label: "Hide Dots",
-      value: true,
+      value: false,
       type: 'toggle',
       description: "Hide the dots and only show when hovered"
     }
