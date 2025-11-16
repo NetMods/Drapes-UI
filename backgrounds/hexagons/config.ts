@@ -3,9 +3,9 @@ import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
   name: 'Hexagons',
-  description: 'Smooth animated Heaxagons patterns that glows and leave a mark',
+  description: 'A captivating animated background of glowing hexagon patterns that leave trailing marks as they dynamically evolve.',
   author: 'NetMods',
-  tags: ['animated', 'gradient', 'waves'],
+  tags: ['animated', 'hexagons', 'glowing', 'patterns', 'trails', 'abstract', 'geometric'],
   defaultProps: {
     lineLength: 25,
     maxLineCount: 120,
@@ -23,8 +23,7 @@ export default {
     addedLightInputMultiplier: 0.02,
     repaintAlpha: 0.09,
     hueChange: 0.1,
-    backgroundColor: 'black',
-
+    backgroundColor: '#000000',
   },
   code: {
     usage: usageCodeHTML,
@@ -35,21 +34,23 @@ export default {
   controls: [
     {
       key: 'lineLength',
-      label: 'line length',
+      label: 'Line Length',
       type: 'slider',
       min: 10,
       max: 100,
       step: 5,
-      defaultvalue: 20,
+      defaultValue: 25,
+      description: 'The length of each line segment used to form the hexagon patterns.',
     },
     {
       key: 'maxLineCount',
-      label: 'Line Count',
+      label: 'Max Line Count',
       type: 'slider',
       min: 10,
       max: 200,
       step: 10,
-      defaultvalue: 50,
+      defaultValue: 120,
+      description: 'The maximum number of lines active in the animation at any time.',
     },
     {
       key: 'baseTime',
@@ -58,7 +59,8 @@ export default {
       min: 10,
       max: 100,
       step: 10,
-      defaultvalue: 10,
+      defaultValue: 10,
+      description: 'The base timing factor influencing the speed of hexagon movements.',
     },
     {
       key: 'addedTime',
@@ -67,7 +69,8 @@ export default {
       min: 10,
       max: 100,
       step: 10,
-      defaultvalue: 10,
+      defaultValue: 10,
+      description: 'Additional time variation applied to the animation cycles.',
     },
     {
       key: 'dieChance',
@@ -76,7 +79,8 @@ export default {
       min: 0,
       max: 0.99,
       step: 0.05,
-      defaultvalue: 0.05,
+      defaultValue: 0.01,
+      description: 'The probability that a line segment will fade out or "die" in each frame.',
     },
     {
       key: 'spawnChance',
@@ -85,7 +89,8 @@ export default {
       min: 0,
       max: 10,
       step: 1,
-      defaultvalue: 1,
+      defaultValue: 1,
+      description: 'The rate at which new line segments spawn into the pattern.',
     },
     {
       key: 'sparkChance',
@@ -94,7 +99,8 @@ export default {
       min: 0,
       max: 2,
       step: 0.01,
-      defaultvalue: 0.1,
+      defaultValue: 0.06,
+      description: 'The likelihood of generating sparkling effects along the lines.',
     },
     {
       key: 'sparkDistance',
@@ -103,7 +109,8 @@ export default {
       min: 0,
       max: 100,
       step: 1,
-      defaultvalue: 10,
+      defaultValue: 10,
+      description: 'The spacing between individual spark points on the lines.',
     },
     {
       key: 'sparkSize',
@@ -112,7 +119,8 @@ export default {
       min: 0,
       max: 200,
       step: 2,
-      defaultvalue: 2,
+      defaultValue: 2,
+      description: 'The visual size of each spark effect.',
     },
     {
       key: 'baseLight',
@@ -121,7 +129,8 @@ export default {
       min: 0,
       max: 100,
       step: 10,
-      defaultvalue: 20,
+      defaultValue: 70,
+      description: 'The baseline brightness level for the glowing hexagon effects.',
     },
     {
       key: 'repaintAlpha',
@@ -130,14 +139,15 @@ export default {
       min: 0,
       max: 1,
       step: 0.01,
-      defaultvalue: 0.09,
+      defaultValue: 0.09,
+      description: 'The transparency level applied during each repaint cycle for smooth trails.',
     },
     {
       key: 'backgroundColor',
-      label: 'background Color',
+      label: 'Background Color',
       type: 'color',
-      defaultValue: '#ffffff',
-      description: 'backgroundColor',
+      defaultValue: '#000000',
+      description: 'The overall background color that contrasts with the glowing hexagons.',
     },
   ],
 } as Omit<BackgroundConfig, 'id'>;

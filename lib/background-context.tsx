@@ -11,7 +11,6 @@ const BackgroundContext = createContext<BackgroundContextType | undefined>(undef
 
 export function BackgroundProvider({ children }: { children: ReactNode }) {
   const [props, setProps] = useState<Record<string, any>>({});
-
   const updateProp = (key: string, value: any) => {
     setProps(prev => ({ ...prev, [key]: value }));
   };
