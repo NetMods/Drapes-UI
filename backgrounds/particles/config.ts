@@ -1,5 +1,4 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCode, jsxCode, usageCode } from './code'
 import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
