@@ -28,7 +28,7 @@ export const Navbar = () => {
 
           <span
             onClick={() => toggleOpen()}
-            className="cursor-pointer p-1 mr-1 rounded-full text-white bg-white/5 backdrop-blur-sm hover:scale-105" >
+            className="cursor-pointer p-1 mr-1 rounded-full text-white bg-white/5 backdrop-blur-sm" >
             <span className="flex justify-center items-center gap-1 text-[15px] px-1">
               <MagnifyingGlassIcon size={17} />
               <span className="hidden sm:flex sm:items-center sm:justify-center"><CommandIcon size={17} />K</span>

@@ -5,7 +5,7 @@ export default {
   name: 'Dot Grid',
   description: 'Smooth animated Dot grids',
   author: 'NetMods',
-  tags: ['animated', 'Dooted-grids', 'waves'],
+  tags: ['animated', 'Doted-grids', 'waves'],
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,
