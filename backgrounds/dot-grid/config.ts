@@ -6,6 +6,7 @@ export default {
   description: 'A dynamic background featuring a grid of dots that smoothly scale and animate on hover interaction.',
   author: 'NetMods',
   tags: ['animated', 'dotted-grids', 'waves', 'interactive', 'hover-effects', 'geometric'],
+
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,

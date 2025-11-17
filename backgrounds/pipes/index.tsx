@@ -19,10 +19,8 @@ interface PipeAnimationProps {
 const TO_RAD = Math.PI / 180;
 const TAU = Math.PI * 2;
 const HALF_PI = Math.PI / 2;
-
 const { cos, sin, round } = Math;
 const rand = (min: number, max: number): number => min + Math.random() * (max - min);
-
 const fadeInOut = (life: number, ttl: number): number => {
   const halfTTL = ttl / 2;
   if (life < halfTTL) {
@@ -45,7 +43,6 @@ const Pipes = ({
   turnCount = 8,
 }: PipeAnimationProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const offscreenCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const visibleCtxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -57,11 +54,9 @@ const Pipes = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     visibleCtxRef.current = ctx;
-
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvasRef.current = offscreenCanvas;
     const offscreenCtx = offscreenCanvas.getContext('2d');
@@ -74,25 +69,21 @@ const Pipes = ({
     const turnAmount = (360 / turnCount) * TO_RAD;
     const turnChanceRange = 58;
     tickRef.current = 0;
-
     const fadingBackgroundColor = backgroundColor.replace(/,1\)$/, ',0.05)');
-
     let isActive = true;
-
 
     const initPipe = (i: number) => {
       const w = offscreenCanvasRef.current?.width ?? 0;
+      const h = offscreenCanvasRef.current?.height ?? 0;
       let x, y, direction, speed, life, ttl, width, hue;
-
       x = rand(0, w);
-      y = centerRef.current[1];
-      direction = round(rand(0, 1)) ? HALF_PI : TAU - HALF_PI;
+      y = rand(0, h);
+      direction = rand(0, TAU);
       speed = baseSpeed + rand(0, rangeSpeed);
       life = 0;
       ttl = baseTTL + rand(0, rangeTTL);
       width = baseWidth + rand(0, rangeWidth);
       hue = baseHue + rand(0, rangeHue);
-
       // CHANGED: Set prevX/prevY to current x/y on init
       pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, x, y], i);
     };
@@ -113,7 +104,6 @@ const Pipes = ({
     ) => {
       const ctxA = offscreenCtxRef.current;
       if (!ctxA) return;
-
       ctxA.save();
       // CHANGED: Removed * 0.5 multiplier for full brightness
       ctxA.strokeStyle = `hsla(${hue},75%,50%,${fadeInOut(life, ttl)})`;
@@ -130,7 +120,6 @@ const Pipes = ({
     const updatePipe = (i: number) => {
       const props = pipePropsRef.current;
       if (!props) return;
-
       // CHANGED: Added i9 and i10 for prevX/prevY
       const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
       let x = props[i];
@@ -151,7 +140,6 @@ const Pipes = ({
       life++;
       const newX = x + cos(direction) * speed;
       const newY = y + sin(direction) * speed;
-
       const tick = tickRef.current;
       const turnChance = !(tick % round(rand(1, turnChanceRange))) && (!(round(x) % 6) || !(round(y) % 6));
       const turnBias = round(rand(0, 1)) ? -1 : 1;
@@ -180,12 +168,10 @@ const Pipes = ({
     const draw = () => {
       if (!isActive) return;
       rafIdRef.current = requestAnimationFrame(draw);
-
       const ctxA = offscreenCtxRef.current;
       const canvasA = offscreenCanvasRef.current;
       const ctxB = visibleCtxRef.current;
       const canvasB = canvasRef.current;
-
       if (!ctxA || !canvasA || !ctxB || !canvasB) return;
 
       // 1. Fade the offscreen buffer (the "trails")
@@ -198,12 +184,10 @@ const Pipes = ({
       // 3. Render to the visible canvas
       ctxB.fillStyle = backgroundColor;
       ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
-
       ctxB.save();
       ctxB.filter = 'blur(12px)';
       ctxB.drawImage(canvasA, 0, 0);
       ctxB.restore();
-
       ctxB.save();
       ctxB.drawImage(canvasA, 0, 0); // Sharp on top
       ctxB.restore();
@@ -213,21 +197,17 @@ const Pipes = ({
       const { innerWidth, innerHeight } = window;
       const canvasA = offscreenCanvasRef.current;
       const canvasB = canvasRef.current;
-
       if (!canvasA || !canvasB) return;
-
       canvasA.width = innerWidth;
       canvasA.height = innerHeight;
       canvasB.width = innerWidth;
       canvasB.height = innerHeight;
       centerRef.current = [0.5 * innerWidth, 0.5 * innerHeight];
-
       initPipes();
     };
 
     // --- Initialization and Cleanup ---
     resize();
-
     const handleVisibilityChange = () => {
       if (document.hidden) {
         isActive = false;
@@ -237,7 +217,6 @@ const Pipes = ({
         rafIdRef.current = requestAnimationFrame(draw);
       }
     };
-
     rafIdRef.current = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', handleVisibilityChange);
