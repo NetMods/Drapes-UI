@@ -1,150 +1,242 @@
-'use client'
-import { useEffect, useRef, useState } from 'react';
-interface InteractiveDotGridProps {
-  dotSpacing?: number;
-  dotBaseSize?: number;
-  influenceRadius?: number;
-  maxScale?: number;
+'use client';
+import { useEffect, useRef } from 'react';
+
+interface PipeAnimationProps {
+  pipeCount?: number;
   backgroundColor?: string;
-  glowColor?: string;
-  showGrid?: boolean;
-  numLayers?: number; // For multi-layer glow effect
+  baseSpeed?: number;
+  rangeSpeed?: number;
+  baseTTL?: number;
+  rangeTTL?: number;
+  baseWidth?: number;
+  rangeWidth?: number;
+  baseHue?: number;
+  rangeHue?: number;
+  turnCount?: number;
 }
-const InteractiveDotGrid = ({
-  dotSpacing = 30,
-  dotBaseSize = 2,
-  influenceRadius = 150,
-  maxScale = 8,
-  backgroundColor = '#0a0a0a',
-  glowColor = '#8b5cf6',
-  showGrid = true,
-  numLayers = 2, // Layers for gradient/glow depth
-}: InteractiveDotGridProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+
+// --- Helper constants and functions ---
+const TO_RAD = Math.PI / 180;
+const TAU = Math.PI * 2;
+const HALF_PI = Math.PI / 2;
+const { cos, sin, round } = Math;
+const rand = (min: number, max: number): number => min + Math.random() * (max - min);
+const fadeInOut = (life: number, ttl: number): number => {
+  const halfTTL = ttl / 2;
+  if (life < halfTTL) {
+    return life / halfTTL;
+  }
+  return 1 - (life - halfTTL) / halfTTL;
+};
+
+const Pipes = ({
+  pipeCount = 30,
+  backgroundColor = 'hsla(150,80%,1%,1)',
+  baseSpeed = 0.5,
+  rangeSpeed = 1,
+  baseTTL = 300,
+  rangeTTL = 600,
+  baseWidth = 15,
+  rangeWidth = 12,
+  baseHue = 180,
+  rangeHue = 60,
+  turnCount = 8,
+}: PipeAnimationProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const offscreenCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const visibleCtxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const pipePropsRef = useRef<Float32Array | null>(null);
+  const centerRef = useRef<[number, number]>([0, 0]);
+  const tickRef = useRef<number>(0);
+  const rafIdRef = useRef<number>(0);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    visibleCtxRef.current = ctx;
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvasRef.current = offscreenCanvas;
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    if (!offscreenCtx) return;
+    offscreenCtxRef.current = offscreenCtx;
+
+    // --- Constants and State ---
+    const pipePropCount = 10; // CHANGED: Was 8, added 2 for prevX/prevY
+    const pipePropsLength = pipeCount * pipePropCount;
+    const turnAmount = (360 / turnCount) * TO_RAD;
+    const turnChanceRange = 58;
+    tickRef.current = 0;
+    const fadingBackgroundColor = backgroundColor.replace(/,1\)$/, ',0.05)');
+    let isActive = true;
+
+    const initPipe = (i: number) => {
+      const w = offscreenCanvasRef.current?.width ?? 0;
+      const h = offscreenCanvasRef.current?.height ?? 0;
+      let x, y, direction, speed, life, ttl, width, hue;
+      x = rand(0, w);
+      y = rand(0, h);
+      direction = rand(0, TAU);
+      speed = baseSpeed + rand(0, rangeSpeed);
+      life = 0;
+      ttl = baseTTL + rand(0, rangeTTL);
+      width = baseWidth + rand(0, rangeWidth);
+      hue = baseHue + rand(0, rangeHue);
+      // CHANGED: Set prevX/prevY to current x/y on init
+      pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, x, y], i);
+    };
+
+    const initPipes = () => {
+      pipePropsRef.current = new Float32Array(pipePropsLength);
+      for (let i = 0; i < pipePropsLength; i += pipePropCount) {
+        initPipe(i);
+      }
+    };
+
+    // CHANGED: This function now draws lines
+    const drawPipe = (
+      x: number, y: number,
+      prevX: number, prevY: number,
+      life: number, ttl: number,
+      width: number, hue: number
+    ) => {
+      const ctxA = offscreenCtxRef.current;
+      if (!ctxA) return;
+      ctxA.save();
+      // CHANGED: Removed * 0.5 multiplier for full brightness
+      ctxA.strokeStyle = `hsla(${hue},75%,50%,${fadeInOut(life, ttl)})`;
+      ctxA.lineWidth = width;
+      ctxA.lineCap = 'round'; // Makes line ends smoother
+      ctxA.beginPath();
+      ctxA.moveTo(prevX, prevY);
+      ctxA.lineTo(x, y);
+      ctxA.stroke();
+      ctxA.closePath();
+      ctxA.restore();
+    };
+
+    const updatePipe = (i: number) => {
+      const props = pipePropsRef.current;
+      if (!props) return;
+      // CHANGED: Added i9 and i10 for prevX/prevY
+      const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
+      let x = props[i];
+      let y = props[i2];
+      let direction = props[i3];
+      let speed = props[i4];
+      let life = props[i5];
+      let ttl = props[i6];
+      let width = props[i7];
+      let hue = props[i8];
+      let prevX = props[i9];
+      let prevY = props[i10];
+
+      // Draw the line segment
+      drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
+
+      // Update state
+      life++;
+      const newX = x + cos(direction) * speed;
+      const newY = y + sin(direction) * speed;
+      const tick = tickRef.current;
+      const turnChance = !(tick % round(rand(1, turnChanceRange))) && (!(round(x) % 6) || !(round(y) % 6));
+      const turnBias = round(rand(0, 1)) ? -1 : 1;
+      direction += turnChance ? turnAmount * turnBias : 0;
+
+      // Write back to array
+      props[i] = newX; // Set new X
+      props[i2] = newY; // Set new Y
+      props[i3] = direction;
+      props[i5] = life;
+      props[i9] = x; // Set new prevX (which is the old x)
+      props[i10] = y; // Set new prevY (which is the old y)
+
+      // Reset if dead
+      life > ttl && initPipe(i);
+    };
+
+    const updatePipes = () => {
+      tickRef.current++;
+      for (let i = 0; i < pipePropsLength; i += pipePropCount) {
+        updatePipe(i);
+      }
+    };
+
+    // This is the main 'draw' loop
+    const draw = () => {
+      if (!isActive) return;
+      rafIdRef.current = requestAnimationFrame(draw);
+      const ctxA = offscreenCtxRef.current;
+      const canvasA = offscreenCanvasRef.current;
+      const ctxB = visibleCtxRef.current;
+      const canvasB = canvasRef.current;
+      if (!ctxA || !canvasA || !ctxB || !canvasB) return;
+
+      // 1. Fade the offscreen buffer (the "trails")
+      ctxA.fillStyle = fadingBackgroundColor;
+      ctxA.fillRect(0, 0, canvasA.width, canvasA.height);
+
+      // 2. Update and draw new pipe segments to offscreen buffer
+      updatePipes();
+
+      // 3. Render to the visible canvas
+      ctxB.fillStyle = backgroundColor;
+      ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
+      ctxB.save();
+      ctxB.filter = 'blur(12px)';
+      ctxB.drawImage(canvasA, 0, 0);
+      ctxB.restore();
+      ctxB.save();
+      ctxB.drawImage(canvasA, 0, 0); // Sharp on top
+      ctxB.restore();
+    };
+
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      canvas.style.width = `${canvas.offsetWidth}px`;
-      canvas.style.height = `${canvas.offsetHeight}px`;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      const { innerWidth, innerHeight } = window;
+      const canvasA = offscreenCanvasRef.current;
+      const canvasB = canvasRef.current;
+      if (!canvasA || !canvasB) return;
+      canvasA.width = innerWidth;
+      canvasA.height = innerHeight;
+      canvasB.width = innerWidth;
+      canvasB.height = innerHeight;
+      centerRef.current = [0.5 * innerWidth, 0.5 * innerHeight];
+      initPipes();
     };
+
+    // --- Initialization and Cleanup ---
     resize();
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        isActive = false;
+        cancelAnimationFrame(rafIdRef.current);
+      } else {
+        isActive = true;
+        rafIdRef.current = requestAnimationFrame(draw);
+      }
+    };
+    rafIdRef.current = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
-    // Create grid of dots
-    const createDots = () => {
-      const dots: { x: number; y: number; baseSize: number }[] = [];
-      for (let x = dotSpacing; x < canvas.offsetWidth; x += dotSpacing) {
-        for (let y = dotSpacing; y < canvas.offsetHeight; y += dotSpacing) {
-          dots.push({ x, y, baseSize: dotBaseSize });
-        }
-      }
-      return dots;
-    };
-    let dots = createDots();
-    let animationId: number;
-    const animate = () => {
-      if (!ctx || !canvas) return;
-      // Clear canvas with background
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
-      // Recreate dots on resize (approximate)
-      if (Math.abs(canvas.width - canvas.offsetWidth * window.devicePixelRatio) > 1) {
-        dots = createDots();
-      }
-      // Draw each dot
-      dots.forEach((dot) => {
-        // Calculate distance from mouse to dot
-        const dx = mousePos.x - dot.x;
-        const dy = mousePos.y - dot.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        // Calculate scale based on distance
-        let scale = 1;
-        if (distance < influenceRadius && showGrid) {
-          const influence = 1 - distance / influenceRadius;
-          scale = 1 + influence * influence * (maxScale - 1);
-        }
-        const size = dot.baseSize * scale;
-        const glowIntensity = Math.min(1, (scale - 1) / (maxScale - 1));
-        // Multi-layer gradient for depth
-        const gradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, size * numLayers);
-        if (scale > 1.5) {
-          // Glowing layered gradient: outer glow to inner core
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${glowIntensity * 0.3})`); // Soft outer
-          for (let layer = 1; layer < numLayers; layer++) {
-            const layerOpacity = glowIntensity * (1 - layer / numLayers);
-            const layerStop = layer / numLayers;
-            gradient.addColorStop(layerStop, `rgba(167, 139, 250, ${layerOpacity})`); // Mid tones
-          }
-          gradient.addColorStop(1, `${glowColor}`); // Core color
-        } else {
-          // Subtle grayscale for idle dots
-          const intensity = Math.min(255, 100 + (scale - 1) * 40);
-          gradient.addColorStop(0, `rgb(${intensity}, ${intensity}, ${intensity})`);
-          gradient.addColorStop(1, `rgb(${intensity * 0.7}, ${intensity * 0.7}, ${intensity * 0.7})`);
-        }
-        // Draw with glow for prominent dots
-        if (glowIntensity > 0.2) {
-          ctx.shadowBlur = 20 * glowIntensity * numLayers;
-          ctx.shadowColor = `${glowColor}${Math.floor(glowIntensity * 255).toString(16).padStart(2, '0')}`;
-        }
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-        // Reset shadow
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'transparent';
-      });
-      animationId = requestAnimationFrame(animate);
-    };
-    animate();
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    };
-    const handleMouseLeave = () => {
-      setMousePos({ x: -1000, y: -1000 });
-    };
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       window.removeEventListener('resize', resize);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
-      cancelAnimationFrame(animationId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cancelAnimationFrame(rafIdRef.current);
+      isActive = false;
     };
-  }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers]);
+  }, [
+    pipeCount, backgroundColor, baseSpeed, rangeSpeed, baseTTL, rangeTTL,
+    baseWidth, rangeWidth, baseHue, rangeHue, turnCount
+  ]);
+
   return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 0,
-          backgroundColor
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+    />
   );
-}
-export default InteractiveDotGrid
+};
+
+export default Pipes;

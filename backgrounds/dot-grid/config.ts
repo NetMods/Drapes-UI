@@ -15,7 +15,7 @@ export default {
     backgroundColor: '#0a0a0a',
     glowColor: '#8b5cf6',
     numLayers: 2,
-    hiddots: true,
+    hiddots: false,
   },
   code: {
     usage: usageCodeHTML,

@@ -43,7 +43,7 @@ export const Collections = () => {
       const tag = target?.tagName ?? '';
       const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable;
 
-      if (isEditable) return;
+      // if (isEditable) return;
       const key = event.key.toLowerCase();
       if ((event.metaKey || event.ctrlKey) && key === 'k') {
         event.preventDefault();
