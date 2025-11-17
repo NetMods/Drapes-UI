@@ -82,7 +82,7 @@ export const Collections = () => {
                 )}
               >
                 {label}{' '}
-                <span className={`ml-1 text-sm opacity-70 count-${tab}`} suppressHydrationWarning>({count})</span>
+                <span className={`ml-1 text-sm opacity-70 count-${tab}`} suppressHydrationWarning >({count})</span>
               </button>
             );
           })}
@@ -90,6 +90,7 @@ export const Collections = () => {
       </div>
 
       <div className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
+        {/* bg-base-content/10 backdrop-blur-3xl */}
         {filtered.map(({ config, component: Component }, index) => (
           <BackgroundCard
             key={config.id}
@@ -125,9 +126,9 @@ export const Collections = () => {
             <p className="text-xl">No backgrounds match your search.</p>
           </div>
         )}
+
       </div>
 
-      <p className='mt-10 font-sans text-xs text-center text-base-content/30 capitalize'>new background every week</p>
 
       <script
         dangerouslySetInnerHTML={{

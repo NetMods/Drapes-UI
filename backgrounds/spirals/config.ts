@@ -3,16 +3,16 @@ import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
   name: 'Spirals',
-  description: 'Mathematical spirals that spins based on your choice of rotaion',
+  description: 'A hypnotic animated background of mathematical spirals that elegantly spin and expand with smooth rotation, customizable for velocity, colors, and spacing to create mesmerizing geometric flows.',
   author: 'NetMods',
-  tags: ['animated', 'gradient', 'waves'],
+  tags: ['animated', 'spirals', 'mathematical', 'rotation', 'hypnotic', 'geometric', 'flow', 'abstract'],
   defaultProps: {
     maxOffset: 400,
     spacing: 3,
     pointsPerLap: 6,
     shadowStrength: 6,
-    primaryColor: '#fff',
-    secondaryColor: '#fff',
+    primaryColor: '#ffffff',
+    secondaryColor: '#ffffff',
     lineWidth: 2,
     initialVelocity: 0.1,
   },
@@ -28,23 +28,24 @@ export default {
       label: 'Primary Color',
       type: 'color',
       defaultValue: '#ffffff',
-      description: 'Stroke color for spiral',
+      description: 'The main stroke color defining the visible lines of the spinning spirals.',
     },
     {
       key: 'secondaryColor',
       label: 'Secondary Color',
       type: 'color',
       defaultValue: '#ffffff',
-      description: 'Shadow Color for spiral',
+      description: 'The shadow or accent color that adds depth and glow to the spiral patterns.',
     },
     {
       key: 'maxOffset',
-      label: 'Offset',
+      label: 'Max Offset',
       type: 'slider',
       min: 10,
       max: 1000,
       step: 50,
       defaultValue: 400,
+      description: 'The maximum radial offset determining the overall size and reach of the spirals.',
     },
     {
       key: 'spacing',
@@ -54,6 +55,7 @@ export default {
       max: 10,
       step: 1,
       defaultValue: 3,
+      description: 'The angular spacing between points along each spiral arm for density control.',
     },
     {
       key: 'lineWidth',
@@ -63,6 +65,7 @@ export default {
       max: 10,
       step: 1,
       defaultValue: 2,
+      description: 'The thickness of the spiral lines to adjust visual weight and prominence.',
     },
     {
       key: 'initialVelocity',
@@ -71,8 +74,8 @@ export default {
       min: 0,
       max: 1,
       step: 0.1,
-      defaultValue: 0.5,
+      defaultValue: 0.1,
+      description: 'The starting rotational speed influencing how quickly the spirals spin and evolve.',
     },
-
   ],
 } as Omit<BackgroundConfig, 'id'>;

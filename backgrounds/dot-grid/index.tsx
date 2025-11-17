@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react';
+
 interface InteractiveDotGridProps {
   dotSpacing?: number;
   dotBaseSize?: number;
@@ -9,7 +10,9 @@ interface InteractiveDotGridProps {
   glowColor?: string;
   showGrid?: boolean;
   numLayers?: number; // For multi-layer glow effect
+  hiddots?: boolean; // New prop: if true, dots are invisible unless hovered within influenceRadius
 }
+
 const InteractiveDotGrid = ({
   dotSpacing = 30,
   dotBaseSize = 2,
@@ -19,14 +22,17 @@ const InteractiveDotGrid = ({
   glowColor = '#8b5cf6',
   showGrid = true,
   numLayers = 2, // Layers for gradient/glow depth
+  hiddots = true,
 }: InteractiveDotGridProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
     const resize = () => {
       canvas.width = canvas.offsetWidth * window.devicePixelRatio;
       canvas.height = canvas.offsetHeight * window.devicePixelRatio;
@@ -36,6 +42,7 @@ const InteractiveDotGrid = ({
     };
     resize();
     window.addEventListener('resize', resize);
+
     // Create grid of dots
     const createDots = () => {
       const dots: { x: number; y: number; baseSize: number }[] = [];
@@ -48,29 +55,41 @@ const InteractiveDotGrid = ({
     };
     let dots = createDots();
     let animationId: number;
+
     const animate = () => {
       if (!ctx || !canvas) return;
+
       // Clear canvas with background
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+
       // Recreate dots on resize (approximate)
       if (Math.abs(canvas.width - canvas.offsetWidth * window.devicePixelRatio) > 1) {
         dots = createDots();
       }
+
       // Draw each dot
       dots.forEach((dot) => {
         // Calculate distance from mouse to dot
         const dx = mousePos.x - dot.x;
         const dy = mousePos.y - dot.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // Skip drawing if hiddenByDefault and outside influence radius
+        if (hiddots && distance >= influenceRadius) {
+          return;
+        }
+
         // Calculate scale based on distance
         let scale = 1;
         if (distance < influenceRadius && showGrid) {
           const influence = 1 - distance / influenceRadius;
           scale = 1 + influence * influence * (maxScale - 1);
         }
+
         const size = dot.baseSize * scale;
         const glowIntensity = Math.min(1, (scale - 1) / (maxScale - 1));
+
         // Multi-layer gradient for depth
         const gradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, size * numLayers);
         if (scale > 1.5) {
@@ -88,22 +107,27 @@ const InteractiveDotGrid = ({
           gradient.addColorStop(0, `rgb(${intensity}, ${intensity}, ${intensity})`);
           gradient.addColorStop(1, `rgb(${intensity * 0.7}, ${intensity * 0.7}, ${intensity * 0.7})`);
         }
+
         // Draw with glow for prominent dots
         if (glowIntensity > 0.2) {
           ctx.shadowBlur = 20 * glowIntensity * numLayers;
           ctx.shadowColor = `${glowColor}${Math.floor(glowIntensity * 255).toString(16).padStart(2, '0')}`;
         }
+
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
         ctx.fillStyle = gradient;
         ctx.fill();
+
         // Reset shadow
         ctx.shadowBlur = 0;
         ctx.shadowColor = 'transparent';
       });
+
       animationId = requestAnimationFrame(animate);
     };
     animate();
+
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       setMousePos({
@@ -116,21 +140,19 @@ const InteractiveDotGrid = ({
     };
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseleave', handleMouseLeave);
+
     return () => {
       window.removeEventListener('resize', resize);
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationId);
     };
-  }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers]);
-
+  }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers, hiddots]);
 
   // (async () => {
-  //   const { captureCanvasScreenshot } = await import('@/lib/utils');
-  //   await captureCanvasScreenshot(canvasRef, "dot-grid.webp", 5000);
+  // const { captureCanvasScreenshot } = await import('@/lib/utils');
+  // await captureCanvasScreenshot(canvasRef, "dot-grid.webp", 5000);
   // })()
-
-
 
   return (
     <canvas
@@ -147,4 +169,5 @@ const InteractiveDotGrid = ({
     />
   );
 }
-export default InteractiveDotGrid
+
+export default InteractiveDotGrid;
