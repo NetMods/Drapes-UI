@@ -13,16 +13,16 @@ interface ConfettiAnimationProps {
 }
 
 const DEFAULT_COLORS = [
-  [255, 107, 107],  // Coral Red
-  [255, 183, 77],   // Golden Orange
-  [255, 234, 167],  // Pale Yellow
-  [72, 219, 251],   // Sky Blue
-  [162, 155, 254],  // Soft Purple
-  [108, 92, 231],   // Deep Purple
-  [255, 121, 198],  // Pink
-  [94, 234, 212],   // Turquoise
-  [134, 239, 172],  // Mint Green
-  [251, 146, 60]    // Bright Orange
+  [255, 107, 107],
+  [255, 183, 77],
+  [255, 234, 167],
+  [72, 219, 251],
+  [162, 155, 254],
+  [108, 92, 231],
+  [255, 121, 198],
+  [94, 234, 212],
+  [134, 239, 172],
+  [251, 146, 60]
 ];
 
 const PI_2 = 2 * Math.PI;

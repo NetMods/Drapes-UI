@@ -121,7 +121,6 @@ const SnowflakesAnimation = ({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       width = w;
       height = h;
-      // Draw initial background
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, width, height);
     };

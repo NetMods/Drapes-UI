@@ -9,8 +9,8 @@ interface InteractiveDotGridProps {
   backgroundColor?: string;
   glowColor?: string;
   showGrid?: boolean;
-  numLayers?: number; // For multi-layer glow effect
-  hiddots?: boolean; // New prop: if true, dots are invisible unless hovered within influenceRadius
+  numLayers?: number;
+  hiddots?: boolean;
 }
 
 const InteractiveDotGrid = ({
@@ -21,8 +21,8 @@ const InteractiveDotGrid = ({
   backgroundColor = '#0a0a0a',
   glowColor = '#8b5cf6',
   showGrid = true,
-  numLayers = 2, // Layers for gradient/glow depth
-  hiddots = true,
+  numLayers = 2,
+  hiddots = false,
 }: InteractiveDotGridProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
@@ -43,7 +43,6 @@ const InteractiveDotGrid = ({
     resize();
     window.addEventListener('resize', resize);
 
-    // Create grid of dots
     const createDots = () => {
       const dots: { x: number; y: number; baseSize: number }[] = [];
       for (let x = dotSpacing; x < canvas.offsetWidth; x += dotSpacing) {
@@ -59,28 +58,22 @@ const InteractiveDotGrid = ({
     const animate = () => {
       if (!ctx || !canvas) return;
 
-      // Clear canvas with background
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 
-      // Recreate dots on resize (approximate)
       if (Math.abs(canvas.width - canvas.offsetWidth * window.devicePixelRatio) > 1) {
         dots = createDots();
       }
 
-      // Draw each dot
       dots.forEach((dot) => {
-        // Calculate distance from mouse to dot
         const dx = mousePos.x - dot.x;
         const dy = mousePos.y - dot.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Skip drawing if hiddenByDefault and outside influence radius
         if (hiddots && distance >= influenceRadius) {
           return;
         }
 
-        // Calculate scale based on distance
         let scale = 1;
         if (distance < influenceRadius && showGrid) {
           const influence = 1 - distance / influenceRadius;
@@ -90,25 +83,21 @@ const InteractiveDotGrid = ({
         const size = dot.baseSize * scale;
         const glowIntensity = Math.min(1, (scale - 1) / (maxScale - 1));
 
-        // Multi-layer gradient for depth
         const gradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, size * numLayers);
         if (scale > 1.5) {
-          // Glowing layered gradient: outer glow to inner core
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${glowIntensity * 0.3})`); // Soft outer
+          gradient.addColorStop(0, `rgba(255, 255, 255, ${glowIntensity * 0.3})`);
           for (let layer = 1; layer < numLayers; layer++) {
             const layerOpacity = glowIntensity * (1 - layer / numLayers);
             const layerStop = layer / numLayers;
-            gradient.addColorStop(layerStop, `rgba(167, 139, 250, ${layerOpacity})`); // Mid tones
+            gradient.addColorStop(layerStop, `rgba(167, 139, 250, ${layerOpacity})`);
           }
-          gradient.addColorStop(1, `${glowColor}`); // Core color
+          gradient.addColorStop(1, `${glowColor}`);
         } else {
-          // Subtle grayscale for idle dots
           const intensity = Math.min(255, 100 + (scale - 1) * 40);
           gradient.addColorStop(0, `rgb(${intensity}, ${intensity}, ${intensity})`);
           gradient.addColorStop(1, `rgb(${intensity * 0.7}, ${intensity * 0.7}, ${intensity * 0.7})`);
         }
 
-        // Draw with glow for prominent dots
         if (glowIntensity > 0.2) {
           ctx.shadowBlur = 20 * glowIntensity * numLayers;
           ctx.shadowColor = `${glowColor}${Math.floor(glowIntensity * 255).toString(16).padStart(2, '0')}`;
@@ -119,7 +108,6 @@ const InteractiveDotGrid = ({
         ctx.fillStyle = gradient;
         ctx.fill();
 
-        // Reset shadow
         ctx.shadowBlur = 0;
         ctx.shadowColor = 'transparent';
       });
@@ -149,10 +137,6 @@ const InteractiveDotGrid = ({
     };
   }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers, hiddots]);
 
-  // (async () => {
-  // const { captureCanvasScreenshot } = await import('@/lib/utils');
-  // await captureCanvasScreenshot(canvasRef, "dot-grid.webp", 5000);
-  // })()
 
   return (
     <canvas
