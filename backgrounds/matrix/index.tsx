@@ -27,10 +27,9 @@ const Matrix = ({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const letters = Array(256).join('1').split('').map(() => Math.floor(Math.random() * 758 + 10)); // Initialize y positions randomly for better effect
+    const letters = Array(256).join('1').split('').map(() => Math.floor(Math.random() * 758 + 10));
 
     const draw = () => {
-      // Fade background
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -42,7 +41,6 @@ const Matrix = ({
 
         ctx.fillText(text, x, y);
 
-        // Update y position
         letters[i] = y > 758 + Math.random() * 10000 ? 0 : y + 10;
       });
     };

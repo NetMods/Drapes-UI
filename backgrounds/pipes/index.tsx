@@ -31,15 +31,12 @@ const fadeInOut = (life: number, ttl: number): number => {
 };
 
 const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
-  // If it's already hsla/rgba with alpha, replace the alpha value
   if (/^hsla?\(/.test(color)) {
     return color.replace(/,\s*[\d.]+\)$/, `,${alpha})`).replace(/^hsl\(/, 'hsla(');
   }
   if (/^rgba?\(/.test(color)) {
     return color.replace(/,\s*[\d.]+\)$/, `,${alpha})`).replace(/^rgb\(/, 'rgba(');
   }
-
-  // Handle hex colors
   const hexMatch = color.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
   if (hexMatch) {
     const r = parseInt(hexMatch[1], 16);
@@ -47,8 +44,6 @@ const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
     const b = parseInt(hexMatch[3], 16);
     return `rgba(${r},${g},${b},${alpha})`;
   }
-
-  // Handle shorthand hex
   const shortHexMatch = color.match(/^#?([a-f\d])([a-f\d])([a-f\d])$/i);
   if (shortHexMatch) {
     const r = parseInt(shortHexMatch[1] + shortHexMatch[1], 16);
@@ -56,16 +51,12 @@ const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
     const b = parseInt(shortHexMatch[3] + shortHexMatch[3], 16);
     return `rgba(${r},${g},${b},${alpha})`;
   }
-
-  // Handle named colors by trying to parse through canvas
   try {
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
     if (tempCtx) {
       tempCtx.fillStyle = color;
       const computedColor = tempCtx.fillStyle;
-
-      // Parse the computed color (usually rgb format)
       const rgbMatch = computedColor.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
       if (rgbMatch) {
         const r = parseInt(rgbMatch[1], 16);
@@ -75,10 +66,7 @@ const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
       }
     }
   } catch (e) {
-    // Fall through to default
   }
-
-  // Fallback
   return `rgba(0,0,0,${alpha})`;
 };
 
@@ -139,8 +127,6 @@ const Pipes = ({
       const ttl = baseTTL + rand(0, rangeTTL);
       const width = baseWidth + rand(0, rangeWidth);
       const hue = baseHue + rand(0, rangeHue);
-
-      // FIXED: Calculate initial prevX/prevY by moving backwards from starting position
       const prevX = x - cos(direction) * speed;
       const prevY = y - sin(direction) * speed;
 
@@ -191,30 +177,20 @@ const Pipes = ({
       let hue = props[i8];
       let prevX = props[i9];
       let prevY = props[i10];
-
-      // Draw the line segment
       drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
-
-      // Update state
       life++;
-
       const newX = x + cos(direction) * speed;
       const newY = y + sin(direction) * speed;
-
       const tick = tickRef.current;
       const turnChance = !(tick % round(rand(1, turnChanceRange))) && (!(round(x) % 6) || !(round(y) % 6));
       const turnBias = round(rand(0, 1)) ? -1 : 1;
       direction += turnChance ? turnAmount * turnBias : 0;
-
-      // Write back to array
       props[i] = newX;
       props[i2] = newY;
       props[i3] = direction;
       props[i5] = life;
       props[i9] = x;
       props[i10] = y;
-
-      // Reset if dead
       life > ttl && initPipe(i);
     };
 
