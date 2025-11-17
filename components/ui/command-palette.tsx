@@ -1,17 +1,20 @@
 'use client'
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 
 interface CommandPaletteContextType {
   isOpen: boolean;
+  filterInput: string;
   toggleOpen: (value?: boolean) => void;
+  setFilterInput: (value: string) => void;
 }
 
 const CommandPaletteContext = createContext<CommandPaletteContextType | undefined>(undefined)
 
 export function CommandPaletteContextProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [filterInput, setFilterInput] = useState<string>('')
   const toggleOpen = (value?: boolean) => {
     if (value !== undefined) {
       setIsOpen(value)
@@ -23,7 +26,9 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
   return (
     <CommandPaletteContext.Provider value={{
       isOpen,
-      toggleOpen
+      filterInput,
+      toggleOpen,
+      setFilterInput
     }}>
       {children}
     </CommandPaletteContext.Provider>
@@ -39,7 +44,7 @@ export function useCommandPalette() {
 }
 
 export function CommandPalette() {
-  const { isOpen, toggleOpen } = useCommandPalette()
+  const { isOpen, toggleOpen, filterInput, setFilterInput } = useCommandPalette()
 
   if (!isOpen) return null;
 
@@ -65,7 +70,20 @@ export function CommandPalette() {
         <div className="relative bg-base-300 backdrop-blur-sm rounded-lg h-10 w-full md:w-lg md:h-14">
           <div className="w-full h-full flex justify-center items-center gap-6 px-3">
             <MagnifyingGlassIcon size={24} className="text-base-content" />
-            <input placeholder="Keywords...." type="text" autoComplete="off" className="flex-1 border-none text-base-content text-xl outline-none" />
+            <input
+              placeholder="Search by Tags, name or descriptions...."
+              type="text"
+              autoComplete="off"
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  toggleOpen(false)
+                }
+              }}
+              className="flex-1 border-none text-base-content text-xl outline-none"
+            />
           </div>
         </div>
       </div>
