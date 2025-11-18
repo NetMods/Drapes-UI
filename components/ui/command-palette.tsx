@@ -67,7 +67,7 @@ export function CommandPalette() {
       <div className={`absolute rounded-lg shadow-xl animate-in top-[20vh]  }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative bg-base-300 backdrop-blur-sm rounded-lg h-10 w-full md:w-lg md:h-14">
+        <div className="relative bg-white/10 text-base-content backdrop-blur-sm rounded-lg h-10 w-full md:w-lg md:h-14">
           <div className="w-full h-full flex justify-center items-center gap-6 px-3">
             <MagnifyingGlassIcon size={24} className="text-base-content" />
             <input
@@ -80,9 +80,13 @@ export function CommandPalette() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   toggleOpen(false)
+                  if (filterInput.trim()) {
+                    const element = document.getElementById("background-collections")
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
                 }
               }}
-              className="flex-1 border-none text-base-content text-xl outline-none"
+              className="flex-1 border-none text-xl outline-none"
             />
           </div>
         </div>

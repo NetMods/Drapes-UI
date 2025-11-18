@@ -39,11 +39,6 @@ export const Collections = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const tag = target?.tagName ?? '';
-      const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable;
-
-      // if (isEditable) return;
       const key = event.key.toLowerCase();
       if ((event.metaKey || event.ctrlKey) && key === 'k') {
         event.preventDefault();
@@ -89,7 +84,7 @@ export const Collections = () => {
         </div>
       </div>
 
-      <div className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
+      <div id='background-collections' className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
         {/* bg-base-content/10 backdrop-blur-3xl */}
         {filtered.map(({ config, component: Component }, index) => (
           <BackgroundCard
