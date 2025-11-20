@@ -1,62 +1,18 @@
 'use client'
-import { createContext, ReactNode, useContext, useState } from "react";
 import { createPortal } from "react-dom";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import useLocalStorage from "@/hooks/use-local-storage";
-import CommandPaletteHistory from "./command-palette-history";
-
-interface CommandPaletteContextType {
-  isOpen: boolean;
-  filterInput: string;
-  toggleOpen: (value?: boolean) => void;
-  setFilterInput: (value: string) => void;
-}
-
-export interface CommandPaletteHistoryType {
-  date: Date,
-  filterInput: string
-}
-
-const CommandPaletteContext = createContext<CommandPaletteContextType | undefined>(undefined)
-
-export function CommandPaletteContextProvider({ children }: { children: ReactNode }) {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [filterInput, setFilterInput] = useState<string>('')
-  const toggleOpen = (value?: boolean) => {
-    if (value !== undefined) {
-      setIsOpen(value)
-    } else {
-      setIsOpen(prev => !prev)
-    }
-  };
-
-  return (
-    <CommandPaletteContext.Provider value={{
-      isOpen,
-      filterInput,
-      toggleOpen,
-      setFilterInput
-    }}>
-      {children}
-    </CommandPaletteContext.Provider>
-  )
-}
-
-export function useCommandPalette() {
-  const context = useContext(CommandPaletteContext)
-  if (context === undefined) {
-    throw new Error('useCommandPalette must be used within a CommandPaletteContext');
-  }
-  return context
-}
+import { CommandPaletteHistoryType, useCommandPalette } from "@/lib/command-palette-context";
+import CommandPaletteHistory from "./dropdown";
 
 export function CommandPalette() {
   const { isOpen, toggleOpen, filterInput, setFilterInput } = useCommandPalette()
-  const [, , setHistory] = useLocalStorage<CommandPaletteHistoryType[]>('cmd-palette-history', [])
+  const [, setHistory] = useLocalStorage<CommandPaletteHistoryType[]>('cmd-palette-history', [])
 
   const handleKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       toggleOpen(false)
+
       if (filterInput.trim()) {
         setHistory((prev) => {
           const arr = Array.isArray(prev) ? prev : [];
@@ -72,17 +28,17 @@ export function CommandPalette() {
           }
           return [...arr, { date: new Date(), filterInput }];
         })
+
         const element = document.getElementById("background-collections")
         element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
-
     }
   }
 
   if (!isOpen) return null;
 
   const Content = (
-    <div className="fixed inset-0 z-50 flex justify-center"
+    <div className="fixed inset-0 z-50 flex justify-center font-sans"
       onClick={() => toggleOpen()}
     >
       <div
@@ -97,29 +53,31 @@ export function CommandPalette() {
           backgroundColor: 'rgba(0, 0, 0, 0.4)'
         }}
       />
-      <div className={`absolute rounded-lg shadow-xl animate-in top-[20vh]`}
+      <div
+        className={`absolute rounded-lg shadow-xl animate-in top-[20vh]`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col bg-white/10 text-base-content backdrop-blur-sm rounded-lg p-0.5 border border-base-300/50">
+
           <div className="relative h-10 w-full md:w-lg md:h-14">
-            <div className="w-full h-full flex justify-center items-center gap-6 px-1">
-              <MagnifyingGlassIcon size={24} className="text-base-content" />
+            <div className="w-full h-full flex justify-center items-center p-2">
+              <MagnifyingGlassIcon size={22} className="mr-3 text-base-content" weight="bold" />
               <input
-                placeholder="Search by Tags, name or descriptions...."
+                placeholder="Search by tags, name or descriptions"
                 type="text"
                 autoComplete="off"
+                onFocus={(e) => e.target.select()}
+                spellCheck="false"
                 value={filterInput}
                 onChange={(e) => setFilterInput(e.target.value)}
                 autoFocus
                 onKeyDown={handleKey}
-                className="flex-1 border-none text-xl outline-none"
+                className="flex-1 border-none text-md sm:text-lg outline-none select-all"
               />
             </div>
           </div>
-          <div className="border border-base-300" />
-          <div className="flex flex-col max-h-[40vh] overflow-x-scroll p-2">
-            <CommandPaletteHistory />
-          </div>
+
+          <CommandPaletteHistory />
         </div>
       </div>
     </div>

@@ -6,15 +6,23 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect, useMemo } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
-import { useCommandPalette } from '../ui/command-palette';
 import { BackspaceIcon } from '@phosphor-icons/react';
+import { useCommandPalette } from '@/lib/command-palette-context';
 
 export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
-  const [favourite, toggleFavourite] = useLocalStorage<string[]>('favourite', []);
+  const [favourite, setFavourite] = useLocalStorage<string[]>('favourite', []);
   const backgrounds = registry.getAll();
   const { toggleOpen, filterInput, setFilterInput } = useCommandPalette();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const toggleFavourite = (id: string) => {
+    setFavourite(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : [...prev, id]
+    );
+  };
 
   const filtered = useMemo(() => {
     let result = activeTab === 'fav'
@@ -71,7 +79,7 @@ export const Collections = () => {
           </div>
         )
         }
-        <div className='backdrop-blur-lg flex w-full max-w-xl mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
+        <div className='backdrop-blur-lg flex w-full max-w-xl mb-10 p-1 border border-white/15 rounded-[13px] bg-white/10 font-sans select-none'>
           {(['all', 'fav'] as const).map((tab) => {
             const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
             const count = tab === 'all' ? backgrounds.length : favourite.length;
@@ -80,7 +88,7 @@ export const Collections = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  'flex-1 p-2 rounded-lg text-lg font-medium transition-colors relative',
+                  'flex-1 p-1 rounded-[10px] text-lg font-medium transition-colors relative',
                   'outline-none focus:outline-none focus-visible:ring-0 cursor-pointer',
                   activeTab === tab
                     ? 'bg-base-100/30'
@@ -95,7 +103,7 @@ export const Collections = () => {
         </div>
       </div>
 
-      <div id='background-collections' className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full">
+      <div id='background-collections' className="w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full scroll-m-24">
         {/* bg-base-content/10 backdrop-blur-3xl */}
         {filtered.map(({ config, component: Component }, index) => (
           <BackgroundCard

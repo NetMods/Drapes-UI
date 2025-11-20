@@ -71,7 +71,7 @@ const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
 };
 
 const Pipes = ({
-  pipeCount = 30,
+  pipeCount = 50,
   backgroundColor = 'hsla(150,80%,1%,1)',
   baseSpeed = 0.5,
   rangeSpeed = 1,
@@ -271,10 +271,7 @@ const Pipes = ({
   ]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{ display: 'block', width: '100%', height: '100vh' }}
-    />
+    <canvas ref={canvasRef} />
   );
 };
 

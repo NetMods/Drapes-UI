@@ -3,11 +3,9 @@ import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react/dist/ssr"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr"
 import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
-import { useCommandPalette } from "../ui/command-palette"
-
+import { useCommandPalette } from "@/lib/command-palette-context"
 
 export const Navbar = () => {
-
   const { toggleOpen } = useCommandPalette()
 
   return (
@@ -22,7 +20,6 @@ export const Navbar = () => {
           />
           Drapes UI
         </div>
-
 
         <div className="flex gap-1 items-center max-md:scale-95">
 

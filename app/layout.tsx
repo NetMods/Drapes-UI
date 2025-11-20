@@ -4,8 +4,8 @@ import { fontMono, fontMonoCode, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 import { BackgroundProvider } from "@/lib/background-context";
-import { CommandPaletteContextProvider } from "@/components/ui/command-palette";
 import { cn } from "@/lib/utils";
+import { CommandPaletteContextProvider } from "@/lib/command-palette-context";
 
 export const metadata: Metadata = {
   title: "DrapesUI",
@@ -63,8 +63,8 @@ export default function RootLayout({
         >
           <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
 
-          <BackgroundProvider>
-            <CommandPaletteContextProvider>
+          <CommandPaletteContextProvider>
+            <BackgroundProvider>
               <CodeSidebarProvider>
                 <SettingsSidebarProvider>
                   <div className="relative z-10 w-full h-full max-w-500 mx-auto">
@@ -74,8 +74,8 @@ export default function RootLayout({
                   <CodeSidebar />
                 </SettingsSidebarProvider>
               </CodeSidebarProvider>
-            </CommandPaletteContextProvider>
-          </BackgroundProvider>
+            </BackgroundProvider>
+          </CommandPaletteContextProvider>
         </div>
       </body>
     </html>
