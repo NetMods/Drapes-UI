@@ -7,12 +7,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
 import { useCommandPalette } from '../ui/command-palette';
+import { BackspaceIcon } from '@phosphor-icons/react';
 
 export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
-  const [favourite, toggleFavourite] = useLocalStorage<string>('favourite', []);
+  const [favourite, toggleFavourite] = useLocalStorage<string[]>('favourite', []);
   const backgrounds = registry.getAll();
-  const { toggleOpen, filterInput } = useCommandPalette();
+  const { toggleOpen, filterInput, setFilterInput } = useCommandPalette();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const filtered = useMemo(() => {
@@ -59,8 +60,18 @@ export const Collections = () => {
 
   return (
     <div className="text-base-content w-full mb-10">
-      <div className="sticky top-0 z-40 w-full">
-        <div className='backdrop-blur-lg flex w-full max-w-xl mx-auto mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
+      <div className="sticky flex gap-1 items-center justify-center top-0 z-40 w-full">
+        {filterInput.length > 0 && (
+          <div className='backdrop-blur-lg mb-10 p-2 rounded-full bg-white/10 font-sans animate-in'>
+            <button
+              onClick={() => setFilterInput('')}
+              className='p-2 text-lg hover:bg-base-100/30 cursor-pointer rounded-full'>
+              <BackspaceIcon />
+            </button>
+          </div>
+        )
+        }
+        <div className='backdrop-blur-lg flex w-full max-w-xl mb-10 p-2 border border-white/30 rounded-lg bg-white/10 font-sans'>
           {(['all', 'fav'] as const).map((tab) => {
             const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
             const count = tab === 'all' ? backgrounds.length : favourite.length;

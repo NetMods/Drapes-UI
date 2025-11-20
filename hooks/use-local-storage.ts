@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
-
-type StorageValue<T> = T | T[];
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
 function useLocalStorage<T>(
   key: string,
-  initialValue: StorageValue<T>
-): [StorageValue<T>, (value: T) => void] {
-  const [storedValue, setStoredValue] = useState<StorageValue<T>>(() => {
+  initialValue: T
+): [T, (value: T extends any[] ? T[number] : T) => void, Dispatch<SetStateAction<T>>] {
+  const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      if (typeof window === 'undefined') return initialValue
+      if (typeof window === 'undefined') return initialValue;
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
@@ -17,42 +15,37 @@ function useLocalStorage<T>(
     }
   });
 
-  // Update localStorage whenever storedValue changes
   useEffect(() => {
     try {
-      if (typeof window === 'undefined') return
+      if (typeof window === 'undefined') return;
       window.localStorage.setItem(key, JSON.stringify(storedValue));
     } catch (error) {
       console.error(`Error saving ${key} to localStorage:`, error);
     }
   }, [key, storedValue]);
 
-  const toggleValue = (value: T) => {
+  const toggleValue = (value: T extends any[] ? T[number] : T) => {
     setStoredValue(prev => {
       if (Array.isArray(prev)) {
         const index = prev.findIndex(item =>
           JSON.stringify(item) === JSON.stringify(value)
         );
-
         if (index > -1) {
-          // Remove if exists
-          return prev.filter((_, i) => i !== index);
+          return prev.filter((_, i) => i !== index) as T;
         } else {
-          // Add if doesn't exist
-          return [...prev, value];
+          return [...prev, value] as T;
         }
-      }
-      else {
+      } else {
         if (JSON.stringify(prev) === JSON.stringify(value)) {
-          return Array.isArray(initialValue) ? [] : initialValue;
+          return initialValue;
         } else {
-          return value;
+          return value as T;
         }
       }
     });
   };
 
-  return [storedValue, toggleValue];
+  return [storedValue, toggleValue, setStoredValue];
 }
 
 export default useLocalStorage;
