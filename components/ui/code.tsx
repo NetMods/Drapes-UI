@@ -5,26 +5,27 @@ import { MouseEvent, useEffect, useState } from "react"
 import { BundledLanguage, codeToHtml } from 'shiki';
 
 type Props = {
-  children: string;
+  htmlCode: string;
+  code: string;
   filename?: string;
   dynamic?: string;
   language?: string;
 };
 
-export default function Code({ children, filename, dynamic, language }: Props) {
-  const [html, setHtml] = useState<string>(children)
+export default function Code({ htmlCode, code, filename, dynamic, language }: Props) {
+  const [html, setHtml] = useState<string>(htmlCode)
 
   useEffect(() => {
     if (dynamic) {
       codeToHtml(dynamic, { lang: language as BundledLanguage, theme: "material-theme" })
         .then((result) => setHtml(result));
     }
-  }, [children, dynamic])
+  }, [htmlCode, dynamic])
 
   const copyCode = (e: MouseEvent<HTMLButtonElement>) => {
     const button = e.currentTarget;
     button.classList.add('clicked');
-    navigator.clipboard.writeText(children);
+    navigator.clipboard.writeText(code);
     setTimeout(() => button.classList.remove('clicked'), 500);
   };
 

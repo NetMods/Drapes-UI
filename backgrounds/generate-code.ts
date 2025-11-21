@@ -18,8 +18,8 @@ export function generateUsageCode(
 
 export default function Page() {
   return (
-    <div style={{ position: 'relative', minheight: '100vh' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+    <div>
+      <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }} >
         <${componentName} 
 ${propsString}
         />
@@ -156,15 +156,17 @@ async function processFile(file: string) {
     return;
   }
 
-  writeOutput(dir, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode);
+  writeOutput(dir, tsxCodeHTML, tsxCode, jsxCodeHTML, jsxCode, usageCodeHTML, usageCode);
 }
 
-function writeOutput(dir: string, tsxCodeHTML: string, jsxCodeHTML: string, usageCodeHTML: string, usageCode: string) {
+function writeOutput(dir: string, tsxCodeHTML: string, tsxCode: string, jsxCodeHTML: string, jsxCode: string, usageCodeHTML: string, usageCode: string) {
+  const tsxRawCode = `export const tsxCode = ${JSON.stringify(tsxCode)};`
+  const jsxRawCode = `export const jsxCode = ${JSON.stringify(jsxCode)};`
   const tsxOutput = `export const tsxCodeHTML = ${JSON.stringify(tsxCodeHTML)};`;
   const jsxOutput = `export const jsxCodeHTML = ${JSON.stringify(jsxCodeHTML)};`;
   const usageOutput = `export const usageCodeHTML = ${JSON.stringify(usageCodeHTML)};`;
   const usageOutput2 = `export const usageCode = ${JSON.stringify(usageCode)};`;
-  const output = `${tsxOutput}\n\n${jsxOutput}\n\n${usageOutput}\n\n${usageOutput2}`.trim();
+  const output = `${tsxRawCode}\n\n${jsxRawCode}\n\n${tsxOutput}\n\n${jsxOutput}\n\n${usageOutput}\n\n${usageOutput2}`.trim();
 
   const outputPath = join(dir, 'code.ts');
   try {

@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useRef } from 'react';
 
 interface PipeAnimationProps {
@@ -18,6 +17,7 @@ interface PipeAnimationProps {
 
 const TO_RAD = Math.PI / 180;
 const TAU = Math.PI * 2;
+const HALF_PI = Math.PI / 2;
 const { cos, sin, round } = Math;
 
 const rand = (min: number, max: number): number => min + Math.random() * (max - min);
@@ -88,20 +88,19 @@ const Pipes = ({
   const offscreenCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const visibleCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const pipePropsRef = useRef<Float32Array | null>(null);
+  const centerRef = useRef<[number, number]>([0, 0]);
   const tickRef = useRef<number>(0);
   const rafIdRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     visibleCtxRef.current = ctx;
 
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvasRef.current = offscreenCanvas;
-
     const offscreenCtx = offscreenCanvas.getContext('2d');
     if (!offscreenCtx) return;
     offscreenCtxRef.current = offscreenCtx;
@@ -111,26 +110,21 @@ const Pipes = ({
     const turnAmount = (360 / turnCount) * TO_RAD;
     const turnChanceRange = 58;
     tickRef.current = 0;
-
     const fadingBackgroundColor = convertToAlphaColor(backgroundColor, 0.05);
     let isActive = true;
 
     const initPipe = (i: number) => {
       const w = offscreenCanvasRef.current?.width ?? 0;
-      const h = offscreenCanvasRef.current?.height ?? 0;
-
       const x = rand(0, w);
-      const y = rand(0, h);
-      const direction = rand(0, TAU);
+      const y = centerRef.current[1];
+      const direction = round(rand(0, 1)) ? HALF_PI : TAU - HALF_PI;
       const speed = baseSpeed + rand(0, rangeSpeed);
       const life = 0;
       const ttl = baseTTL + rand(0, rangeTTL);
       const width = baseWidth + rand(0, rangeWidth);
       const hue = baseHue + rand(0, rangeHue);
-      const prevX = x - cos(direction) * speed;
-      const prevY = y - sin(direction) * speed;
-
-      pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, prevX, prevY], i);
+      // CHANGED: Set prevX/prevY to current x/y on init
+      pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, x, y], i);
     };
 
     const initPipes = () => {
@@ -148,7 +142,6 @@ const Pipes = ({
     ) => {
       const ctxA = offscreenCtxRef.current;
       if (!ctxA) return;
-
       ctxA.save();
       ctxA.strokeStyle = `hsla(${hue},75%,50%,${fadeInOut(life, ttl)})`;
       ctxA.lineWidth = width;
@@ -164,19 +157,18 @@ const Pipes = ({
     const updatePipe = (i: number) => {
       const props = pipePropsRef.current;
       if (!props) return;
-
       const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
-
-      let x = props[i];
-      let y = props[i2];
+      const x = props[i];
+      const y = props[i2];
       let direction = props[i3];
-      let speed = props[i4];
+      const speed = props[i4];
       let life = props[i5];
-      let ttl = props[i6];
-      let width = props[i7];
-      let hue = props[i8];
-      let prevX = props[i9];
-      let prevY = props[i10];
+      const ttl = props[i6];
+      const width = props[i7];
+      const hue = props[i8];
+      const prevX = props[i9];
+      const prevY = props[i10];
+      // Draw the line segment
       drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
       life++;
       const newX = x + cos(direction) * speed;
@@ -204,19 +196,14 @@ const Pipes = ({
     const draw = () => {
       if (!isActive) return;
       rafIdRef.current = requestAnimationFrame(draw);
-
       const ctxA = offscreenCtxRef.current;
       const canvasA = offscreenCanvasRef.current;
       const ctxB = visibleCtxRef.current;
       const canvasB = canvasRef.current;
-
       if (!ctxA || !canvasA || !ctxB || !canvasB) return;
-
       ctxA.fillStyle = fadingBackgroundColor;
       ctxA.fillRect(0, 0, canvasA.width, canvasA.height);
-
       updatePipes();
-
       ctxB.fillStyle = backgroundColor;
       ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
       ctxB.save();
@@ -232,19 +219,16 @@ const Pipes = ({
       const { innerWidth, innerHeight } = window;
       const canvasA = offscreenCanvasRef.current;
       const canvasB = canvasRef.current;
-
       if (!canvasA || !canvasB) return;
-
       canvasA.width = innerWidth;
       canvasA.height = innerHeight;
       canvasB.width = innerWidth;
       canvasB.height = innerHeight;
-
+      centerRef.current = [innerWidth / 2, innerHeight / 2];
       initPipes();
     };
 
     resize();
-
     const handleVisibilityChange = () => {
       if (document.hidden) {
         isActive = false;
@@ -254,11 +238,9 @@ const Pipes = ({
         rafIdRef.current = requestAnimationFrame(draw);
       }
     };
-
     rafIdRef.current = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);

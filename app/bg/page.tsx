@@ -2,7 +2,7 @@
 import '@/backgrounds'
 import { registry } from '@/lib/registry';
 import { ControlPanel } from '@/components/ui/control-panel';
-import { useCodeSidebar } from "@/components/ui/code-sidebar"
+import { CodeSidebarData, useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
 import { CaretUpIcon, GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -70,12 +70,14 @@ export default function Page() {
   }
 
   const handleCodeSidebar = () => {
-    const data = {
+    const data: CodeSidebarData = {
       name: config.name,
       usage: config.code.usage,
       rawUsage: generateUsageCode(),
       js: config.code.jsx,
-      ts: config.code.tsx
+      ts: config.code.tsx,
+      rawjs: config.code.rawjsx,
+      rawts: config.code.rawtsx
     }
     openCodeSidebar(data, { type: "settings", callback: handleSettingSidebar })
   }
