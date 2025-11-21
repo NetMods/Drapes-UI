@@ -22,6 +22,19 @@ interface HexagonalLightTrailsProps {
   backgroundColor?: string;
 }
 
+interface LineData {
+  x: number;
+  y: number;
+  addedX: number;
+  addedY: number;
+  rad: number;
+  lightInputMultiplier: number;
+  color: string;
+  cumulativeTime: number;
+  time: number;
+  targetTime: number;
+}
+
 const Hexagons = ({
   lineLength = 25,
   maxLineCount = 120,
@@ -50,8 +63,8 @@ const Hexagons = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let w = canvas.width = canvas.offsetWidth;
-    let h = canvas.height = canvas.offsetHeight;
+    let w = (canvas.width = canvas.offsetWidth);
+    let h = (canvas.height = canvas.offsetHeight);
 
     const opts = {
       len: lineLength,
@@ -76,102 +89,126 @@ const Hexagons = ({
     };
 
     let tick = 0;
-    const lines: Line[] = [];
+    const lines: LineData[] = [];
     let dieX = w / 2 / opts.len;
     let dieY = h / 2 / opts.len;
-    const baseRad = Math.PI * 2 / 6;
+    const baseRad = (Math.PI * 2) / 6;
 
-    class Line {
-      x = 0;
-      y = 0;
-      addedX = 0;
-      addedY = 0;
-      rad = 0;
-      lightInputMultiplier = 0;
-      color = '';
-      cumulativeTime = 0;
-      time = 0;
-      targetTime = 0;
+    const createLine = (): LineData => ({
+      x: 0,
+      y: 0,
+      addedX: 0,
+      addedY: 0,
+      rad: 0,
+      lightInputMultiplier: 0,
+      color: '',
+      cumulativeTime: 0,
+      time: 0,
+      targetTime: 0,
+    });
 
-      constructor() {
-        this.reset();
+    const resetLine = (line: LineData) => {
+      line.x = 0;
+      line.y = 0;
+      line.addedX = 0;
+      line.addedY = 0;
+      line.rad = 0;
+      line.lightInputMultiplier =
+        opts.baseLightInputMultiplier +
+        opts.addedLightInputMultiplier * Math.random();
+      line.color = opts.color.replace('hue', String(tick * opts.hueChange));
+      line.cumulativeTime = 0;
+      beginPhase(line);
+    };
+
+    const beginPhase = (line: LineData) => {
+      line.x += line.addedX;
+      line.y += line.addedY;
+      line.time = 0;
+      line.targetTime = (opts.baseTime + opts.addedTime * Math.random()) | 0;
+      line.rad += baseRad * (Math.random() < 0.5 ? 1 : -1);
+      line.addedX = Math.cos(line.rad);
+      line.addedY = Math.sin(line.rad);
+
+      if (
+        Math.random() < opts.dieChance ||
+        line.x > dieX ||
+        line.x < -dieX ||
+        line.y > dieY ||
+        line.y < -dieY
+      ) {
+        resetLine(line);
+      }
+    };
+
+    // 4. Step/Draw Logic
+    const stepLine = (line: LineData) => {
+      line.time++;
+      line.cumulativeTime++;
+
+      if (line.time >= line.targetTime) {
+        beginPhase(line);
       }
 
-      reset() {
-        this.x = 0;
-        this.y = 0;
-        this.addedX = 0;
-        this.addedY = 0;
-        this.rad = 0;
-        this.lightInputMultiplier = opts.baseLightInputMultiplier + opts.addedLightInputMultiplier * Math.random();
-        this.color = opts.color.replace('hue', String(tick * opts.hueChange));
-        this.cumulativeTime = 0;
-        this.beginPhase();
+      const prop = line.time / line.targetTime;
+      const wave = Math.sin((prop * Math.PI) / 2);
+      const x = line.addedX * wave;
+      const y = line.addedY * wave;
+
+      const currentLight =
+        opts.baseLight +
+        opts.addedLight *
+        Math.sin(line.cumulativeTime * line.lightInputMultiplier);
+
+      ctx.shadowBlur = prop * opts.shadowToTimePropMult;
+      ctx.fillStyle = ctx.shadowColor = line.color.replace(
+        'light',
+        String(currentLight)
+      );
+
+      ctx.fillRect(
+        opts.cx + (line.x + x) * opts.len,
+        opts.cy + (line.y + y) * opts.len,
+        2,
+        2
+      );
+
+      if (Math.random() < opts.sparkChance) {
+        ctx.fillRect(
+          opts.cx +
+          (line.x + x) * opts.len +
+          Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
+          opts.sparkSize / 2,
+          opts.cy +
+          (line.y + y) * opts.len +
+          Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) -
+          opts.sparkSize / 2,
+          opts.sparkSize,
+          opts.sparkSize
+        );
       }
-
-      beginPhase() {
-        this.x += this.addedX;
-        this.y += this.addedY;
-        this.time = 0;
-        this.targetTime = (opts.baseTime + opts.addedTime * Math.random()) | 0;
-        this.rad += baseRad * (Math.random() < 0.5 ? 1 : -1);
-        this.addedX = Math.cos(this.rad);
-        this.addedY = Math.sin(this.rad);
-
-        if (Math.random() < opts.dieChance || this.x > dieX || this.x < -dieX || this.y > dieY || this.y < -dieY) {
-          this.reset();
-        }
-      }
-
-      step() {
-        ++this.time;
-        ++this.cumulativeTime;
-
-        if (this.time >= this.targetTime) {
-          this.beginPhase();
-        }
-
-        const prop = this.time / this.targetTime;
-        const wave = Math.sin(prop * Math.PI / 2);
-        const x = this.addedX * wave;
-        const y = this.addedY * wave;
-
-        ctx!.shadowBlur = prop * opts.shadowToTimePropMult;
-        ctx!.fillStyle = ctx!.shadowColor = this.color.replace('light', String(opts.baseLight + opts.addedLight * Math.sin(this.cumulativeTime * this.lightInputMultiplier)));
-        ctx!.fillRect(opts.cx + (this.x + x) * opts.len, opts.cy + (this.y + y) * opts.len, 2, 2);
-
-        if (Math.random() < opts.sparkChance) {
-          ctx!.fillRect(
-            opts.cx + (this.x + x) * opts.len + Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) - opts.sparkSize / 2,
-            opts.cy + (this.y + y) * opts.len + Math.random() * opts.sparkDist * (Math.random() < 0.5 ? 1 : -1) - opts.sparkSize / 2,
-            opts.sparkSize,
-            opts.sparkSize
-          );
-        }
-      }
-    }
-
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, w, h);
+    };
 
     let animationId: number;
 
-    function loop() {
+    const loop = () => {
       animationId = requestAnimationFrame(loop);
       ++tick;
 
-      ctx!.globalCompositeOperation = 'source-over';
-      ctx!.shadowBlur = 0;
-      ctx!.fillStyle = `rgba(0,0,0,${opts.repaintAlpha})`;
-      ctx!.fillRect(0, 0, w, h);
-      ctx!.globalCompositeOperation = 'lighter';
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = `rgba(0,0,0,${opts.repaintAlpha})`;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'lighter';
 
       if (lines.length < opts.count && Math.random() < opts.spawnChance) {
-        lines.push(new Line());
+        const newLine = createLine();
+        resetLine(newLine);
+        lines.push(newLine);
       }
 
-      lines.forEach(line => line.step());
-    }
+      lines.forEach((line) => stepLine(line));
+    };
 
     loop();
 
@@ -213,6 +250,7 @@ const Hexagons = ({
     hueChange,
     backgroundColor,
   ]);
+
   return (
     <canvas
       ref={canvasRef}
@@ -226,6 +264,6 @@ const Hexagons = ({
       }}
     />
   );
-}
+};
 
-export default Hexagons 
+export default Hexagons;

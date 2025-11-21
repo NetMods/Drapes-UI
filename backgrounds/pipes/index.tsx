@@ -82,16 +82,14 @@ const Pipes = ({
 
     const initPipe = (i: number) => {
       const w = offscreenCanvasRef.current?.width ?? 0;
-      let x, y, direction, speed, life, ttl, width, hue;
-
-      x = rand(0, w);
-      y = centerRef.current[1];
-      direction = round(rand(0, 1)) ? HALF_PI : TAU - HALF_PI;
-      speed = baseSpeed + rand(0, rangeSpeed);
-      life = 0;
-      ttl = baseTTL + rand(0, rangeTTL);
-      width = baseWidth + rand(0, rangeWidth);
-      hue = baseHue + rand(0, rangeHue);
+      const x = rand(0, w);
+      const y = centerRef.current[1];
+      const direction = round(rand(0, 1)) ? HALF_PI : TAU - HALF_PI;
+      const speed = baseSpeed + rand(0, rangeSpeed);
+      const life = 0;
+      const ttl = baseTTL + rand(0, rangeTTL);
+      const width = baseWidth + rand(0, rangeWidth);
+      const hue = baseHue + rand(0, rangeHue);
 
       // CHANGED: Set prevX/prevY to current x/y on init
       pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, x, y], i);
@@ -133,16 +131,16 @@ const Pipes = ({
 
       // CHANGED: Added i9 and i10 for prevX/prevY
       const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
-      let x = props[i];
-      let y = props[i2];
+      const x = props[i];
+      const y = props[i2];
       let direction = props[i3];
-      let speed = props[i4];
+      const speed = props[i4];
       let life = props[i5];
-      let ttl = props[i6];
-      let width = props[i7];
-      let hue = props[i8];
-      let prevX = props[i9];
-      let prevY = props[i10];
+      const ttl = props[i6];
+      const width = props[i7];
+      const hue = props[i8];
+      const prevX = props[i9];
+      const prevY = props[i10];
 
       // Draw the line segment
       drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
