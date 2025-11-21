@@ -7,12 +7,14 @@ import Code from './code';
 import { CodeIcon, EyeIcon } from '@phosphor-icons/react/dist/ssr';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
-interface CodeSidebarData {
+export interface CodeSidebarData {
   name: string;
   usage: string;
   rawUsage: string;
   js: string;
   ts: string;
+  rawjs: string;
+  rawts: string;
 }
 
 interface Opener {
@@ -136,9 +138,9 @@ export function CodeSidebar() {
                     filename={activeTab === 'js' ? 'app/page.jsx' : 'app/page.tsx'}
                     language='jsx'
                     dynamic={data.rawUsage}
-                  >
-                    {data?.usage}
-                  </Code>
+                    htmlCode={data?.usage}
+                    code={data?.rawUsage}
+                  />
                 )}
               </div>
             </div>
@@ -169,9 +171,9 @@ export function CodeSidebar() {
                 {data &&
                   <Code
                     filename={activeTab === 'js' ? 'app/components/ui/background.jsx' : 'app/components/ui/background.tsx'}
-                  >
-                    {activeTab === 'js' ? data.js : data.ts}
-                  </Code>
+                    htmlCode={activeTab === 'js' ? data.js : data.ts}
+                    code={activeTab === 'js' ? data.rawjs : data.rawts}
+                  />
                 }
               </div>
             </div>

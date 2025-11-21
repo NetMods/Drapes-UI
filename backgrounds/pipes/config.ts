@@ -1,5 +1,5 @@
 import { BackgroundConfig } from '@/lib/types';
-import { tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
 
 export default {
   name: 'Pipes',
@@ -23,7 +23,9 @@ export default {
     usage: usageCodeHTML,
     rawUsage: usageCode,
     tsx: tsxCodeHTML,
-    jsx: jsxCodeHTML
+    jsx: jsxCodeHTML,
+    rawjsx: jsxCode,
+    rawtsx: tsxCode
   },
   controls: [
     {

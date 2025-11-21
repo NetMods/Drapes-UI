@@ -4,7 +4,7 @@ import { StarIcon } from '@phosphor-icons/react/dist/ssr';
 import { BackgroundConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { useCodeSidebar } from '../ui/code-sidebar';
+import { CodeSidebarData, useCodeSidebar } from '../ui/code-sidebar';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -31,12 +31,14 @@ export const BackgroundCard = ({
   const OpenPreview = () => router.push(`/bg?id=${config.id}`);
 
   const handleShowCode = () => {
-    const data = {
+    const data: CodeSidebarData = {
       name: config.name,
       usage: config.code.usage,
       rawUsage: config.code.rawUsage,
       ts: config.code.tsx,
       js: config.code.jsx,
+      rawjs: config.code.rawjsx,
+      rawts: config.code.rawtsx
     };
     openCodeSidebar(data, {
       type: 'preview',
