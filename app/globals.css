@@ -66,13 +66,16 @@ body {
   border-radius: 4px;
 }
 
+::selection {
+  background: gray;
+}
 
 @theme {
-  --animate-in: in 300ms ease-in-out;
+  --animate-in: in 100ms ease-in-out;
 
   @keyframes in {
     0% {
-      opacity: 0.5;
+      opacity: 0;
       transform: translateY(20px)
     }
 

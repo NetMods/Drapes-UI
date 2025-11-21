@@ -3,11 +3,9 @@ import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react/dist/ssr"
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr"
 import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
-import { useCommandPalette } from "../ui/command-palette"
-
+import { useCommandPalette } from "./command-palette/context"
 
 export const Navbar = () => {
-
   const { toggleOpen } = useCommandPalette()
 
   return (
@@ -23,15 +21,14 @@ export const Navbar = () => {
           Drapes UI
         </div>
 
-
         <div className="flex gap-1 items-center max-md:scale-95">
 
           <span
-            onClick={() => toggleOpen()}
-            className="cursor-pointer p-1 mr-1 rounded-full text-white bg-white/5 backdrop-blur-sm" >
+            onClick={toggleOpen}
+            className="cursor-pointer max-sm:size-8 max-sm:inline-flex sm:p-1 justify-center items-center mr-1 rounded-lg text-white bg-white/5 backdrop-blur-sm" >
             <span className="flex justify-center items-center gap-1 text-[15px] px-1">
-              <MagnifyingGlassIcon size={17} />
-              <span className="hidden sm:flex sm:items-center sm:justify-center"><CommandIcon size={17} />K</span>
+              <MagnifyingGlassIcon size={19} weight="bold" />
+              <span className="hidden sm:flex sm:items-center sm:justify-center"><CommandIcon size={19} />K</span>
             </span>
           </span>
 

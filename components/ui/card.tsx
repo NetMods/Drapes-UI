@@ -47,7 +47,7 @@ export const BackgroundCard = ({
   };
 
   return (
-    <div className='bg-base-content/10 p-2 rounded-[24px] ring-1 ring-base-content/20'>
+    <div className='select-none bg-base-content/10 p-2 rounded-[24px] ring-1 ring-base-content/20'>
       <div
         className={cn(
           'aspect-square shrink-0 size-72 md:size-[385px] relative overflow-hidden',
@@ -61,8 +61,8 @@ export const BackgroundCard = ({
             <img
               src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
               className={cn(
-                'absolute inset-0 w-full h-full object-cover',
-                isHovered ? 'hidden' : 'block'
+                'w-full h-full object-cover',
+                isHovered && 'hidden'
               )}
               onClick={OpenPreview}
               alt={config.name}

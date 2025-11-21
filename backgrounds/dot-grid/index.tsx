@@ -137,7 +137,6 @@ const InteractiveDotGrid = ({
     };
   }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers, hiddots]);
 
-
   return (
     <canvas
       ref={canvasRef}

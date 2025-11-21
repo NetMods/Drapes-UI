@@ -7,7 +7,7 @@ export default {
   author: 'NetMods',
   tags: ['animated', 'pipes', 'flowing', 'futuristic', 'glowing', 'geometric', 'tron', 'neon'],
   defaultProps: {
-    pipeCount: 30,
+    pipeCount: 50,
     backgroundColor: '#000000',
     baseSpeed: 0.5,
     rangeSpeed: 1,

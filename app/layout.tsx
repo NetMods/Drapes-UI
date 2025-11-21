@@ -4,8 +4,9 @@ import { fontMono, fontMonoCode, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 import { BackgroundProvider } from "@/lib/background-context";
-import { CommandPaletteContextProvider } from "@/components/ui/command-palette";
 import { cn } from "@/lib/utils";
+import { CommandPalette } from "@/components/layout/command-palette";
+import { CommandPaletteContextProvider } from "@/components/layout/command-palette/context";
 
 export const metadata: Metadata = {
   title: "DrapesUI",
@@ -39,7 +40,7 @@ export default function RootLayout({
       </head>
       <body
         className={cn(
-          "min-h-screen min-w-[300px] w-full bg-[#0a0a0a] relative",
+          "min-h-screen min-w-[320px] w-full bg-[#0a0a0a] relative",
           fontSans.variable, fontMono.variable, fontSerif.variable, fontMonoCode.variable
         )}
         suppressHydrationWarning
@@ -63,8 +64,8 @@ export default function RootLayout({
         >
           <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
 
-          <BackgroundProvider>
-            <CommandPaletteContextProvider>
+          <CommandPaletteContextProvider>
+            <BackgroundProvider>
               <CodeSidebarProvider>
                 <SettingsSidebarProvider>
                   <div className="relative z-10 w-full h-full max-w-500 mx-auto">
@@ -72,10 +73,11 @@ export default function RootLayout({
                   </div>
                   <SettingsSidebar />
                   <CodeSidebar />
+                  <CommandPalette />
                 </SettingsSidebarProvider>
               </CodeSidebarProvider>
-            </CommandPaletteContextProvider>
-          </BackgroundProvider>
+            </BackgroundProvider>
+          </CommandPaletteContextProvider>
         </div>
       </body>
     </html>

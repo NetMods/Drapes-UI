@@ -29,15 +29,15 @@ import matrixConfig from './matrix/config'
 import plasmaWaveConfig from './plasma-wave/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: dotGridConfig, component: WaveGradient },
   { config: noiseFlowConfig, component: NoiseFlow },
   { config: snowfallConfig, component: Snowfall },
-  { config: hexagonsConfig, component: Hexagons },
+  { config: dotGridConfig, component: WaveGradient },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: spiralConfig, component: Spirals },
-  { config: particlesConfig, component: Particles },
   { config: pipesConfig, component: Pipes },
   { config: matrixConfig, component: Matrix },
+  { config: hexagonsConfig, component: Hexagons },
+  { config: particlesConfig, component: Particles },
 ]
 
 registerEntry.forEach((entry: BackgroundEntry, index) => {

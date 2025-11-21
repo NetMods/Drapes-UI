@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Dispatch, SetStateAction } from 'react';
 
-type StorageValue<T> = T | T[];
-
-function useLocalStorage<T>(
-  key: string,
-  initialValue: StorageValue<T>
-): [StorageValue<T>, (value: T) => void] {
-  const [storedValue, setStoredValue] = useState<StorageValue<T>>(() => {
+function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetStateAction<T>>] {
+  const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      if (typeof window === 'undefined') return initialValue
+      if (typeof window === 'undefined') return initialValue;
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
@@ -17,42 +12,17 @@ function useLocalStorage<T>(
     }
   });
 
-  // Update localStorage whenever storedValue changes
   useEffect(() => {
     try {
-      if (typeof window === 'undefined') return
-      window.localStorage.setItem(key, JSON.stringify(storedValue));
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(storedValue));
+      }
     } catch (error) {
       console.error(`Error saving ${key} to localStorage:`, error);
     }
   }, [key, storedValue]);
 
-  const toggleValue = (value: T) => {
-    setStoredValue(prev => {
-      if (Array.isArray(prev)) {
-        const index = prev.findIndex(item =>
-          JSON.stringify(item) === JSON.stringify(value)
-        );
-
-        if (index > -1) {
-          // Remove if exists
-          return prev.filter((_, i) => i !== index);
-        } else {
-          // Add if doesn't exist
-          return [...prev, value];
-        }
-      }
-      else {
-        if (JSON.stringify(prev) === JSON.stringify(value)) {
-          return Array.isArray(initialValue) ? [] : initialValue;
-        } else {
-          return value;
-        }
-      }
-    });
-  };
-
-  return [storedValue, toggleValue];
+  return [storedValue, setStoredValue];
 }
 
 export default useLocalStorage;
