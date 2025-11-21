@@ -12,7 +12,7 @@ export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
   const [favourite, setFavourite] = useLocalStorage<string[]>('favourite', []);
   const backgrounds = registry.getAll();
-  const { inputValue, setInputValue } = useCommandPalette();
+  const { searchQuery, handleClearFilter } = useCommandPalette();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const toggleFavourite = (id: string) => {
@@ -28,8 +28,8 @@ export const Collections = () => {
       ? backgrounds.filter(({ config }) => favourite.includes(config.id))
       : backgrounds;
 
-    if (inputValue.trim()) {
-      const searchTerm = inputValue.toLowerCase();
+    if (searchQuery.trim()) {
+      const searchTerm = searchQuery.toLowerCase();
 
       result = result.filter(({ config }) => {
         const tagsMatch = config.tags?.some(tag =>
@@ -43,9 +43,7 @@ export const Collections = () => {
     }
 
     return result;
-  }, [activeTab, favourite, inputValue, backgrounds]);
-
-  const handleClearFilter = () => setInputValue('')
+  }, [activeTab, favourite, searchQuery, backgrounds]);
 
   const handleChangeTab = (tab: 'all' | 'fav') => {
     setActiveTab(tab);
@@ -56,7 +54,7 @@ export const Collections = () => {
     <div className="text-base-content w-full mb-10">
       <TabSection
         activeTab={activeTab}
-        filterInputValue={inputValue}
+        filterInputValue={searchQuery}
         backgroundLength={backgrounds.length}
         favouriteLength={favourite.length}
         handleChangeTab={handleChangeTab}
@@ -81,11 +79,11 @@ export const Collections = () => {
         {activeTab === 'fav' && filtered.length === 0 && (
           <div className="col-span-full text-center py-12 min-h-[50vh] text-base-content/60 font-sans">
             <p className="text-xl">
-              {inputValue.trim()
+              {searchQuery.trim()
                 ? 'No favourite backgrounds match your search.'
                 : "You haven't starred any backgrounds yet."}
             </p>
-            {!inputValue.trim() && (
+            {!searchQuery.trim() && (
               <p className="mt-2">
                 Click the{' '}
                 <StarIcon className="inline-block size-4 mb-0.5" weight="fill" />{' '}
@@ -95,7 +93,7 @@ export const Collections = () => {
           </div>
         )}
 
-        {activeTab === 'all' && filtered.length === 0 && inputValue.trim() && (
+        {activeTab === 'all' && filtered.length === 0 && searchQuery.trim() && (
           <div className="col-span-full text-center py-12 min-h-[50vh] text-base-content/60 font-sans">
             <p className="text-xl">No backgrounds match your search.</p>
           </div>

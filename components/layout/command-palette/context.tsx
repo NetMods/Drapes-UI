@@ -6,9 +6,11 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 interface CommandPaletteContextType {
   isOpen: boolean;
   inputValue: string;
+  searchQuery: string;
   history: CommandPaletteHistoryType[];
   toggleOpen: () => void;
   handleSubmit: (value?: string) => void;
+  handleClearFilter: () => void;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
   setHistory: React.Dispatch<React.SetStateAction<CommandPaletteHistoryType[]>>;
 }
@@ -23,12 +25,15 @@ const CommandPaletteContext = createContext<CommandPaletteContextType | undefine
 export function CommandPaletteContextProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [inputValue, setInputValue] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const [history, setHistory] = useLocalStorage<CommandPaletteHistoryType[]>('cmd-palette-history', [])
 
   const router = useRouter();
   const pathname = usePathname();
 
   const toggleOpen = () => setIsOpen(prev => !prev);
+
+  const handleClearFilter = () => setSearchQuery('')
 
   const handleSubmit = useCallback((value?: string) => {
     const query = value || inputValue
@@ -48,6 +53,7 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
       return newHistory.slice(-50);
     });
 
+    setSearchQuery(query)
     toggleOpen()
 
     if (pathname !== '/') {
@@ -65,8 +71,7 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
       event.preventDefault();
       event.stopPropagation();
 
-      if (key === 'enter' && isOpen) handleSubmit()
-      else if ((event.metaKey || event.ctrlKey) && key === 'k') toggleOpen();
+      if ((event.metaKey || event.ctrlKey) && key === 'k') toggleOpen();
       else if (key === 'escape' && isOpen) toggleOpen();
     };
 
@@ -83,7 +88,7 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
 
   return (
     <CommandPaletteContext.Provider
-      value={{ isOpen, toggleOpen, inputValue, setInputValue, history, setHistory, handleSubmit }}
+      value={{ isOpen, toggleOpen, inputValue, setInputValue, history, setHistory, searchQuery, handleSubmit, handleClearFilter }}
     >
       {children}
     </CommandPaletteContext.Provider>

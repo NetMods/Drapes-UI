@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useCommandPalette } from "./context";
-import CommandPaletteHistory from "./dropdown";
+import CommandPaletteDropdown from "./dropdown";
 import { ArrowRightIcon } from "@phosphor-icons/react";
 
 export function CommandPalette() {
@@ -55,7 +55,7 @@ export function CommandPalette() {
             </div>
           </div>
 
-          <CommandPaletteHistory />
+          <CommandPaletteDropdown />
         </div>
       </div>
     </div>

@@ -32,12 +32,12 @@ const registerEntry: BackgroundEntry[] = [
   { config: noiseFlowConfig, component: NoiseFlow },
   { config: snowfallConfig, component: Snowfall },
   { config: dotGridConfig, component: WaveGradient },
-  { config: hexagonsConfig, component: Hexagons },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: spiralConfig, component: Spirals },
-  { config: particlesConfig, component: Particles },
   { config: pipesConfig, component: Pipes },
   { config: matrixConfig, component: Matrix },
+  { config: hexagonsConfig, component: Hexagons },
+  { config: particlesConfig, component: Particles },
 ]
 
 registerEntry.forEach((entry: BackgroundEntry, index) => {

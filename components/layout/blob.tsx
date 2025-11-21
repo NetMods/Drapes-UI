@@ -187,12 +187,12 @@ export function GenerativeArtScene() {
     };
   }, []); // run once
 
-  return <div ref={mountRef} className="size-150" />;
+  return <div ref={mountRef} className="size-150 bg-transparent" />;
 }
 
 export function Matter() {
   return (
-    <Suspense fallback={<div className="size-150 bg-base-content/10 rounded-xl" />}>
+    <Suspense fallback={<div className="size-150 bg-transparent rounded-xl" />}>
       <GenerativeArtScene />
     </Suspense>
   );
