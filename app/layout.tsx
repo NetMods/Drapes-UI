@@ -1,10 +1,10 @@
 import "./globals.css";
-
 import type { Metadata } from "next";
 import { fontMono, fontMonoCode, fontSans, fontSerif } from "./font";
 import { CodeSidebar, CodeSidebarProvider } from "@/components/ui/code-sidebar";
 import { SettingsSidebar, SettingsSidebarProvider } from "@/components/ui/settings-sidebar";
 import { BackgroundProvider } from "@/lib/background-context";
+import { CommandPaletteContextProvider } from "@/components/ui/command-palette";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -48,12 +48,7 @@ export default function RootLayout({
           aria-hidden='true'
           className="inset-0 z-0 fixed"
           style={{
-            backgroundImage: `
-                radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.4) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
-                radial-gradient(ellipse at 60% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
-                radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.2) 0%, transparent 65%)
-              `,
+            // backgroundImage: `url('/bg.jpg')`
           }}
         />
         <div
@@ -69,15 +64,17 @@ export default function RootLayout({
           <div aria-hidden='true' className="inset-0 z-0 pointer-events-none grain-overlay opacity-20 fixed" />
 
           <BackgroundProvider>
-            <CodeSidebarProvider>
-              <SettingsSidebarProvider>
-                <div className="relative z-10 w-full h-full max-w-500 mx-auto">
-                  {children}
-                </div>
-                <SettingsSidebar />
-                <CodeSidebar />
-              </SettingsSidebarProvider>
-            </CodeSidebarProvider>
+            <CommandPaletteContextProvider>
+              <CodeSidebarProvider>
+                <SettingsSidebarProvider>
+                  <div className="relative z-10 w-full h-full max-w-500 mx-auto">
+                    {children}
+                  </div>
+                  <SettingsSidebar />
+                  <CodeSidebar />
+                </SettingsSidebarProvider>
+              </CodeSidebarProvider>
+            </CommandPaletteContextProvider>
           </BackgroundProvider>
         </div>
       </body>

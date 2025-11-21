@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useRef } from 'react';
 
 interface PipeAnimationProps {
@@ -15,12 +16,10 @@ interface PipeAnimationProps {
   turnCount?: number;
 }
 
-// --- Helper constants and functions ---
 const TO_RAD = Math.PI / 180;
 const TAU = Math.PI * 2;
-const HALF_PI = Math.PI / 2;
-
 const { cos, sin, round } = Math;
+
 const rand = (min: number, max: number): number => min + Math.random() * (max - min);
 
 const fadeInOut = (life: number, ttl: number): number => {
@@ -29,6 +28,46 @@ const fadeInOut = (life: number, ttl: number): number => {
     return life / halfTTL;
   }
   return 1 - (life - halfTTL) / halfTTL;
+};
+
+const convertToAlphaColor = (color: string, alpha: number = 0.05): string => {
+  if (/^hsla?\(/.test(color)) {
+    return color.replace(/,\s*[\d.]+\)$/, `,${alpha})`).replace(/^hsl\(/, 'hsla(');
+  }
+  if (/^rgba?\(/.test(color)) {
+    return color.replace(/,\s*[\d.]+\)$/, `,${alpha})`).replace(/^rgb\(/, 'rgba(');
+  }
+  const hexMatch = color.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+  if (hexMatch) {
+    const r = parseInt(hexMatch[1], 16);
+    const g = parseInt(hexMatch[2], 16);
+    const b = parseInt(hexMatch[3], 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  const shortHexMatch = color.match(/^#?([a-f\d])([a-f\d])([a-f\d])$/i);
+  if (shortHexMatch) {
+    const r = parseInt(shortHexMatch[1] + shortHexMatch[1], 16);
+    const g = parseInt(shortHexMatch[2] + shortHexMatch[2], 16);
+    const b = parseInt(shortHexMatch[3] + shortHexMatch[3], 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+  try {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (tempCtx) {
+      tempCtx.fillStyle = color;
+      const computedColor = tempCtx.fillStyle;
+      const rgbMatch = computedColor.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+      if (rgbMatch) {
+        const r = parseInt(rgbMatch[1], 16);
+        const g = parseInt(rgbMatch[2], 16);
+        const b = parseInt(rgbMatch[3], 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
+    }
+  } catch (e) {
+  }
+  return `rgba(0,0,0,${alpha})`;
 };
 
 const Pipes = ({
@@ -45,12 +84,10 @@ const Pipes = ({
   turnCount = 8,
 }: PipeAnimationProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const offscreenCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const visibleCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const pipePropsRef = useRef<Float32Array | null>(null);
-  const centerRef = useRef<[number, number]>([0, 0]);
   const tickRef = useRef<number>(0);
   const rafIdRef = useRef<number>(0);
 
@@ -64,21 +101,19 @@ const Pipes = ({
 
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvasRef.current = offscreenCanvas;
+
     const offscreenCtx = offscreenCanvas.getContext('2d');
     if (!offscreenCtx) return;
     offscreenCtxRef.current = offscreenCtx;
 
-    // --- Constants and State ---
-    const pipePropCount = 10; // CHANGED: Was 8, added 2 for prevX/prevY
+    const pipePropCount = 10;
     const pipePropsLength = pipeCount * pipePropCount;
     const turnAmount = (360 / turnCount) * TO_RAD;
     const turnChanceRange = 58;
     tickRef.current = 0;
 
-    const fadingBackgroundColor = backgroundColor.replace(/,1\)$/, ',0.05)');
-
+    const fadingBackgroundColor = convertToAlphaColor(backgroundColor, 0.05);
     let isActive = true;
-
 
     const initPipe = (i: number) => {
       const w = offscreenCanvasRef.current?.width ?? 0;
@@ -102,7 +137,6 @@ const Pipes = ({
       }
     };
 
-    // CHANGED: This function now draws lines
     const drawPipe = (
       x: number, y: number,
       prevX: number, prevY: number,
@@ -113,10 +147,9 @@ const Pipes = ({
       if (!ctxA) return;
 
       ctxA.save();
-      // CHANGED: Removed * 0.5 multiplier for full brightness
       ctxA.strokeStyle = `hsla(${hue},75%,50%,${fadeInOut(life, ttl)})`;
       ctxA.lineWidth = width;
-      ctxA.lineCap = 'round'; // Makes line ends smoother
+      ctxA.lineCap = 'round';
       ctxA.beginPath();
       ctxA.moveTo(prevX, prevY);
       ctxA.lineTo(x, y);
@@ -129,7 +162,6 @@ const Pipes = ({
       const props = pipePropsRef.current;
       if (!props) return;
 
-      // CHANGED: Added i9 and i10 for prevX/prevY
       const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
       const x = props[i];
       const y = props[i2];
@@ -144,26 +176,19 @@ const Pipes = ({
 
       // Draw the line segment
       drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
-
-      // Update state
       life++;
       const newX = x + cos(direction) * speed;
       const newY = y + sin(direction) * speed;
-
       const tick = tickRef.current;
       const turnChance = !(tick % round(rand(1, turnChanceRange))) && (!(round(x) % 6) || !(round(y) % 6));
       const turnBias = round(rand(0, 1)) ? -1 : 1;
       direction += turnChance ? turnAmount * turnBias : 0;
-
-      // Write back to array
-      props[i] = newX; // Set new X
-      props[i2] = newY; // Set new Y
+      props[i] = newX;
+      props[i2] = newY;
       props[i3] = direction;
       props[i5] = life;
-      props[i9] = x; // Set new prevX (which is the old x)
-      props[i10] = y; // Set new prevY (which is the old y)
-
-      // Reset if dead
+      props[i9] = x;
+      props[i10] = y;
       life > ttl && initPipe(i);
     };
 
@@ -174,7 +199,6 @@ const Pipes = ({
       }
     };
 
-    // This is the main 'draw' loop
     const draw = () => {
       if (!isActive) return;
       rafIdRef.current = requestAnimationFrame(draw);
@@ -186,24 +210,19 @@ const Pipes = ({
 
       if (!ctxA || !canvasA || !ctxB || !canvasB) return;
 
-      // 1. Fade the offscreen buffer (the "trails")
       ctxA.fillStyle = fadingBackgroundColor;
       ctxA.fillRect(0, 0, canvasA.width, canvasA.height);
 
-      // 2. Update and draw new pipe segments to offscreen buffer
       updatePipes();
 
-      // 3. Render to the visible canvas
       ctxB.fillStyle = backgroundColor;
       ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
-
       ctxB.save();
       ctxB.filter = 'blur(12px)';
       ctxB.drawImage(canvasA, 0, 0);
       ctxB.restore();
-
       ctxB.save();
-      ctxB.drawImage(canvasA, 0, 0); // Sharp on top
+      ctxB.drawImage(canvasA, 0, 0);
       ctxB.restore();
     };
 
@@ -218,12 +237,10 @@ const Pipes = ({
       canvasA.height = innerHeight;
       canvasB.width = innerWidth;
       canvasB.height = innerHeight;
-      centerRef.current = [0.5 * innerWidth, 0.5 * innerHeight];
 
       initPipes();
     };
 
-    // --- Initialization and Cleanup ---
     resize();
 
     const handleVisibilityChange = () => {
@@ -254,6 +271,7 @@ const Pipes = ({
   return (
     <canvas
       ref={canvasRef}
+      style={{ display: 'block', width: '100%', height: '100vh' }}
     />
   );
 };

@@ -10,10 +10,9 @@ interface FlowFieldParticlesProps {
   colorTheme?: 'rainbow' | 'monochrome' | 'warm' | 'cool' | 'gruvbox' | 'pastel' | 'neon';
   fadeSpeed?: number;
   maxLines?: number;
-  spawnRate?: number | undefined; // Made undefined the default for instant spawn
+  spawnRate?: number | undefined;
 }
 
-// Color theme definitions
 const COLOR_THEMES = {
   rainbow: {
     type: 'hsl' as const,
@@ -32,26 +31,26 @@ const COLOR_THEMES = {
   warm: {
     type: 'hsl' as const,
     useHueRotation: true,
-    hueRange: [0, 60] as [number, number], // Red to yellow
+    hueRange: [0, 60] as [number, number],
     saturation: 0.9,
     lightness: 0.6,
   },
   cool: {
     type: 'hsl' as const,
     useHueRotation: true,
-    hueRange: [180, 260] as [number, number], // Cyan to blue to purple
+    hueRange: [180, 260] as [number, number],
     saturation: 0.85,
     lightness: 0.55,
   },
   gruvbox: {
     type: 'palette' as const,
     colors: [
-      [251, 73, 52], // red
-      [250, 189, 47], // yellow
-      [184, 187, 38], // green
-      [142, 192, 124], // aqua
-      [211, 134, 155], // purple
-      [254, 128, 25], // orange
+      [251, 73, 52],
+      [250, 189, 47],
+      [184, 187, 38],
+      [142, 192, 124],
+      [211, 134, 155],
+      [254, 128, 25],
     ],
   },
   pastel: {
@@ -63,17 +62,16 @@ const COLOR_THEMES = {
   neon: {
     type: 'palette' as const,
     colors: [
-      [255, 16, 240], // Hot pink
-      [0, 255, 255], // Cyan
-      [57, 255, 20], // Lime
-      [255, 231, 0], // Yellow
-      [255, 0, 110], // Magenta
-      [0, 234, 255], // Electric blue
+      [255, 16, 240],
+      [0, 255, 255],
+      [57, 255, 20],
+      [255, 231, 0],
+      [255, 0, 110],
+      [0, 234, 255],
     ],
   },
 };
 
-// SimplexNoise implementation
 class SimplexNoise {
   private grad3: number[][];
   private p: number[];
@@ -179,7 +177,6 @@ class SimplexNoise {
   }
 }
 
-// Particle class
 class Particle {
   x: number;
   y: number;
@@ -209,7 +206,7 @@ const NoiseField = ({
   colorTheme = 'monochrome',
   fadeSpeed = 0,
   maxLines = 500,
-  spawnRate, // Default undefined for instant spawn
+  spawnRate,
 }: FlowFieldParticlesProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -248,7 +245,6 @@ const NoiseField = ({
       ctx.lineWidth = 0.3;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      // Draw initial background
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, screenWidth, screenHeight);
     };
@@ -275,7 +271,6 @@ const NoiseField = ({
         const color = theme.colors[p.paletteIndex];
         return `rgba(${color[0]},${color[1]},${color[2]},${p.alpha})`;
       }
-      // Now theme is narrowed to HSL themes
       let h: number;
       if (theme.useHueRotation) {
         if ('hueRange' in theme && theme.hueRange) {
@@ -300,7 +295,7 @@ const NoiseField = ({
     const initParticle = (p: Particle) => {
       p.x = p.pastX = screenWidth * Math.random();
       p.y = p.pastY = screenHeight * Math.random();
-      p.alpha = 0.3; // Start semi-visible for quicker buildup
+      p.alpha = 0.3;
       if (theme.type === 'palette') {
         p.paletteIndex = Math.floor(Math.random() * theme.colors.length);
       }
@@ -317,12 +312,11 @@ const NoiseField = ({
         particles.length = 0;
         spawnAccumulator = 0;
       } else {
-        // Instant respawn with staggered alphas
         particles.length = 0;
         for (let i = 0; i < targetNum; i++) {
           const p = new Particle();
           initParticle(p);
-          p.alpha = Math.random() * 0.5; // Staggered initial alpha for organic feel
+          p.alpha = Math.random() * 0.5;
           particles.push(p);
         }
       }
@@ -333,12 +327,11 @@ const NoiseField = ({
     window.addEventListener('resize', resizeCanvas);
     simplexNoise = new SimplexNoise();
 
-    // Initial spawn: always instant with staggered alphas if no spawnRate
     if (spawnRate === undefined) {
       for (let i = 0; i < targetNum; i++) {
         const p = new Particle();
         initParticle(p);
-        p.alpha = Math.random() * 0.5; // Staggered initial alpha
+        p.alpha = Math.random() * 0.5;
         particles.push(p);
       }
     }
@@ -347,7 +340,6 @@ const NoiseField = ({
 
     let rafId = 0;
     const update = () => {
-      // Fade trails if fadeSpeed > 0
       if (fadeSpeed > 0) {
         ctx.save();
         ctx.globalAlpha = fadeSpeed;
@@ -356,7 +348,6 @@ const NoiseField = ({
         ctx.restore();
       }
 
-      // Spawn new particles slowly if spawnRate is provided
       if (spawnRate !== undefined && particles.length < targetNum) {
         spawnAccumulator += spawnRate;
         while (spawnAccumulator >= 1 && particles.length < targetNum) {
@@ -367,7 +358,6 @@ const NoiseField = ({
         }
       }
 
-      // Update and draw existing particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.pastX = p.x;
@@ -376,7 +366,7 @@ const NoiseField = ({
           Math.PI * 6 * getNoise((p.x / base) * 1.75, (p.y / base) * 1.75, zoff);
         p.x += Math.cos(angle) * step;
         p.y += Math.sin(angle) * step;
-        if (p.alpha < 1) p.alpha += 0.02; // Faster fade-in
+        if (p.alpha < 1) p.alpha += 0.02;
         const particleAngle = Math.atan2(centerY - p.y, centerX - p.x);
         p.color = getParticleColor(p, particleAngle);
         ctx.beginPath();

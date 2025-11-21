@@ -47,83 +47,85 @@ export const BackgroundCard = ({
   };
 
   return (
-    <div
-      className={cn(
-        'aspect-square shrink-0 size-72 md:size-[385px] relative overflow-hidden'
-      )}
-      onMouseEnter={() => setHoveredIndex(index)}
-      onMouseLeave={() => setHoveredIndex(null)}
-    >
-      <div className="size-full bg-base-content/20 rounded-2xl overflow-hidden group border-white/50">
-        <div className="size-full object-cover flex relative">
-          <img
-            src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
-            className={cn(
-              'rounded-2xl absolute inset-0 w-full h-full object-cover',
-              isHovered ? 'hidden' : 'block'
-            )}
-            onClick={OpenPreview}
-            alt={config.name}
-          />
-          <div
-            className="absolute inset-0 w-full h-full cursor-pointer"
-            onClick={OpenPreview}
-          >
-            {isHovered && <Component {...config.defaultProps} />}
-          </div>
-        </div>
-
-        <div
-          className={cn(
-            'bg-base-content/10 backdrop-blur-3xl sm:bg-base-content/20',
-            'rounded-b-2xl p-2 border-t border-white/20 w-full max-sm:-translate-y-full',
-            isHovered && "-translate-y-[5.9rem] "
-          )}
-          style={{
-            transitionProperty: 'transform, border-radius',
-            transition: 'ease-out 100ms',
-          }}
-        >
-          <span className="font-serif text-2xl sm:text-3xl italic">
-            {config.name}
-          </span>
-          <div className="pt-2 space-x-2 font-sans">
-            <button
-              className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+    <div className='bg-base-content/10 p-2 rounded-[24px] ring-1 ring-base-content/20'>
+      <div
+        className={cn(
+          'aspect-square shrink-0 size-72 md:size-[385px] relative overflow-hidden',
+          'rounded-[18px]'
+        )}
+        onMouseEnter={() => setHoveredIndex(index)}
+        onMouseLeave={() => setHoveredIndex(null)}
+      >
+        <div className="size-full bg-base-content/20 group">
+          <div className="size-full object-cover flex relative">
+            <img
+              src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
+              className={cn(
+                'absolute inset-0 w-full h-full object-cover',
+                isHovered ? 'hidden' : 'block'
+              )}
+              onClick={OpenPreview}
+              alt={config.name}
+            />
+            <div
+              className="absolute inset-0 w-full h-full cursor-pointer"
               onClick={OpenPreview}
             >
-              Preview
-            </button>
-            <button
-              className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
-              onClick={handleShowCode}
-            >
-              Code
-            </button>
+              {isHovered && <Component {...config.defaultProps} />}
+            </div>
+          </div>
+
+          <div
+            className={cn(
+              'bg-base-content/10 backdrop-blur-3xl sm:bg-base-content/20',
+              'p-2 border-t border-base-content/20 w-full max-sm:-translate-y-full',
+              isHovered && "-translate-y-[5.9rem] "
+            )}
+            style={{
+              transitionProperty: 'transform, border-radius',
+              transition: 'ease-out 100ms',
+            }}
+          >
+            <span className="font-serif text-2xl sm:text-3xl italic">
+              {config.name}
+            </span>
+            <div className="pt-2 space-x-2 font-sans">
+              <button
+                className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                onClick={OpenPreview}
+              >
+                Preview
+              </button>
+              <button
+                className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                onClick={handleShowCode}
+              >
+                Code
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <button
-        className={cn(
-          "absolute top-0 right-0 m-2 p-2 rounded-xl bg-base-content/20 cursor-pointer",
-          "hover:bg-base-content/30"
-        )}
-        data-fav-id={config.id}
-        onClick={() => toggleFavourite(config.id)}
-      >
-        <StarIcon
+        <button
           className={cn(
-            'transition-colors ease-linear',
-            isFavourite && 'text-yellow-500'
+            "absolute top-0 right-0 m-2 p-2 rounded-xl bg-base-content/20 cursor-pointer",
+            "hover:bg-base-content/30"
           )}
-          weight="fill"
-        />
-      </button>
+          data-fav-id={config.id}
+          onClick={() => toggleFavourite(config.id)}
+        >
+          <StarIcon
+            className={cn(
+              'transition-colors ease-linear',
+              isFavourite && 'text-yellow-500'
+            )}
+            weight="fill"
+          />
+        </button>
 
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
             (function() {
               if (typeof window === 'undefined' || !window.localStorage) return;
               try {
@@ -142,8 +144,9 @@ export const BackgroundCard = ({
               }
             })();
           `,
-        }}
-      />
+          }}
+        />
+      </div>
     </div>
   );
 };

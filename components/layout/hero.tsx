@@ -1,4 +1,5 @@
 import { GithubLogoIcon } from "@phosphor-icons/react/dist/ssr"
+import { Matter } from "./blob"
 
 export const HeroSection = () => {
   return (
@@ -22,7 +23,7 @@ export const HeroSection = () => {
 
       <div className="max-lg:hidden max-w-1/2">
         <figure>
-          <div className="size-150 bg-base-content/10 rounded-xl" />
+          <Matter />
         </figure>
       </div>
     </div>

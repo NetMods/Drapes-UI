@@ -3,9 +3,9 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 
 export default {
   name: 'Particles',
-  description: 'Smooth animated Confetti that follows your mouse',
+  description: 'An enchanting interactive background of smooth animated confetti particles that gracefully follow your mouse cursor, creating dynamic trails influenced by gravity and speed.',
   author: 'NetMods',
-  tags: ['animated', 'confetti', 'Follow'],
+  tags: ['animated', 'confetti', 'particles', 'mouse-follow', 'interactive', 'trails', 'gravity', 'celebratory'],
   defaultProps: {
     numConfetti: 350,
     minRadius: 2,
@@ -26,12 +26,13 @@ export default {
   controls: [
     {
       key: 'numConfetti',
-      label: 'Number pf Confetti',
+      label: 'Number of Confetti',
       type: 'slider',
       min: 10,
       max: 1000,
       step: 20,
       defaultValue: 350,
+      description: 'The total quantity of confetti particles animating across the background.',
     },
     {
       key: 'minRadius',
@@ -41,6 +42,7 @@ export default {
       max: 10,
       step: 1,
       defaultValue: 2,
+      description: 'The smallest size radius for individual confetti particles.',
     },
     {
       key: 'maxRadius',
@@ -50,6 +52,7 @@ export default {
       max: 10,
       step: 1,
       defaultValue: 6,
+      description: 'The largest size radius for individual confetti particles.',
     },
     {
       key: 'minSpeed',
@@ -59,6 +62,7 @@ export default {
       max: 20,
       step: 1,
       defaultValue: 1,
+      description: 'The minimum velocity applied to confetti particles during movement.',
     },
     {
       key: 'maxSpeed',
@@ -68,6 +72,7 @@ export default {
       max: 20,
       step: 1,
       defaultValue: 1,
+      description: 'The maximum velocity applied to confetti particles during movement.',
     },
     {
       key: 'gravity',
@@ -77,6 +82,7 @@ export default {
       max: 2,
       step: 0.1,
       defaultValue: 0.7,
+      description: 'The gravitational force pulling confetti particles downward for realistic motion.',
     },
   ],
 } as Omit<BackgroundConfig, 'id'>;

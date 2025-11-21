@@ -3,11 +3,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 
 export default {
   name: 'Noise Field',
-  description: 'Noise fields foloowing the flow field',
+  description: 'An immersive animated background of noise fields where particles elegantly follow fluid flow patterns, evoking organic, wave-like movements.',
   author: 'NetMods',
-  tags: ['animated', 'gradient', 'waves'],
+  tags: ['animated', 'noise', 'flow-field', 'particles', 'organic', 'waves', 'abstract', 'fluid'],
   defaultProps: {
-    backgroundColor: 'black',
+    backgroundColor: '#000000',
     particleNum: 1000,
     step: 1,
     base: 1000,
@@ -28,37 +28,40 @@ export default {
   controls: [
     {
       key: 'backgroundColor',
-      label: 'Color',
+      label: 'Background Color',
       type: 'color',
-      defaultValue: '#ffffff',
-      description: 'Color for the background',
+      defaultValue: '#000000',
+      description: 'The primary color filling the background of the noise field.',
     },
     {
       key: 'particleNum',
-      label: 'Offset',
+      label: 'Particle Number',
       type: 'slider',
       min: 0,
       max: 5000,
       step: 500,
       defaultValue: 1000,
+      description: 'The total count of particles generating the noise and flow effects.',
     },
     {
       key: 'step',
-      label: 'Step',
+      label: 'Step Size',
       type: 'slider',
       min: 0,
       max: 5,
       step: 0.3,
       defaultValue: 1,
+      description: 'The incremental step size influencing the smoothness of particle movement.',
     },
     {
       key: 'base',
-      label: 'base',
+      label: 'Base Scale',
       type: 'slider',
       min: 0,
       max: 5000,
       step: 500,
       defaultValue: 1000,
+      description: 'The foundational scale parameter for the noise field generation.',
     },
     {
       key: 'maxLines',
@@ -67,7 +70,8 @@ export default {
       min: 100,
       max: 5000,
       step: 100,
-      defaultValue: 1000,
+      defaultValue: 500,
+      description: 'The maximum number of lines or trails rendered in the flow field.',
     },
     {
       key: 'spawnRate',
@@ -77,6 +81,7 @@ export default {
       max: 20,
       step: 1,
       defaultValue: 5,
+      description: 'The frequency at which new particles or elements spawn into the field.',
     },
     {
       key: 'colorTheme',
@@ -84,7 +89,7 @@ export default {
       type: 'select',
       options: ['rainbow', 'monochrome', 'warm', 'cool', 'gruvbox', 'pastel', 'neon'],
       defaultValue: 'monochrome',
-      description: 'Color Scheme for Noise',
+      description: 'The overall color palette applied to the particles and lines in the noise animation.',
     },
   ],
 } as Omit<BackgroundConfig, 'id'>;

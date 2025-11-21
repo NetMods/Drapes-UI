@@ -3,9 +3,10 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 
 export default {
   name: 'Dot Grid',
-  description: 'Smooth animated Dot grids',
+  description: 'A dynamic background featuring a grid of dots that smoothly scale and animate on hover interaction.',
   author: 'NetMods',
-  tags: ['animated', 'Dooted-grids', 'waves'],
+  tags: ['animated', 'dotted-grids', 'waves', 'interactive', 'hover-effects', 'geometric'],
+
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,
@@ -14,6 +15,7 @@ export default {
     backgroundColor: '#0a0a0a',
     glowColor: '#8b5cf6',
     numLayers: 2,
+    hiddots: false,
   },
   code: {
     usage: usageCodeHTML,
@@ -26,17 +28,17 @@ export default {
   controls: [
     {
       key: 'backgroundColor',
-      label: 'background Color',
+      label: 'Background Color',
       type: 'color',
       defaultValue: '#0a0a0a',
-      description: 'background color',
+      description: 'The overall background color for the dot grid.',
     },
     {
       key: 'glowColor',
       label: 'Glow Color',
       type: 'color',
-      defaultValue: '#0a0a0a',
-      description: 'Scaled Dots Color',
+      defaultValue: '#8b5cf6',
+      description: 'The color applied to scaled dots for a glowing effect on hover.',
     },
     {
       key: 'dotSpacing',
@@ -46,6 +48,7 @@ export default {
       max: 50,
       step: 10,
       defaultValue: 30,
+      description: 'The distance between individual dots in the grid.',
     },
     {
       key: 'dotBaseSize',
@@ -55,33 +58,44 @@ export default {
       max: 5,
       step: 0.1,
       defaultValue: 2,
+      description: 'The base size of each dot in the grid.',
     },
     {
       key: 'maxScale',
-      label: 'Scalled dots size',
+      label: 'Scaled Dots Size',
       type: 'slider',
       min: 0,
       max: 20,
       step: 2,
       defaultValue: 8,
+      description: 'The maximum scale factor applied to dots during hover interaction.',
     },
     {
       key: 'influenceRadius',
-      label: 'Radius',
+      label: 'Influence Radius',
       type: 'slider',
       min: 0,
       max: 400,
       step: 10,
       defaultValue: 150,
+      description: 'The radius within which dots respond to hover by scaling.',
     },
     {
       key: 'numLayers',
-      label: 'Num Layers',
+      label: 'Number of Layers',
       type: 'slider',
       min: 0,
       max: 10,
       step: 1,
       defaultValue: 2,
+      description: 'The number of overlapping dot grid layers for added depth.',
     },
+    {
+      key: "hiddots",
+      label: "Hide Dots",
+      value: false,
+      type: 'toggle',
+      description: "Hide the dots and only show when hovered"
+    }
   ],
 } as Omit<BackgroundConfig, 'id'>;
