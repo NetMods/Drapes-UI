@@ -29,9 +29,9 @@ import matrixConfig from './matrix/config'
 import plasmaWaveConfig from './plasma-wave/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: dotGridConfig, component: WaveGradient },
   { config: noiseFlowConfig, component: NoiseFlow },
   { config: snowfallConfig, component: Snowfall },
+  { config: dotGridConfig, component: WaveGradient },
   { config: hexagonsConfig, component: Hexagons },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: spiralConfig, component: Spirals },

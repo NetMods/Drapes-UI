@@ -49,6 +49,7 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
     });
 
     toggleOpen()
+
     if (pathname !== '/') {
       router.push('/#background-collections')
     } else {
@@ -60,8 +61,7 @@ export function CommandPaletteContextProvider({ children }: { children: ReactNod
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
-      if (!['arrowup', 'arrowdown', 'k', 'enter', 'escape'].includes(key)) return
-
+      if (!['k', 'enter', 'escape'].includes(key)) return
       event.preventDefault();
       event.stopPropagation();
 

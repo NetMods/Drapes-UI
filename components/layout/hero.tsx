@@ -22,7 +22,12 @@ export const HeroSection = () => {
         </div>
       </div>
 
-      <div className={cn("select-none max-lg:hidden max-w-1/2", process.env.NODE_ENV === 'development' && "hidden")}>
+      <div
+        className={cn(
+          "select-none max-lg:hidden max-w-1/2",
+          process.env.NODE_ENV === 'development' && "hidden" // unnecessary usage of computation power in dev.
+        )}
+      >
         <figure>
           <Matter />
         </figure>
