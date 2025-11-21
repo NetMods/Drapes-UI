@@ -13,7 +13,6 @@
 </div>
 
 ## Features
-Zero dependencies - Pure CSS implementations
 
 - **Animated Canvas Backgrounds** – Explore a growing library of smooth, modern canvas animations and shader-driven effects.
 - **Customizable Controls** – Tweak colors, speed, density, shapes, and more with easy configuration options.
@@ -78,17 +77,15 @@ Contributions are welcome. Please open issues or pull requests for new features,
 See our [contribution guidelines for background](CONTRIBUTING.md) for details.
 
 
-<!-- ## License -->
-<!---->
-<!-- This project is open source and available under the [MIT License](LICENSE). -->
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
 
 
 ## Built By
 
-- Twitter(X): [@Dharmeshwr](https://x.com/Dharmeshwr)
-- GitHub: [@dharmeshwr](https://github.com/dharmeshwr)
-
-- Twitter(X): [@Monkey_d_aryan](https://x.com/Monkey_d_aryan)
-- GitHub: [@aryankumar07](https://github.com/aryankumar07)
+- Twitter(X): [@Dharmeshwr](https://x.com/Dharmeshwr), [@Monkey_d_aryan](https://x.com/Monkey_d_aryan)
+- GitHub: [@dharmeshwr](https://github.com/dharmeshwr), [@aryankumar07](https://github.com/aryankumar07)
 
 If you like this project, consider giving it a ⭐️ on GitHub and sharing it with others!
+> _**Happy coding!**_
