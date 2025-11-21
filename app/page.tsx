@@ -1,5 +1,4 @@
 import { Collections } from "@/components/layout/collections";
-import { CommandPalette } from "@/components/layout/command-palette";
 import { HeroSection } from "@/components/layout/hero";
 import { Navbar } from "@/components/layout/navbar";
 
@@ -9,7 +8,6 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <Collections />
-      <CommandPalette />
     </main>
   );
 }

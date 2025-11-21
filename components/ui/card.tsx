@@ -59,8 +59,8 @@ export const BackgroundCard = ({
             <img
               src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
               className={cn(
-                'absolute inset-0 w-full h-full object-cover',
-                isHovered ? 'hidden' : 'block'
+                'w-full h-full object-cover',
+                isHovered && 'hidden'
               )}
               onClick={OpenPreview}
               alt={config.name}
