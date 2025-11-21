@@ -239,13 +239,4 @@ This step is essential for runtime loading and prevents the component from being
    - Expect feedback from maintainers.
    - Address all comments iteratively.
 
-## Best Practices
-
-- **Performance**: Optimize for 60fps animations; use `requestAnimationFrame` where possible.
-- **Accessibility**: Ensure backgrounds don't interfere with text readability (e.g., provide contrast options).
-- **Documentation**: Update `README.md` if your contribution warrants it.
-- **Testing**: Add unit tests in `backgrounds/<component-name>/__tests__/`.
-
-If you encounter issues, join our [community discussion](https://github.com/your-org/drapes/discussions) or file an issue.
-
 We appreciate your contributions—let's make Drapes even more vibrant! 🎨
