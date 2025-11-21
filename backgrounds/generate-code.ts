@@ -18,8 +18,8 @@ export function generateUsageCode(
 
 export default function Page() {
   return (
-    <div style={{ position: 'relative', height: '100vh' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
+    <div>
+      <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }} >
         <${componentName} 
 ${propsString}
         />
