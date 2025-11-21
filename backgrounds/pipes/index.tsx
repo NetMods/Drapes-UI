@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useRef } from 'react';
 
 interface PipeAnimationProps {
@@ -18,6 +17,7 @@ interface PipeAnimationProps {
 
 const TO_RAD = Math.PI / 180;
 const TAU = Math.PI * 2;
+const HALF_PI = Math.PI / 2;
 const { cos, sin, round } = Math;
 
 const rand = (min: number, max: number): number => min + Math.random() * (max - min);
@@ -88,20 +88,19 @@ const Pipes = ({
   const offscreenCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const visibleCtxRef = useRef<CanvasRenderingContext2D | null>(null);
   const pipePropsRef = useRef<Float32Array | null>(null);
+  const centerRef = useRef<[number, number]>([0, 0]);
   const tickRef = useRef<number>(0);
   const rafIdRef = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     visibleCtxRef.current = ctx;
 
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvasRef.current = offscreenCanvas;
-
     const offscreenCtx = offscreenCanvas.getContext('2d');
     if (!offscreenCtx) return;
     offscreenCtxRef.current = offscreenCtx;
@@ -111,7 +110,6 @@ const Pipes = ({
     const turnAmount = (360 / turnCount) * TO_RAD;
     const turnChanceRange = 58;
     tickRef.current = 0;
-
     const fadingBackgroundColor = convertToAlphaColor(backgroundColor, 0.05);
     let isActive = true;
 
@@ -125,7 +123,6 @@ const Pipes = ({
       const ttl = baseTTL + rand(0, rangeTTL);
       const width = baseWidth + rand(0, rangeWidth);
       const hue = baseHue + rand(0, rangeHue);
-
       // CHANGED: Set prevX/prevY to current x/y on init
       pipePropsRef.current?.set([x, y, direction, speed, life, ttl, width, hue, x, y], i);
     };
@@ -145,7 +142,6 @@ const Pipes = ({
     ) => {
       const ctxA = offscreenCtxRef.current;
       if (!ctxA) return;
-
       ctxA.save();
       ctxA.strokeStyle = `hsla(${hue},75%,50%,${fadeInOut(life, ttl)})`;
       ctxA.lineWidth = width;
@@ -161,7 +157,6 @@ const Pipes = ({
     const updatePipe = (i: number) => {
       const props = pipePropsRef.current;
       if (!props) return;
-
       const i2 = 1 + i, i3 = 2 + i, i4 = 3 + i, i5 = 4 + i, i6 = 5 + i, i7 = 6 + i, i8 = 7 + i, i9 = 8 + i, i10 = 9 + i;
       const x = props[i];
       const y = props[i2];
@@ -173,7 +168,6 @@ const Pipes = ({
       const hue = props[i8];
       const prevX = props[i9];
       const prevY = props[i10];
-
       // Draw the line segment
       drawPipe(x, y, prevX, prevY, life, ttl, width, hue);
       life++;
@@ -202,19 +196,14 @@ const Pipes = ({
     const draw = () => {
       if (!isActive) return;
       rafIdRef.current = requestAnimationFrame(draw);
-
       const ctxA = offscreenCtxRef.current;
       const canvasA = offscreenCanvasRef.current;
       const ctxB = visibleCtxRef.current;
       const canvasB = canvasRef.current;
-
       if (!ctxA || !canvasA || !ctxB || !canvasB) return;
-
       ctxA.fillStyle = fadingBackgroundColor;
       ctxA.fillRect(0, 0, canvasA.width, canvasA.height);
-
       updatePipes();
-
       ctxB.fillStyle = backgroundColor;
       ctxB.fillRect(0, 0, canvasB.width, canvasB.height);
       ctxB.save();
@@ -230,19 +219,16 @@ const Pipes = ({
       const { innerWidth, innerHeight } = window;
       const canvasA = offscreenCanvasRef.current;
       const canvasB = canvasRef.current;
-
       if (!canvasA || !canvasB) return;
-
       canvasA.width = innerWidth;
       canvasA.height = innerHeight;
       canvasB.width = innerWidth;
       canvasB.height = innerHeight;
-
+      centerRef.current = [innerWidth / 2, innerHeight / 2];
       initPipes();
     };
 
     resize();
-
     const handleVisibilityChange = () => {
       if (document.hidden) {
         isActive = false;
@@ -252,11 +238,9 @@ const Pipes = ({
         rafIdRef.current = requestAnimationFrame(draw);
       }
     };
-
     rafIdRef.current = requestAnimationFrame(draw);
     window.addEventListener('resize', resize);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
