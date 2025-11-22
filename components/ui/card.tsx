@@ -1,10 +1,11 @@
 'use client';
 
-import { StarIcon } from '@phosphor-icons/react/dist/ssr';
+import { CodeIcon, StarIcon } from '@phosphor-icons/react/dist/ssr';
 import { BackgroundConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { CodeSidebarData, useCodeSidebar } from '../ui/code-sidebar';
+import { EyeIcon } from '@phosphor-icons/react';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -57,7 +58,7 @@ export const BackgroundCard = ({
         onMouseLeave={() => setHoveredIndex(null)}
       >
         <div className="size-full bg-base-content/20 group">
-          <div className="size-full object-cover flex relative">
+          <div className="size-full bg-black/50 object-cover flex relative">
             <img
               src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
               className={cn(
@@ -77,7 +78,7 @@ export const BackgroundCard = ({
 
           <div
             className={cn(
-              'bg-base-content/10 backdrop-blur-3xl sm:bg-base-content/20',
+              'bg-base-content/10 backdrop-blur-lg sm:bg-base-content/20',
               'p-2 border-t border-base-content/20 w-full max-sm:-translate-y-full',
               isHovered && "-translate-y-[5.9rem] "
             )}
@@ -94,12 +95,14 @@ export const BackgroundCard = ({
                 className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
                 onClick={OpenPreview}
               >
+                <EyeIcon weight='bold' size={15} />
                 Preview
               </button>
               <button
                 className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
                 onClick={handleShowCode}
               >
+                <CodeIcon weight='bold' size={15} />
                 Code
               </button>
             </div>

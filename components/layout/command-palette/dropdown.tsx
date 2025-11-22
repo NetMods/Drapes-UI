@@ -122,7 +122,7 @@ const CommandPaletteDropdown = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!sortedHistory.length) return
+      if (!suggestions.length) return
       const key = e.key.toLowerCase()
       if (!['arrowdown', 'arrowup', 'enter'].includes(key)) return
       e.preventDefault()

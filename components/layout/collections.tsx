@@ -100,6 +100,7 @@ export const Collections = () => {
         )}
       </div>
 
+      <p className="mt-10 text-center text-base-content/70 font-bold font-sans capitalize">New background every week</p>
       <PreFetechingScript />
     </div>
   );

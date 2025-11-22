@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 export const HeroSection = () => {
   return (
-    <div className="flex justify-center text-base-content gap-10 px-10 min-[1250px]:gap-40">
+    <div className="flex justify-center text-base-content gap-10 px-10 min-[1250px]:gap-40 relative">
       <div className="my-auto">
         <p className="font-serif max-md:text-center text-5xl max-md:leading-14 md:text-7xl">Ready to use <br /> lively backgrounds</p>
         <p className="font-sans mt-5 text-md sm:text-lg max-md:text-center text-base-content/70 max-w-130">Independent components made using Tailwind and JSX that can easily integrate with your React JS and Next JS app.</p>
@@ -21,6 +21,7 @@ export const HeroSection = () => {
           </a>
         </div>
       </div>
+
 
       <div
         className={cn(

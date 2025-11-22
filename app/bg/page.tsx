@@ -87,10 +87,10 @@ export default function Page() {
       <div className="flex justify-between items-center p-1 text-base-content/70 max-sm:justify-center">
         <SettingsButton action={handleSettingSidebar} className='max-sm:hidden' />
 
-        <div className="flex justify-center gap-3 items-center">
-          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden' />
-          <div className="font-serif text-xl md:text-2xl lg:text-3xl w-60 flex justify-center items-center">{config.name}</div>
-          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden' />
+        <div className="flex justify-center gap-3 items-center max-sm:w-full">
+          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2' />
+          <div className="max-sm:bg-white/10 rounded max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden p-2' />
         </div>
 
         <CodeButton action={handleCodeSidebar} className='max-sm:hidden' />
@@ -103,12 +103,14 @@ export default function Page() {
       <LeftButton
         action={handleLeft}
         isDisabled={currentId === 1}
-        className='fixed top-1/2 translate-y-[-50%] sm:hidden'
+        className='fixed top-1/2 translate-y-[-50%] sm:hidden bg-white/10 border border-white/30 text-base-content/70 ml-1 p-1 rounded-xl backdrop-blur-xl'
+        size={23}
       />
       <RightButton
         action={handleRight}
         isDisabled={currentId === totalBackground}
-        className='fixed top-1/2 right-0 translate-y-[-50%] sm:hidden'
+        className='fixed top-1/2 right-0 translate-y-[-50%] sm:hidden bg-white/10 border border-white/30 text-base-content/70 mr-1 p-1 rounded-xl backdrop-blur-xl'
+        size={23}
       />
       <MobileControls
         handleSettingSidebar={handleSettingSidebar}
@@ -118,28 +120,28 @@ export default function Page() {
   )
 }
 
-const LeftButton = ({ action, isDisabled, className }: { action: () => void, isDisabled: boolean, className?: string }) => {
+const LeftButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
   return (
     <button
       onClick={action}
-      className={cn(`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 
+      className={cn(`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 disabled:opacity-40 
         enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed`, className)}
       disabled={isDisabled}
     >
-      <ArrowLeftIcon size={25} weight="bold" />
+      <ArrowLeftIcon size={size ?? 25} weight="bold" />
     </button>
   )
 }
 
-const RightButton = ({ action, isDisabled, className }: { action: () => void, isDisabled: boolean, className?: string }) => {
+const RightButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
   return (
     <button
       onClick={action}
-      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 p-2 disabled:opacity-40 
+      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 disabled:opacity-40 
         enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed ${className}`}
       disabled={isDisabled}
     >
-      <ArrowRightIcon size={25} weight="bold" />
+      <ArrowRightIcon size={size ?? 25} weight="bold" />
     </button>
   )
 }
