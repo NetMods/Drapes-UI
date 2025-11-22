@@ -19,7 +19,7 @@ export function generateUsageCode(
 export default function Page() {
   return (
     <div>
-      <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1, pointerEvents: 'none' }} >
+      <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1 }} >
         <${componentName} 
 ${propsString}
         />

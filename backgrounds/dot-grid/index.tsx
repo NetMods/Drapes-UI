@@ -126,13 +126,13 @@ const InteractiveDotGrid = ({
     const handleMouseLeave = () => {
       setMousePos({ x: -1000, y: -1000 });
     };
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       window.removeEventListener('resize', resize);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseleave', handleMouseLeave);
       cancelAnimationFrame(animationId);
     };
   }, [mousePos, dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, showGrid, numLayers, hiddots]);
