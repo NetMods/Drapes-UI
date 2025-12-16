@@ -1,9 +1,6 @@
-import Image from "next/image"
 
 interface AvatarProps {
   url: string,
-  width: number,
-  height: number,
   className?: string
 }
 
@@ -11,12 +8,10 @@ interface AvatarProps {
 
 const Avatar = ({
   url,
-  width,
-  height,
   className,
 }: AvatarProps) => {
   return (
-    <Image className={className} src={url} alt="UserImage" width={width} height={height} />
+    <img className={className} src={url} alt="UserImage" />
   )
 }
 
