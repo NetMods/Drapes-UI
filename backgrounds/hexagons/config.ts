@@ -4,8 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Hexagons',
   description: 'A captivating animated background of glowing hexagon patterns that leave trailing marks as they dynamically evolve.',
-  author: 'NetMods',
-  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+  author: {
+    name: "Aryan",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+    redirectUrl: 'https://tarnished.lol'
+  },
   tags: ['animated', 'hexagons', 'glowing', 'patterns', 'trails', 'abstract', 'geometric'],
   defaultProps: {
     lineLength: 25,

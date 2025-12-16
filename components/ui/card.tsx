@@ -113,16 +113,15 @@ export const BackgroundCard = ({
             </div>
 
             <a
-              href={config.redirectUrl}
+              href={config.author.redirectUrl}
               target='_blank'
               rel='noopener noreferrer'
             >
               <Avatar
-                url={config.imageUrl!}
+                url={config.author.imageUrl}
                 className={cn(
-                  'absolute top-0 rounded-full border-2 border-base-content/30 transition-transform duration-500 ease-out size-10 md:size-16',
-                  "cursor-pointer",
-                  'right-2 sm:right-11',
+                  'absolute top-0 rounded-full border-2 border-base-content/20 transition-transform duration-500 ease-out size-10 md:size-16',
+                  "cursor-pointer", 'right-2',
                   isHovered && '-translate-y-8'
                 )}
               />

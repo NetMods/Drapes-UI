@@ -4,8 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Fluid Lines',
   description: 'An animated background featuring fluid, bent lines that undulate with wave-like motion, responding dynamically to mouse movements by contracting or diverging.',
-  author: 'NetMods',
-  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+  author: {
+    name: "Aryan",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+    redirectUrl: 'https://tarnished.lol'
+  },
   tags: ['animated', 'bent-lines', 'waves', 'fluid', 'motion', 'interactive', 'abstract', 'geometric'],
   defaultProps: {
     backgroundColor: '#000000',
