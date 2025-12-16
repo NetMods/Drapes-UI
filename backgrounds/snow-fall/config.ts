@@ -5,6 +5,7 @@ export default {
   name: 'Snow Fall',
   description: 'Smooth animated Snowfall',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['animated', 'snowfall', 'snowflakes', 'particles', 'winter', 'falling', 'atmospheric', 'serene'],
   defaultProps: {
     maxSnowflakes: 100,

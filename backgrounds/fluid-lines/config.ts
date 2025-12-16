@@ -5,6 +5,7 @@ export default {
   name: 'Fluid Lines',
   description: 'An animated background featuring fluid, bent lines that undulate with wave-like motion, responding dynamically to mouse movements by contracting or diverging.',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['animated', 'bent-lines', 'waves', 'fluid', 'motion', 'interactive', 'abstract', 'geometric'],
   defaultProps: {
     backgroundColor: '#000000',
@@ -15,8 +16,7 @@ export default {
     gravity: 0.3,
     waveSpeed: 8000,
     mouseInteraction: 'smear',
-    effects: "wind",
-    rotation: 45
+    effects: "wind"
   },
   code: {
     usage: usageCodeHTML,
@@ -40,16 +40,6 @@ export default {
       type: 'color',
       defaultValue: '#FFFFFF',
       description: 'The color of the bent lines in the animation.',
-    },
-    {
-      key: 'rotation',
-      label: 'Rotation',
-      type: 'slider',
-      min: 0,
-      max: 180,
-      step: 1,
-      defaultValue: 0,
-      description: 'The rotation angle of the lines (0-180 degrees).',
     },
     {
       key: 'gap',
@@ -113,9 +103,9 @@ export default {
       key: 'effects',
       label: 'General Effect',
       type: 'select',
-      options: ['none', 'wind', 'waves', 'oregeny'], // Added oregeny based on previous component code
+      options: ['none', 'wind', 'waves'],
       defaultValue: 'wind',
-      description: 'Global animation effect: none, wind, waves, or oregeny.',
+      description: 'Global animation effect: none (static), wind (gentle horizontal drift), or waves (undulating vertical motion).',
     },
   ],
 } as Omit<BackgroundConfig, 'id'>;

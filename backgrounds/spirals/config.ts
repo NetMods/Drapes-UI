@@ -5,6 +5,7 @@ export default {
   name: 'Spirals',
   description: 'A hypnotic animated background of mathematical spirals that elegantly spin and expand with smooth rotation, customizable for velocity, colors, and spacing to create mesmerizing geometric flows.',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['animated', 'spirals', 'mathematical', 'rotation', 'hypnotic', 'geometric', 'flow', 'abstract'],
   defaultProps: {
     maxOffset: 400,

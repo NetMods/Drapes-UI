@@ -5,6 +5,8 @@ export default {
   name: 'Dot Grid',
   description: 'A dynamic background featuring a grid of dots that smoothly scale and animate on hover interaction.',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+  redirectUrl: 'https://ninjafire.xyz',
   tags: ['animated', 'dotted-grids', 'waves', 'interactive', 'hover-effects', 'geometric'],
 
   defaultProps: {

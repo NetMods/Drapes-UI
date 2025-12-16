@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { CodeSidebarData, useCodeSidebar } from '../ui/code-sidebar';
 import { EyeIcon } from '@phosphor-icons/react';
 import { Badge } from './badge';
+import Avatar from './avatar';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -94,21 +95,41 @@ export const BackgroundCard = ({
             <span className="font-serif text-2xl sm:text-3xl italic">
               {config.name}
             </span>
-            <div className="pt-2 space-x-2 font-sans">
-              <button
-                className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
-                onClick={OpenPreview}
-              >
-                <EyeIcon weight='bold' size={15} />
-                Preview
-              </button>
-              <button
-                className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
-                onClick={handleShowCode}
-              >
-                <CodeIcon weight='bold' size={15} />
-                Code
-              </button>
+            <div className="pt-2 flex items-center justify-between font-sans">
+              <div className='flex items-center justify-start gap-1'>
+                <button
+                  className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                  onClick={OpenPreview}
+                >
+                  <EyeIcon weight='bold' size={15} />
+                  Preview
+                </button>
+                <button
+                  className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                  onClick={handleShowCode}
+                >
+                  <CodeIcon weight='bold' size={15} />
+                  Code
+                </button>
+              </div>
+              {
+                <a
+                  href={config.redirectUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className="inline-flex max-sm:text-sm px-3 gap-2 items-center border border-base-content/30 cursor-pointer p-1 rounded-xl hover:shadow-lg hover:bg-base-content/20 bg-base-content/10 transition-all ease-linear"
+                >
+                  <Avatar className='rounded-full' width={20} height={20} url={config.imageUrl!} />
+                  <span className='hidden sm:block'>
+                    {
+                      (function truncateChars(text, n = 10, suffix = '..') {
+                        if (typeof text !== 'string') return text;
+                        return text.length > n ? text.slice(0, n) + suffix : text;
+                      })(config.author)
+                    }
+                  </span>
+                </a>
+              }
             </div>
           </div>
         </div>

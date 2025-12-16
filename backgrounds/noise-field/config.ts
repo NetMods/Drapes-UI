@@ -5,6 +5,7 @@ export default {
   name: 'Noise Field',
   description: 'An immersive animated background of noise fields where particles elegantly follow fluid flow patterns, evoking organic, wave-like movements.',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['animated', 'noise', 'flow-field', 'particles', 'organic', 'waves', 'abstract', 'fluid'],
   defaultProps: {
     backgroundColor: '#000000',

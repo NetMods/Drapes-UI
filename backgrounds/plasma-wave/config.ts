@@ -5,6 +5,7 @@ export default {
   name: 'Plasma Waves',
   description: 'Retro-futuristic animated plasma waves with customizable neon effects',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['animated', 'shader', 'synthwave', 'retro', 'neon'],
   defaultProps: {
     overallSpeed: 0.2,

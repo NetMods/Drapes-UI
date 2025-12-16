@@ -5,6 +5,7 @@ export default {
   name: 'Fractal Tree',
   description: 'A generative organic tree structure that grows recursively. It features expanding branches that fade over time, creating a subtle, frost-like or vascular pattern.',
   author: 'NetMods',
+  imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
   tags: ['fractal', 'tree', 'generative', 'organic', 'nature', 'recursive'],
   defaultProps: {
     primaryColor: 'rgba(200,200,200, 1)',
