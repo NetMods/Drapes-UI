@@ -4,7 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Matrix',
   description: 'A mesmerizing Matrix-style animation with streams of falling digital numbers and characters cascading down the screen like digital rain.',
-  author: 'NetMods',
+  author: {
+    name: "Aryan",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+    redirectUrl: 'https://tarnished.lol'
+  },
   tags: ['animated', 'matrix', 'digital-rain', 'falling-numbers', 'cyberpunk', 'text-animation', 'green-glow'],
   defaultProps: {
     backgroundColor: 'rgba(0, 0, 0, 0.05)',

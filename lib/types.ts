@@ -2,11 +2,14 @@ export interface BackgroundConfig {
   id?: string;
   name: string;
   description: string;
-  author?: string;
+  author: {
+    name: string
+    imageUrl: string;
+    redirectUrl: string;
+  }
+
   tags: string[];
-
   defaultProps: Record<string, any>;
-
   controls: Control[];
 
   code: {

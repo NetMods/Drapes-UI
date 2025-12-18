@@ -26,7 +26,7 @@ export const Toggle = ({ label, value, onChange, description }: ToggleProps) => 
       <div className="flex items-center justify-between w-full font-mono">
         <label className="text-xs capitalize text-base-content/80 inline-flex justify-between items-center gap-1 group">
           {label}
-          <Tooltip description={description} />
+          <Tooltip description={description || ""} />
         </label>
         <div className='flex justify-center items-center gap-1'>
           <button

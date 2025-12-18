@@ -170,7 +170,7 @@ export const RangeSlider = ({ label, min, max, step, onChange, value, descriptio
       <div className="flex justify-between items-center z-10 text-base-content/80 text-xs font-mono mb-2 pr-2" >
         <span className="flex justify-center items-center gap-1">
           {label}
-          <Tooltip description={description} />
+          <Tooltip description={description || ""} />
         </span>
         <button
           onClick={onReset}

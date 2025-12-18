@@ -4,7 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Spirals',
   description: 'A hypnotic animated background of mathematical spirals that elegantly spin and expand with smooth rotation, customizable for velocity, colors, and spacing to create mesmerizing geometric flows.',
-  author: 'NetMods',
+  author: {
+    name: "Ninjafire",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1993601671717670912/flQ63UlP_400x400.jpg',
+    redirectUrl: 'https://ninjafire.xyz'
+  },
   tags: ['animated', 'spirals', 'mathematical', 'rotation', 'hypnotic', 'geometric', 'flow', 'abstract'],
   defaultProps: {
     maxOffset: 400,

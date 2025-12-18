@@ -4,7 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Mist',
   description: 'A mesmerizing animated shader background featuring flowing mist-like patterns with fractal noise and smooth color transitions.',
-  author: 'NetMods',
+  author: {
+    name: "Aryan",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
+    redirectUrl: 'https://tarnished.lol'
+  },
   tags: ['animated', 'shader', 'webgl', 'fluid', 'organic', 'atmospheric', 'noise'],
   defaultProps: {
     scale: 3.0,

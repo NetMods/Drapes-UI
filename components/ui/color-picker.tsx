@@ -27,7 +27,7 @@ export const ColorPicker = ({ label, value, onChange, description, onReset }: Co
       <div className="flex items-center justify-between w-full">
         <label className="font-mono text-xs capitalize text-base-content/80 inline-flex justify-center items-center gap-1 group">
           {label}
-          <Tooltip description={description} />
+          <Tooltip description={description || ""} />
         </label>
         <div className="flex items-center gap-2">
           <button

@@ -4,7 +4,11 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 export default {
   name: 'Plasma Waves',
   description: 'Retro-futuristic animated plasma waves with customizable neon effects',
-  author: 'NetMods',
+  author: {
+    name: "Ninjafire",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1993601671717670912/flQ63UlP_400x400.jpg',
+    redirectUrl: 'https://ninjafire.xyz'
+  },
   tags: ['animated', 'shader', 'synthwave', 'retro', 'neon'],
   defaultProps: {
     overallSpeed: 0.2,
