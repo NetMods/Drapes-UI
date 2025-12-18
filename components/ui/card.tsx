@@ -5,9 +5,10 @@ import { BackgroundConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { CodeSidebarData, useCodeSidebar } from '../ui/code-sidebar';
-import { EyeIcon } from '@phosphor-icons/react';
+import { ArrowSquareOutIcon, EyeIcon } from '@phosphor-icons/react';
 import { Badge } from './badge';
 import Avatar from './avatar';
+import { toolTipStyle } from './tooltip';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -62,7 +63,7 @@ export const BackgroundCard = ({
         onMouseEnter={() => setHoveredIndex(index)}
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        <div className="size-full bg-base-content/20 group card">
+        <div className="size-full bg-base-content/20 card">
           <div className="size-full bg-black/50 object-cover flex relative">
             <img
               src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
@@ -92,7 +93,7 @@ export const BackgroundCard = ({
               transition: 'ease-out 100ms',
             }}
           >
-            <span className="font-serif text-2xl sm:text-3xl italic">
+            <span className="font-serif text-2xl sm:text-3xl">
               {config.name}
             </span>
             <div className="pt-2 space-x-2 font-sans">
@@ -112,20 +113,38 @@ export const BackgroundCard = ({
               </button>
             </div>
 
-            <a
-              href={config.author.redirectUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-            >
-              <Avatar
-                url={config.author.imageUrl}
-                className={cn(
-                  'absolute top-0 rounded-full border-2 border-base-content/20 transition-transform duration-500 ease-out size-10 md:size-16',
-                  "cursor-pointer", 'right-2',
-                  isHovered && '-translate-y-8'
-                )}
-              />
-            </a>
+            <div className={cn(
+              "absolute top-0 right-2 group flex justify-center items-center",
+              "transition-transform duration-500 ease-out",
+              isHovered && '-translate-y-8'
+            )}>
+              <a
+                href={config.author.redirectUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                <Avatar
+                  url={config.author.imageUrl}
+                  className={cn(
+                    'rounded-full border-2 border-base-content/20 size-10',
+                    'cursor-pointer md:size-16',
+                  )}
+                />
+                <span className={cn(toolTipStyle, "font-semibold px-1 py-0 whitespace-nowrap")}>
+                  @{config.author.name}
+                </span>
+                <span
+                  className={cn(
+                    'text-xs w-full flex justify-center items-center gap-1 text-base-content/70 font-sans',
+                    '-translate-y-2 opacity-0 transition-all duration-150 mt-0.5',
+                    'group-hover:translate-y-0 group-hover:opacity-100'
+                  )}
+                >
+                  <span> Author </span>
+                  <ArrowSquareOutIcon size={11} />
+                </span>
+              </a>
+            </div>
           </div>
 
         </div>

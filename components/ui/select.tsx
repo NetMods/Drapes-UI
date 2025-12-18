@@ -29,7 +29,7 @@ export const Select = ({ label, value, onChange, options, description }: SelectP
         <div className="relative inline-block group">
           <label className="capitalize text-base-content/80 inline-flex justify-center items-center gap-1 cursor-help">
             {label}
-            <Tooltip description={description} />
+            <Tooltip description={description || ""} />
           </label>
         </div>
         <div className="relative">
