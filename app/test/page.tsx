@@ -2,29 +2,30 @@
 
 import { useEffect, useRef } from "react";
 
-const colors = ["#fbf8cc", "#fdd835", "#fff176", "#ffeb3b"];
-
-const config = {
-  circleCount: 1500,
-  speedFactor: 0.8,
-  minRadius: 1,
-  maxRadius: 10,
-  focusRadius: 150,
-};
-
-const Background = () => {
+const Background = ({
+  circleCount = 1500,
+  speedFactor = 0.8,
+  minRadius = 1,
+  maxRadius = 10,
+  focusRadius = 150,
+  glowIntensity = 15,
+  maxOpacity = 0.9,
+  minOpacity = 0.05,
+  intensityPower = 2.5,
+  colors = ["#fbf8cc", "#fdd835", "#fff176", "#ffeb3b"]
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mouseRef = useRef<{ x: number | null; y: number | null }>({ x: null, y: null });
+  const mouseRef = useRef<{ x: number | null; y: number | null }>({
+    x: null,
+    y: null
+  });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
-
-    let animationFrameId: number;
-    let circles: Circle[] = [];
 
     class Circle {
       x: number;
@@ -34,6 +35,9 @@ const Background = () => {
       baseDy: number;
       ctx: CanvasRenderingContext2D;
       color: string;
+      noiseOffsetX: number;
+      noiseOffsetY: number;
+      randomFactor: number;
 
       constructor(
         x: number,
@@ -44,45 +48,48 @@ const Background = () => {
         this.x = x;
         this.y = y;
         this.baseRadius = radius;
-
         this.baseDx = (Math.random() - 0.5) * 1.5;
         this.baseDy = (Math.random() - 0.5) * 1.5;
         this.ctx = context;
         this.color = colors[Math.floor(Math.random() * colors.length)];
+
+        this.noiseOffsetX = x * 0.01;
+        this.noiseOffsetY = y * 0.01;
+
+        this.randomFactor = 0.7 + Math.sin(x * 0.05) * 0.3;
       }
 
-      draw(mouseX: number | null, mouseY: number | null) {
+      draw(mouseX: number | null, mouseY: number | null): void {
         if (mouseX === null || mouseY === null) return;
 
         const dx = mouseX - this.x;
         const dy = mouseY - this.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
 
-        // Add noise/randomness to the distance to break the circular pattern
-        const noiseOffset = Math.sin(this.x * 0.01 + this.y * 0.01) * 30 + Math.cos(this.x * 0.02 - this.y * 0.015) * 25;
+        const distanceSquared = dx * dx + dy * dy;
+        const focusRadiusSquared = focusRadius * focusRadius;
+
+        if (distanceSquared > focusRadiusSquared * 1.5) return;
+
+        const distance = Math.sqrt(distanceSquared);
+
+        const noiseOffset =
+          Math.sin(this.noiseOffsetX + this.noiseOffsetY) * 30 +
+          Math.cos(this.noiseOffsetX * 2 - this.noiseOffsetY * 1.5) * 25;
+
         const adjustedDistance = distance + noiseOffset;
 
-        if (adjustedDistance < config.focusRadius) {
-          // Calculate intensity (0 to 1) based on proximity to center
-          const proximity = 1 - adjustedDistance / config.focusRadius;
+        if (adjustedDistance < focusRadius) {
+          const proximity = 1 - adjustedDistance / focusRadius;
+          const intensity = Math.pow(proximity, intensityPower) * this.randomFactor;
 
-          // Add more randomness to intensity - some particles are just dimmer/brighter
-          const randomFactor = 0.7 + Math.sin(this.x * 0.05) * 0.3;
-
-          // Apply an easing function but with the random factor
-          const intensity = Math.pow(proximity, 2.5) * randomFactor;
-
-          // Dynamic styling based on intensity
-          const renderRadius = this.baseRadius + (config.maxRadius * intensity);
-          const opacity = Math.max(0.05, intensity * 0.9);
+          const renderRadius = this.baseRadius + (maxRadius * intensity);
+          const opacity = Math.max(minOpacity, intensity * maxOpacity);
 
           this.ctx.save();
           this.ctx.beginPath();
 
-          // GLOW EFFECT with variation
-          this.ctx.shadowBlur = 15 * intensity + Math.random() * 10;
+          this.ctx.shadowBlur = glowIntensity * intensity + Math.random() * 10;
           this.ctx.shadowColor = this.color;
-
           this.ctx.globalAlpha = opacity;
           this.ctx.fillStyle = this.color;
 
@@ -92,36 +99,41 @@ const Background = () => {
         }
       }
 
-      update() {
-        const { speedFactor } = config;
-
+      update(width: number, height: number, mouseX: number | null, mouseY: number | null): void {
         this.x += this.baseDx * speedFactor;
         this.y += this.baseDy * speedFactor;
 
-        if (this.x + this.baseRadius > window.innerWidth || this.x - this.baseRadius < 0) {
+        // Bounce off walls
+        if (this.x + this.baseRadius > width || this.x - this.baseRadius < 0) {
           this.baseDx = -this.baseDx;
         }
 
-        if (this.y + this.baseRadius > window.innerHeight || this.y - this.baseRadius < 0) {
+        if (this.y + this.baseRadius > height || this.y - this.baseRadius < 0) {
           this.baseDy = -this.baseDy;
         }
 
-        this.draw(mouseRef.current.x, mouseRef.current.y);
+        this.draw(mouseX, mouseY);
       }
     }
+    let animationFrameId: number;
+    let circles: Circle[] = [];
 
-    const resizeCanvas = () => {
+    const resizeCanvas = (): void => {
       const dpi = window.devicePixelRatio || 1;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      canvas.width = window.innerWidth * dpi;
-      canvas.height = window.innerHeight * dpi;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      canvas.width = width * dpi;
+      canvas.height = height * dpi;
+
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
       ctx.scale(dpi, dpi);
     };
 
-    const init = () => {
+    const init = (): void => {
       circles = [];
-      const { circleCount, minRadius } = config;
       for (let i = 0; i < circleCount; i++) {
         const radius = Math.random() * 2 + minRadius;
         const x = Math.random() * (window.innerWidth - radius * 2) + radius;
@@ -130,23 +142,32 @@ const Background = () => {
       }
     };
 
-    const animate = () => {
+    const animate = (): void => {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      circles.forEach((circle) => circle.update());
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      const { x: mouseX, y: mouseY } = mouseRef.current;
+
+      for (let i = 0; i < circles.length; i++) {
+        circles[i].update(width, height, mouseX, mouseY);
+      }
+
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleMouseMove = (event: MouseEvent): void => {
       mouseRef.current.x = event.clientX;
       mouseRef.current.y = event.clientY;
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = (): void => {
       mouseRef.current.x = null;
       mouseRef.current.y = null;
-    }
+    };
 
-    const handleResize = () => {
+    const handleResize = (): void => {
       resizeCanvas();
       init();
     };
@@ -168,10 +189,18 @@ const Background = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none -z-10 bg-black"
-    />
+    <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1 }} >
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+        }}
+      />
+    </div>
   );
 };
 

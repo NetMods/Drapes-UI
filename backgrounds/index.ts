@@ -14,6 +14,7 @@ import PlasmaWave from './plasma-wave';
 import FractalTree from './fractal-tree';
 import FluidLines from './fluid-lines';
 import Mist from './mist';
+import FireFly from './firefly-effect';
 
 //import config
 import dotGridConfig from './dot-grid/config';
@@ -28,6 +29,7 @@ import plasmaWaveConfig from './plasma-wave/config';
 import mistConfig from './mist/config'
 import fluidLinesConfig from './fluid-lines/config';
 import fractalTreeConfig from './fractal-tree/config';
+import fireflyConfig from './firefly-effect/config';
 
 
 const registerEntry: BackgroundEntry[] = [
@@ -37,7 +39,8 @@ const registerEntry: BackgroundEntry[] = [
   { config: particlesConfig, component: Particles },
   { config: mistConfig, component: Mist, isNew: true },
   { config: spiralConfig, component: Spirals },
-  { config: fractalTreeConfig, component: FractalTree, isNew: true },
+  { config: fractalTreeConfig, component: FractalTree },
+  { config: fireflyConfig, component: FireFly, isNew: true },
   { config: snowfallConfig, component: Snowfall },
   { config: pipesConfig, component: Pipes },
   { config: matrixConfig, component: Matrix },
