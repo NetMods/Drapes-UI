@@ -1,0 +1,91 @@
+import { BackgroundConfig } from '@/lib/types';
+import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
+
+export default {
+  name: 'Firefly Effect',
+  description: 'An interactive particle system where floating orbs ignite and glow intensely when approached by the mouse cursor, creating a bioluminescent effect.',
+  author: {
+    name: "Ninjafire",
+    imageUrl: 'https://pbs.twimg.com/profile_images/1993601671717670912/flQ63UlP_400x400.jpg',
+    redirectUrl: 'https://ninjafire.xyz'
+  },
+  tags: ['particles', 'interactive', 'glow', 'mouse-effect', 'canvas', 'light'],
+  defaultProps: {
+    circleCount: 1500,
+    speedFactor: 0.8,
+    minRadius: 1,
+    maxRadius: 10,
+    focusRadius: 150,
+    glowIntensity: 15,
+  },
+  code: {
+    usage: usageCodeHTML,
+    rawUsage: usageCode,
+    tsx: tsxCodeHTML,
+    jsx: jsxCodeHTML,
+    rawjsx: jsxCode,
+    rawtsx: tsxCode
+  },
+  controls: [
+    {
+      key: 'circleCount',
+      label: 'Particle Count',
+      type: 'slider',
+      min: 100,
+      max: 5000,
+      step: 100,
+      defaultValue: 1500,
+      description: 'The total number of particles floating on the screen.',
+    },
+    {
+      key: 'speedFactor',
+      label: 'Speed',
+      type: 'slider',
+      min: 0.1,
+      max: 5,
+      step: 0.1,
+      defaultValue: 0.8,
+      description: 'How fast the particles drift around.',
+    },
+    {
+      key: 'focusRadius',
+      label: 'Interaction Radius',
+      type: 'slider',
+      min: 50,
+      max: 500,
+      step: 10,
+      defaultValue: 150,
+      description: 'The distance from the cursor where particles begin to react.',
+    },
+    {
+      key: 'glowIntensity',
+      label: 'Glow Intensity',
+      type: 'slider',
+      min: 0,
+      max: 50,
+      step: 1,
+      defaultValue: 15,
+      description: 'The strength of the shadow blur effect when lit.',
+    },
+    {
+      key: 'maxRadius',
+      label: 'Max Growth Size',
+      type: 'slider',
+      min: 2,
+      max: 50,
+      step: 1,
+      defaultValue: 10,
+      description: 'The maximum size a particle can reach when fully lit.',
+    },
+    {
+      key: 'intensityPower',
+      label: 'Falloff Curve',
+      type: 'slider',
+      min: 1,
+      max: 5,
+      step: 0.1,
+      defaultValue: 2.5,
+      description: 'Controls how sharp the transition is from dark to light.',
+    },
+  ],
+} as Omit<BackgroundConfig, 'id'>;
