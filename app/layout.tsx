@@ -106,9 +106,6 @@ export default function RootLayout({
         <div
           aria-hidden='true'
           className="inset-0 z-0 fixed"
-          style={{
-            // backgroundImage: `url('/bg.jpg')`
-          }}
         />
         <div
           aria-hidden='true'
@@ -116,7 +113,7 @@ export default function RootLayout({
           style={{
             background: "rgba(255, 255, 255, 0.05)",
             backdropFilter: "blur(35px)",
-            border: "2px solid rgba(255, 255, 255, 0.1)",
+            borderTop: "2px solid rgba(255, 255, 255, 0.1)",
             boxShadow: "0 0 80px rgba(0, 0, 0, 0.25)",
           }}
         >

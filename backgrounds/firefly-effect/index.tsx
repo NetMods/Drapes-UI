@@ -12,13 +12,19 @@ const FireflyEffect = ({
   maxOpacity = 0.9,
   minOpacity = 0.05,
   intensityPower = 2.5,
+  backgroundColor = "#000000",
+  color1 = "#fbf8cc",
+  color2 = "#fdd835",
+  color3 = "#fff176",
+  color4 = "#ffeb3b",
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mouseRef = useRef<{ x: number | null; y: number | null }>({
     x: null,
     y: null
   });
-  const colors = ["#fbf8cc", "#fdd835", "#fff176", "#ffeb3b"]
+
+  const colors = [color1, color2, color3, color4];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,6 +57,7 @@ const FireflyEffect = ({
         this.baseDx = (Math.random() - 0.5) * 1.5;
         this.baseDy = (Math.random() - 0.5) * 1.5;
         this.ctx = context;
+
         this.color = colors[Math.floor(Math.random() * colors.length)];
 
         this.noiseOffsetX = x * 0.01;
@@ -144,7 +151,8 @@ const FireflyEffect = ({
     };
 
     const animate = (): void => {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -188,7 +196,22 @@ const FireflyEffect = ({
       window.removeEventListener("mouseout", handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [circleCount, speedFactor, minRadius, maxRadius, focusRadius, glowIntensity, maxOpacity, minOpacity, intensityPower]);
+  }, [
+    circleCount,
+    speedFactor,
+    minRadius,
+    maxRadius,
+    focusRadius,
+    glowIntensity,
+    maxOpacity,
+    minOpacity,
+    intensityPower,
+    color1,
+    color2,
+    color3,
+    color4,
+    backgroundColor
+  ]);
 
 
   return (
@@ -200,6 +223,7 @@ const FireflyEffect = ({
         left: 0,
         width: '100%',
         height: '100%',
+        backgroundColor: backgroundColor,
       }}
     />
   );
