@@ -52,8 +52,12 @@ export const Navbar = ({ starsCount }: NavBarProps) => {
             <span
               className="cursor-pointer flex gap-1 p-1 justify-center items-center mr-1 rounded-lg text-white bg-white/5 backdrop-blur-sm text-[15px]" >
               <GithubLogoIcon size={19} className="group-hover:scale-105 transition-all ease-linear duration-75" />
-              <StarIcon size={19} weight="fill" />
-              {starsCount}
+              {starsCount &&
+                <>
+                  <StarIcon size={19} weight="fill" />
+                  {starsCount}
+                </>
+              }
             </span>
           </a>
 
