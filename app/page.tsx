@@ -1,11 +1,23 @@
 import { Collections } from "@/components/layout/collections";
 import { HeroSection } from "@/components/layout/hero";
 import { Navbar } from "@/components/layout/navbar";
+import { getGithubStar } from "@/lib/github";
 
-export default function Home() {
+export default async function Home() {
+
+  let stars: number | undefined = undefined
+
+  try {
+    stars = await getGithubStar("NetMods/Drapes-UI")
+  } catch (err) {
+    console.log(err)
+  }
+
+
+
   return (
     <main className="flex flex-col">
-      <Navbar />
+      <Navbar starsCount={stars} />
       <HeroSection />
 
       <div className="xl:hidden w-full inline-flex justify-center my-10">

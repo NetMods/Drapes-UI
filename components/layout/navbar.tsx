@@ -1,11 +1,17 @@
 'use client'
 import { GithubLogoIcon, TwitterLogoIcon } from "@phosphor-icons/react/dist/ssr"
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr"
+import { MagnifyingGlassIcon, StarIcon } from "@phosphor-icons/react/dist/ssr"
 import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
 import { useCommandPalette } from "./command-palette/context"
 
-export const Navbar = () => {
+
+interface NavBarProps {
+  starsCount: number | undefined
+}
+
+
+export const Navbar = ({ starsCount }: NavBarProps) => {
   const { toggleOpen } = useCommandPalette()
 
   const handleTwitterLink = () => {
@@ -40,21 +46,38 @@ export const Navbar = () => {
 
           <div className="hidden sm:block h-6 w-px bg-white/20" />
 
-          <span className="cursor-pointer p-1 rounded-lg group">
-            <a
-              href="https://github.com/Netmods/Drapes-ui"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <GithubLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" />
-            </a>
+
+          <span
+            className="cursor-pointer max-sm:size-8 max-sm:inline-flex sm:p-1 justify-center items-center mr-1 rounded-lg text-white bg-white/5 backdrop-blur-sm" >
+            <span className="flex justify-center items-center gap-1 text-[15px] px-1">
+              <a
+                href="https://github.com/Netmods/Drapes-ui"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-1"
+              >
+
+                <GithubLogoIcon size={19} className="group-hover:scale-105 transition-all ease-linear duration-75" />
+                <StarIcon size={19} weight="fill" />
+                {starsCount}
+              </a>
+            </span>
           </span>
+
+
+
+
+
+
+
+
+          <div className="hidden sm:block h-6 w-px bg-white/20" />
 
           <span
             className="cursor-pointer p-1 rounded-lg group"
             onClick={handleTwitterLink}
           >
-            <TwitterLogoIcon size={25} className="group-hover:scale-105 transition-all ease-linear duration-75" />
+            <TwitterLogoIcon size={19} className="group-hover:scale-105 transition-all ease-linear duration-75" />
           </span>
         </div>
       </div>
