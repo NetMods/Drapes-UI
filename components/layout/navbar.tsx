@@ -5,13 +5,7 @@ import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
 import { useCommandPalette } from "./command-palette/context"
 
-
-interface NavBarProps {
-  starsCount: number | undefined
-}
-
-
-export const Navbar = ({ starsCount }: NavBarProps) => {
+export const Navbar = ({ starsCount }: { starsCount: number }) => {
   const { toggleOpen } = useCommandPalette()
 
   const handleTwitterLink = () => {
@@ -44,29 +38,32 @@ export const Navbar = ({ starsCount }: NavBarProps) => {
           </span>
 
           <div className="hidden sm:block h-6 w-px bg-white/20" />
+
           <a
             href="https://github.com/Netmods/Drapes-ui"
             target="_blank"
             rel="noopener noreferrer"
           >
             <span
-              className="cursor-pointer flex gap-1 p-1 justify-center items-center mr-1 rounded-lg text-white bg-white/5 backdrop-blur-sm text-[15px]" >
-              <GithubLogoIcon size={19} className="group-hover:scale-105 transition-all ease-linear duration-75" />
-              {starsCount &&
+              className="cursor-pointer flex gap-1 p-1 justify-center items-center mx-1 rounded-lg text-white bg-white/5 backdrop-blur-sm text-[15px]"
+            >
+              {starsCount > 0 &&
                 <>
-                  <StarIcon size={19} weight="fill" />
-                  {starsCount}
+                  <StarIcon size={15} weight="fill" className="ml-1" />
+                  <span className="text-sm mr-1 mt-0.5">{starsCount}</span>
                 </>
               }
+              <GithubLogoIcon size={22} className="shrink-0" weight="regular" />
             </span>
           </a>
 
           <div className="hidden sm:block h-6 w-px bg-white/20" />
+
           <span
-            className="cursor-pointer p-1 rounded-lg group"
+            className="cursor-pointer p-1 rounded-lg group text-white bg-white/5 backdrop-blur-sm ml-1"
             onClick={handleTwitterLink}
           >
-            <TwitterLogoIcon size={19} className="group-hover:scale-105 transition-all ease-linear duration-75" />
+            <TwitterLogoIcon size={22} className="shrink-0" weight="regular" />
           </span>
 
         </div>

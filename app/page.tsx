@@ -4,23 +4,11 @@ import { Navbar } from "@/components/layout/navbar";
 import { getGithubStar } from "@/lib/github";
 
 export default async function Home() {
-
-  let stars: number | null = null;
-
-  try {
-    stars = await getGithubStar("NetMods/Drapes-UI");
-  } catch (err) {
-    console.error('failed to fetch stars', err);
-    stars = null;
-  }
-
-  const safeStars = typeof stars === 'number' ? stars : undefined;
-
-
+  const stars = await getGithubStar("NetMods/Drapes-UI");
 
   return (
     <main className="flex flex-col">
-      <Navbar starsCount={safeStars} />
+      <Navbar starsCount={stars} />
       <HeroSection />
       <Collections />
     </main>
