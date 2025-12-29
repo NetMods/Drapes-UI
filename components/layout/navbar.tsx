@@ -4,9 +4,16 @@ import { MagnifyingGlassIcon, StarIcon } from "@phosphor-icons/react/dist/ssr"
 import { CommandIcon } from "@phosphor-icons/react"
 import Image from "next/image"
 import { useCommandPalette } from "./command-palette/context"
+import { useLayoutEffect, useState } from "react"
+import { getGithubStar } from "@/lib/github"
 
-export const Navbar = ({ starsCount }: { starsCount: number }) => {
+export const Navbar = () => {
   const { toggleOpen } = useCommandPalette()
+  const [starsCount, setStarsCount] = useState(0)
+
+  useLayoutEffect(() => {
+    getGithubStar("NetMods/Drapes-UI").then((res) => setStarsCount(res))
+  }, [])
 
   const handleTwitterLink = () => {
     const profiles = ['https://x.com/Dharmeshwr', 'https://x.com/Monkey_d_aryan']
@@ -50,7 +57,7 @@ export const Navbar = ({ starsCount }: { starsCount: number }) => {
               {starsCount > 0 &&
                 <>
                   <StarIcon size={15} weight="fill" className="ml-1" />
-                  <span className="text-sm mr-1 mt-0.5">{starsCount}</span>
+                  <span className="text-sm mr-1 mt-0.5 stars-value">{starsCount}</span>
                 </>
               }
               <GithubLogoIcon size={22} className="shrink-0" weight="regular" />
@@ -65,7 +72,6 @@ export const Navbar = ({ starsCount }: { starsCount: number }) => {
           >
             <TwitterLogoIcon size={22} className="shrink-0" weight="regular" />
           </span>
-
         </div>
       </div>
     </div >
