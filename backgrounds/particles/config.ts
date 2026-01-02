@@ -6,7 +6,7 @@ export default {
   description: 'A mesmerizing visualization of Perlin noise, where thousands of particles flow like a fluid river across the screen, driven by invisible mathematical vectors.',
   author: {
     name: "Ninjafire",
-    imageUrl: 'https://pbs.twimg.com/profile_images/1993601671717670912/flQ63UlP_400x400.jpg',
+    imageUrl: 'https://pbs.twimg.com/profile_images/2006007847742758912/nWXptCKJ_400x400.jpg',
     redirectUrl: 'https://ninjafire.xyz'
   },
   tags: ['generative', 'perlin-noise', 'flow-field', 'particles', 'canvas', 'simulation', 'nature'],
