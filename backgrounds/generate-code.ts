@@ -29,7 +29,7 @@ export function generateUsageCode(
 
 export default function Page() {
   return (
-    <div>
+    <div className="relative">
       <${componentName} 
 ${propsString}
       />
