@@ -224,8 +224,11 @@ const Mist = ({
     canvas.addEventListener('mouseleave', handleMouseLeave);
 
     const resizeCanvas = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
     window.addEventListener('resize', resizeCanvas);
@@ -305,6 +308,7 @@ const Mist = ({
         left: 0,
         width: '100%',
         height: '100%',
+        zIndex: -10,
       }}
     />
   );

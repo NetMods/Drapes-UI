@@ -91,7 +91,6 @@ const FluidLines = ({
   const mouseRef = useRef<{ x: number, y: number }>({ x: -1000, y: -1000 })
   const prevMouseRef = useRef<{ x: number, y: number }>({ x: -1000, y: -1000 })
   const pointsRef = useRef<Point[][]>([])
-  const animationRef = useRef<number>(0)
   const noiseGenerator = useRef<PerlinNoise | null>(null)
   const canvasRectRef = useRef<DOMRect | null>(null)
 
@@ -114,20 +113,17 @@ const FluidLines = ({
     const toRad = (deg: number) => (deg * Math.PI) / 180
 
     const resizeCanvas = () => {
-      const { innerWidth, innerHeight } = window
+      const width = canvas.offsetWidth
+      const height = canvas.offsetHeight
 
-      canvas.style.width = `${innerWidth}px`
-      canvas.style.height = `${innerHeight}px`
-      canvas.width = Math.floor(innerWidth * dpr)
-      canvas.height = Math.floor(innerHeight * dpr)
+      // Set actual render size (scaled for DPR)
+      canvas.width = Math.floor(width * dpr)
+      canvas.height = Math.floor(height * dpr)
 
       ctx.scale(dpr, dpr)
       canvasRectRef.current = canvas.getBoundingClientRect()
 
-      // Calculate Diagonal to ensure coverage when rotated
-      const diagonal = Math.sqrt(innerWidth * innerWidth + innerHeight * innerHeight)
-
-      // Init points using diagonal size
+      const diagonal = Math.sqrt(width * width + height * height)
       initPoints(diagonal, diagonal)
     }
 
@@ -349,6 +345,7 @@ const FluidLines = ({
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseleave', handleMouseLeave)
 
+
     return () => {
       cancelAnimationFrame(animationFrameId)
       clearTimeout(resizeTimeout)
@@ -362,7 +359,15 @@ const FluidLines = ({
   return (
     <canvas
       ref={canvasRef}
-      style={{ display: 'block', width: '100vw', height: '100vh' }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -10,
+        backgroundColor
+      }}
     />
   )
 }

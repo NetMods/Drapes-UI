@@ -63,8 +63,8 @@ export const BackgroundCard = ({
         onMouseEnter={() => setHoveredIndex(index)}
         onMouseLeave={() => setHoveredIndex(null)}
       >
-        <div className="size-full bg-base-content/20 card">
-          <div className="size-full bg-black/50 object-cover flex relative">
+        <div className="size-full card" >
+          <div className="size-full object-cover flex relative" onClick={OpenPreview} >
             <img
               src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
               className={cn(
@@ -74,10 +74,7 @@ export const BackgroundCard = ({
               onClick={OpenPreview}
               alt={config.name}
             />
-            <div
-              className="absolute inset-0 w-full h-full cursor-pointer"
-              onClick={OpenPreview}
-            >
+            <div>
               {isHovered && <Component {...config.defaultProps} />}
             </div>
           </div>

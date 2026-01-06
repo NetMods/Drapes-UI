@@ -65,7 +65,6 @@ const Spirals = ({
     };
 
     const render = () => {
-      // Calculate center based on props (percentage of width/height)
       const cx = width * centerX;
       const cy = height * centerY;
 
@@ -190,8 +189,8 @@ const Spirals = ({
     secondaryColor,
     lineWidth,
     initialVelocity,
-    centerX, // Added dependency
-    centerY, // Added dependency
+    centerX,
+    centerY,
   ]);
 
   return (
@@ -203,6 +202,7 @@ const Spirals = ({
         left: 0,
         width: '100%',
         height: '100%',
+        zIndex: -10,
       }}
     />
   );
