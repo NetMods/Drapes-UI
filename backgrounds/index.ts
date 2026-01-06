@@ -44,8 +44,8 @@ const registerEntry: BackgroundEntry[] = [
   { config: snowfallConfig, component: Snowfall },
   { config: pipesConfig, component: Pipes },
   { config: matrixConfig, component: Matrix },
-  { config: hexagonsConfig, component: Hexagons },
   { config: plasmaWaveConfig, component: PlasmaWave },
+  // { config: hexagonsConfig, component: Hexagons },
 ]
 
 registerEntry.forEach((entry: BackgroundEntry, index) => {

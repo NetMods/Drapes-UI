@@ -32,8 +32,8 @@ const FractalTree = ({
     // Canvas Resizing Logic
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
 
       canvas.width = w * dpr;
       canvas.height = h * dpr;
@@ -171,7 +171,8 @@ const FractalTree = ({
   const mask = "radial-gradient(circle, transparent 20%, #000 100%)";
 
   return (
-    <div
+    <canvas
+      ref={canvasRef}
       style={{
         position: 'absolute',
         top: 0,
@@ -183,9 +184,7 @@ const FractalTree = ({
         maskImage: mask,
         WebkitMaskImage: mask,
       }}
-    >
-      <canvas ref={canvasRef} />
-    </div>
+    />
   );
 };
 

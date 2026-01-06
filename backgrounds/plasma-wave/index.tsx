@@ -176,7 +176,7 @@ const PlasmaWave = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
     if (!gl) {
       console.warn('WebGL not supported.');
       return;
@@ -228,8 +228,11 @@ const PlasmaWave = ({
     };
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
@@ -298,7 +301,19 @@ const PlasmaWave = ({
     lineColor, bgColor1, bgColor2, gridColor, scale
   ]);
 
-  return <canvas ref={canvasRef} className={className} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -10,
+      }}
+    />
+  )
 };
 
 export default PlasmaWave

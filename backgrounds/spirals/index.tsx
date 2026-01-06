@@ -11,6 +11,8 @@ interface SpiralAnimationProps {
   secondaryColor?: string;
   lineWidth?: number;
   initialVelocity?: number;
+  centerX?: number;
+  centerY?: number;
 }
 
 const Spirals = ({
@@ -22,10 +24,10 @@ const Spirals = ({
   secondaryColor = '#fff',
   lineWidth = 2,
   initialVelocity = 0.1,
+  centerX = 0.5,
+  centerY = 0.5,
 }: SpiralAnimationProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -63,8 +65,8 @@ const Spirals = ({
     };
 
     const render = () => {
-      const cx = width / 2;
-      const cy = height / 2;
+      const cx = width * centerX;
+      const cy = height * centerY;
 
       ctx.globalCompositeOperation = 'lighter';
       ctx.strokeStyle = primaryColor;
@@ -125,8 +127,9 @@ const Spirals = ({
       let vx = (event.clientX - lastX) / 100;
       let vy = (event.clientY - lastY) / 100;
 
-      if (event.clientY < height / 2) vx *= -1;
-      if (event.clientX > width / 2) vy *= -1;
+      // Update interaction logic to respect the new center point
+      if (event.clientY < height * centerY) vx *= -1;
+      if (event.clientX > width * centerX) vy *= -1;
 
       velocityTarget = vx + vy;
 
@@ -153,8 +156,9 @@ const Spirals = ({
       let vx = (event.touches[0].clientX - lastX) / 100;
       let vy = (event.touches[0].clientY - lastY) / 100;
 
-      if (event.touches[0].clientY < height / 2) vx *= -1;
-      if (event.touches[0].clientX > width / 2) vy *= -1;
+      // Update interaction logic to respect the new center point
+      if (event.touches[0].clientY < height * centerY) vx *= -1;
+      if (event.touches[0].clientX > width * centerX) vy *= -1;
 
       velocityTarget = vx + vy;
 
@@ -176,7 +180,18 @@ const Spirals = ({
       document.removeEventListener('touchstart', onTouchStart);
       cancelAnimationFrame(rafId);
     };
-  }, [maxOffset, spacing, pointsPerLap, shadowStrength, primaryColor, secondaryColor, lineWidth, initialVelocity]);
+  }, [
+    maxOffset,
+    spacing,
+    pointsPerLap,
+    shadowStrength,
+    primaryColor,
+    secondaryColor,
+    lineWidth,
+    initialVelocity,
+    centerX,
+    centerY,
+  ]);
 
   return (
     <canvas
@@ -187,6 +202,7 @@ const Spirals = ({
         left: 0,
         width: '100%',
         height: '100%',
+        zIndex: -10,
       }}
     />
   );

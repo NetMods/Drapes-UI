@@ -35,8 +35,8 @@ export const Toggle = ({ label, value, onChange, description }: ToggleProps) => 
             aria-checked={effectiveValue}
             onClick={handleToggle}
             className={`
-              relative inline-flex h-8 w-16 items-center rounded-lg transition-colors border
-              ${effectiveValue ? 'bg-base-content/30 border-base-content/15' : 'bg-base-100/10 border-base-100/15'}
+              relative inline-flex h-8 w-16 items-center rounded-lg transition-colors border outline-0
+              ${effectiveValue ? 'bg-base-content/30 border-base-content/15' : 'bg-base-100/10 border-base-content/15'}
             `}
           >
             <span
@@ -53,7 +53,7 @@ export const Toggle = ({ label, value, onChange, description }: ToggleProps) => 
                 : <NumberZeroIcon weight='bold' />
               }
             </span>
-            <span className={`${effectiveValue ? 'block' : 'hidden'}  absolute left-2 text-xs text-base-100/50`}>ON</span>
+            <span className={`${effectiveValue ? 'block' : 'hidden'}  absolute left-2 text-xs text-base-100/70`}>ON</span>
             <span className={`${effectiveValue ? 'hidden' : 'block'} absolute left-1/2 text-base-content/40 text-xs`}>OFF</span>
           </button>
         </div>

@@ -128,8 +128,8 @@ const FireflyEffect = ({
 
     const resizeCanvas = (): void => {
       const dpi = window.devicePixelRatio || 1;
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const width = canvas.offsetWidth;
+      const height = canvas.offsetHeight;
 
       canvas.width = width * dpi;
       canvas.height = height * dpi;
@@ -213,7 +213,6 @@ const FireflyEffect = ({
     backgroundColor
   ]);
 
-
   return (
     <canvas
       ref={canvasRef}
@@ -223,6 +222,7 @@ const FireflyEffect = ({
         left: 0,
         width: '100%',
         height: '100%',
+        zIndex: -10,
         backgroundColor: backgroundColor,
       }}
     />

@@ -225,6 +225,8 @@ const NoiseField = ({
     let simplexNoise: SimplexNoise;
     let zoff = 0;
     let spawnAccumulator = 0;
+    let rafId = 0;
+    let isAnimating = true; // State to track play/pause
 
     const theme = COLOR_THEMES[colorTheme];
     const targetNum = maxLines !== undefined ? maxLines : particleNum;
@@ -301,18 +303,38 @@ const NoiseField = ({
       }
     };
 
-    const onCanvasClick = () => {
+    // ----- Left Click: Toggle Animation -----
+    const onCanvasClick = (e: MouseEvent) => {
+      e.preventDefault();
+      isAnimating = !isAnimating;
+
+      if (isAnimating) {
+        // Resume loop
+        rafId = requestAnimationFrame(update);
+      } else {
+        // Pause loop
+        cancelAnimationFrame(rafId);
+      }
+    };
+
+    // ----- Right Click: Reset Canvas -----
+    const onContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+
+      // Clear Canvas
       ctx.save();
-      ctx.globalAlpha = 0.8;
+      ctx.globalAlpha = 1; // Ensure full opacity for reset
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, screenWidth, screenHeight);
       ctx.restore();
 
-      if (spawnRate !== undefined) {
-        particles.length = 0;
-        spawnAccumulator = 0;
-      } else {
-        particles.length = 0;
+      // Reset System
+      particles.length = 0;
+      spawnAccumulator = 0;
+      simplexNoise = new SimplexNoise(); // New noise seed
+
+      // Re-initialize particles immediately if not using spawner
+      if (spawnRate === undefined) {
         for (let i = 0; i < targetNum; i++) {
           const p = new Particle();
           initParticle(p);
@@ -320,7 +342,6 @@ const NoiseField = ({
           particles.push(p);
         }
       }
-      simplexNoise = new SimplexNoise();
     };
 
     resizeCanvas();
@@ -337,9 +358,11 @@ const NoiseField = ({
     }
 
     canvas.addEventListener('click', onCanvasClick);
+    canvas.addEventListener('contextmenu', onContextMenu);
 
-    let rafId = 0;
     const update = () => {
+      if (!isAnimating) return; // Stop if paused
+
       if (fadeSpeed > 0) {
         ctx.save();
         ctx.globalAlpha = fadeSpeed;
@@ -384,11 +407,13 @@ const NoiseField = ({
       rafId = requestAnimationFrame(update);
     };
 
+    // Start loop
     rafId = requestAnimationFrame(update);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       canvas.removeEventListener('click', onCanvasClick);
+      canvas.removeEventListener('contextmenu', onContextMenu);
       cancelAnimationFrame(rafId);
     };
   }, [backgroundColor, particleNum, step, base, zInc, colorTheme, fadeSpeed, maxLines, spawnRate]);
@@ -402,7 +427,7 @@ const NoiseField = ({
         left: 0,
         width: '100%',
         height: '100%',
-        cursor: 'pointer',
+        zIndex: -10,
         backgroundColor
       }}
     />

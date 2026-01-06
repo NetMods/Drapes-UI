@@ -21,7 +21,7 @@ export function generateUsageCode(
   const propsString = Object.entries(defaultProps)
     .map(([key, value]) => {
       const propValue = typeof value === 'string' ? `"${value}"` : value;
-      return `          ${key}={${propValue}}`;
+      return `        ${key}={${propValue}}`;
     })
     .join('\n');
 
@@ -30,14 +30,10 @@ export function generateUsageCode(
 export default function Page() {
   return (
     <div>
-      <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1 }} >
-        <${componentName} 
+      <${componentName} 
 ${propsString}
-        />
-      </div>
-      <div style={{ position: 'relative', zIndex: 10 }}>
-        {/* Your content here */}
-      </div>
+      />
+      {/* Your content here */}
     </div>
   );
 }`;
@@ -127,7 +123,7 @@ async function processFile(file: string) {
   }
 
   let tsxCodeHTML, jsxCodeHTML, usageCodeHTML
-  const theme = 'material-theme' as BundledTheme;
+  const theme = 'vesper' as BundledTheme;
 
   try {
     [tsxCodeHTML, jsxCodeHTML, usageCodeHTML] = await Promise.all([

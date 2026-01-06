@@ -13,7 +13,7 @@ export async function HeroSection() {
           <a
             className={cn(
               "font-sans font-semibold inline-flex gap-2 items-center cursor-pointer p-2 rounded-xl transition-all ease-linear",
-              "border border-white/15 hover:bg-base-content/5 bg-base-100/10 text-base-content/70 shadow-sm shadow-white/80"
+              "border border-white/15 bg-base-content/5 hover:bg-base-100/10 text-base-content/70 shadow-sm shadow-white/70"
             )}
             href="https://github.com/Netmods/Drapes-ui"
             target="_blank"

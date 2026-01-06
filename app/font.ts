@@ -1,6 +1,6 @@
 import {
   Martian_Mono as FontMono,
-  Fira_Code as FontMonoCode,
+  IBM_Plex_Mono as FontMonoCode,
   Baskervville as FontSerif,
   Instrument_Sans as FontSans
 } from "next/font/google";

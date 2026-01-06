@@ -216,15 +216,21 @@ const Pipes = ({
     };
 
     const resize = () => {
-      const { innerWidth, innerHeight } = window;
       const canvasA = offscreenCanvasRef.current;
       const canvasB = canvasRef.current;
       if (!canvasA || !canvasB) return;
-      canvasA.width = innerWidth;
-      canvasA.height = innerHeight;
-      canvasB.width = innerWidth;
-      canvasB.height = innerHeight;
-      centerRef.current = [innerWidth / 2, innerHeight / 2];
+
+      const dpr = window.devicePixelRatio || 1;
+      canvasA.width = canvasB.offsetWidth * dpr;
+      canvasA.height = canvasB.offsetHeight * dpr;
+
+      canvasB.width = canvasB.offsetWidth * dpr;
+      canvasB.height = canvasB.offsetHeight * dpr;
+
+      offscreenCtx.scale(dpr, dpr);
+      ctx.scale(dpr, dpr);
+
+      centerRef.current = [canvasB.width / 2, canvasB.height / 2];
       initPipes();
     };
 
@@ -253,7 +259,18 @@ const Pipes = ({
   ]);
 
   return (
-    <canvas ref={canvasRef} />
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -10,
+        backgroundColor
+      }}
+    />
   );
 };
 

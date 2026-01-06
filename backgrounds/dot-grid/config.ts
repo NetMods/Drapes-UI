@@ -10,7 +10,6 @@ export default {
     redirectUrl: 'https://tarnished.lol'
   },
   tags: ['animated', 'dotted-grids', 'waves', 'interactive', 'hover-effects', 'geometric'],
-
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,
@@ -18,6 +17,9 @@ export default {
     maxScale: 8,
     backgroundColor: '#0a0a0a',
     glowColor: '#8b5cf6',
+    dotColor: '#646464',
+    activeDotColor: '#a78bfa',
+    glowCoreColor: '#ffffff',
     numLayers: 2,
     hiddots: false,
   },
@@ -42,7 +44,28 @@ export default {
       label: 'Glow Color',
       type: 'color',
       defaultValue: '#8b5cf6',
-      description: 'The color applied to scaled dots for a glowing effect on hover.',
+      description: 'The outer glow color applied to scaled dots on hover.',
+    },
+    {
+      key: 'dotColor',
+      label: 'Dot Color',
+      type: 'color',
+      defaultValue: '#646464',
+      description: 'The base color for inactive/normal dots.',
+    },
+    {
+      key: 'activeDotColor',
+      label: 'Active Dot Color',
+      type: 'color',
+      defaultValue: '#a78bfa',
+      description: 'The color for middle layers of dots during hover interaction.',
+    },
+    {
+      key: 'glowCoreColor',
+      label: 'Glow Core Color',
+      type: 'color',
+      defaultValue: '#ffffff',
+      description: 'The bright core color at the center of active dots.',
     },
     {
       key: 'dotSpacing',
