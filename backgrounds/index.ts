@@ -3,8 +3,8 @@ import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
 import WaveGradient from './dot-grid'
+import DitherStudio from './dither-studio';
 import Particles from './particles'
-import Hexagons from './hexagons/'
 import Spirals from './spirals'
 import NoiseFlow from './noise-field'
 import Snowfall from './snow-fall'
@@ -18,8 +18,8 @@ import FireFly from './firefly-effect';
 
 //import config
 import dotGridConfig from './dot-grid/config';
+import ditherStudioConfig from './dither-studio/config';
 import particlesConfig from './particles/config'
-import hexagonsConfig from './hexagons/config'
 import spiralConfig from './spirals/config'
 import noiseFlowConfig from './noise-field/config';
 import snowfallConfig from './snow-fall/config';
@@ -31,18 +31,18 @@ import fluidLinesConfig from './fluid-lines/config';
 import fractalTreeConfig from './fractal-tree/config';
 import fireflyConfig from './firefly-effect/config';
 
-
 const registerEntry: BackgroundEntry[] = [
   { config: noiseFlowConfig, component: NoiseFlow },
   { config: fluidLinesConfig, component: FluidLines },
   { config: dotGridConfig, component: WaveGradient },
-  { config: particlesConfig, component: Particles },
+  { config: ditherStudioConfig, component: DitherStudio },
   { config: mistConfig, component: Mist, isNew: true },
   { config: spiralConfig, component: Spirals },
   { config: fractalTreeConfig, component: FractalTree },
   { config: fireflyConfig, component: FireFly, isNew: true },
   { config: snowfallConfig, component: Snowfall },
   { config: pipesConfig, component: Pipes },
+  { config: particlesConfig, component: Particles },
   { config: matrixConfig, component: Matrix },
   { config: plasmaWaveConfig, component: PlasmaWave },
   // { config: hexagonsConfig, component: Hexagons },

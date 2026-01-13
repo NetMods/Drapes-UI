@@ -35,17 +35,17 @@ export const Toggle = ({ label, value, onChange, description }: ToggleProps) => 
             aria-checked={effectiveValue}
             onClick={handleToggle}
             className={`
-              relative inline-flex h-8 w-16 items-center rounded-lg transition-colors border outline-0
+              relative inline-flex h-7.5 w-16 items-center rounded-lg transition-colors border outline-0
               ${effectiveValue ? 'bg-base-content/30 border-base-content/15' : 'bg-base-100/10 border-base-content/15'}
             `}
           >
             <span
               className={`
-                pointer-events-none inline-flex justify-center items-center text-[12px] size-6 transform rounded-lg 
+                pointer-events-none inline-flex justify-center items-center text-[12px] size-6 transform rounded-md 
                 transition-transform duration-200 ease-in-out
                 ${effectiveValue
                   ? 'translate-x-[2.2rem] bg-base-content text-base-100/80'
-                  : 'translate-x-1 bg-base-100/50 text-base-content/80'}
+                  : 'translate-x-[0.15rem] bg-base-100/50 text-base-content/80'}
               `}
             >
               {effectiveValue

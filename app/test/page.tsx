@@ -1,207 +1,129 @@
-"use client";
+'use client'
+import { useState, useEffect } from "react";
+import Dither, { DitherMode, BayerLevel, MediaType } from "./dither";
 
-import { useEffect, useRef } from "react";
+const VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
 
-const Background = ({
-  circleCount = 1500,
-  speedFactor = 0.8,
-  minRadius = 1,
-  maxRadius = 10,
-  focusRadius = 150,
-  glowIntensity = 15,
-  maxOpacity = 0.9,
-  minOpacity = 0.05,
-  intensityPower = 2.5,
-  colors = ["#fbf8cc", "#fdd835", "#fff176", "#ffeb3b"]
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mouseRef = useRef<{ x: number | null; y: number | null }>({
-    x: null,
-    y: null
-  });
+export default function DitherShowcase() {
+  const [ditherMode, setDitherMode] = useState<DitherMode>("none");
+  const [bayerLevel, setBayerLevel] = useState<BayerLevel>(16);
+  const [mediaType, setMediaType] = useState<MediaType>("image");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isGrayscale, setIsGrayScale] = useState<boolean>(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const [brightness, setBrightness] = useState(0);
+  const [contrast, setContrast] = useState(0);
+  const [highlights, setHighlights] = useState(0);
+  const [midtones, setMidtones] = useState(0);
+  const [blur, setBlur] = useState(0);
 
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
+  const resetFilters = () => {
+    setBrightness(0);
+    setContrast(0);
+    setHighlights(0);
+    setMidtones(0);
+    setBlur(0);
+  };
 
-    class Circle {
-      x: number;
-      y: number;
-      baseRadius: number;
-      baseDx: number;
-      baseDy: number;
-      ctx: CanvasRenderingContext2D;
-      color: string;
-      noiseOffsetX: number;
-      noiseOffsetY: number;
-      randomFactor: number;
-
-      constructor(
-        x: number,
-        y: number,
-        radius: number,
-        context: CanvasRenderingContext2D
-      ) {
-        this.x = x;
-        this.y = y;
-        this.baseRadius = radius;
-        this.baseDx = (Math.random() - 0.5) * 1.5;
-        this.baseDy = (Math.random() - 0.5) * 1.5;
-        this.ctx = context;
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-
-        this.noiseOffsetX = x * 0.01;
-        this.noiseOffsetY = y * 0.01;
-
-        this.randomFactor = 0.7 + Math.sin(x * 0.05) * 0.3;
+  const fetchWaifuImage = async () => {
+    if (imageUrl) return;
+    try {
+      const response = await fetch("https://api.waifu.im/search?included_tags=waifu&height=>=1000");
+      const data = await response.json();
+      if (data.images && data.images[0]) {
+        setImageUrl(data.images[0].url);
       }
-
-      draw(mouseX: number | null, mouseY: number | null): void {
-        if (mouseX === null || mouseY === null) return;
-
-        const dx = mouseX - this.x;
-        const dy = mouseY - this.y;
-
-        const distanceSquared = dx * dx + dy * dy;
-        const focusRadiusSquared = focusRadius * focusRadius;
-
-        if (distanceSquared > focusRadiusSquared * 1.5) return;
-
-        const distance = Math.sqrt(distanceSquared);
-
-        const noiseOffset =
-          Math.sin(this.noiseOffsetX + this.noiseOffsetY) * 30 +
-          Math.cos(this.noiseOffsetX * 2 - this.noiseOffsetY * 1.5) * 25;
-
-        const adjustedDistance = distance + noiseOffset;
-
-        if (adjustedDistance < focusRadius) {
-          const proximity = 1 - adjustedDistance / focusRadius;
-          const intensity = Math.pow(proximity, intensityPower) * this.randomFactor;
-
-          const renderRadius = this.baseRadius + (maxRadius * intensity);
-          const opacity = Math.max(minOpacity, intensity * maxOpacity);
-
-          this.ctx.save();
-          this.ctx.beginPath();
-
-          this.ctx.shadowBlur = glowIntensity * intensity + Math.random() * 10;
-          this.ctx.shadowColor = this.color;
-          this.ctx.globalAlpha = opacity;
-          this.ctx.fillStyle = this.color;
-
-          this.ctx.arc(this.x, this.y, renderRadius, 0, Math.PI * 2);
-          this.ctx.fill();
-          this.ctx.restore();
-        }
-      }
-
-      update(width: number, height: number, mouseX: number | null, mouseY: number | null): void {
-        this.x += this.baseDx * speedFactor;
-        this.y += this.baseDy * speedFactor;
-
-        // Bounce off walls
-        if (this.x + this.baseRadius > width || this.x - this.baseRadius < 0) {
-          this.baseDx = -this.baseDx;
-        }
-
-        if (this.y + this.baseRadius > height || this.y - this.baseRadius < 0) {
-          this.baseDy = -this.baseDy;
-        }
-
-        this.draw(mouseX, mouseY);
-      }
+    } catch (e) {
+      console.error("Failed to fetch image", e);
     }
-    let animationFrameId: number;
-    let circles: Circle[] = [];
+  };
 
-    const resizeCanvas = (): void => {
-      const dpi = window.devicePixelRatio || 1;
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+  useEffect(() => { fetchWaifuImage(); }, []);
 
-      canvas.width = width * dpi;
-      canvas.height = height * dpi;
+  const getBtnStyle = (isActive: boolean) =>
+    `px-3 py-1 text-xs font-medium border outline-0 cursor-pointer transition-colors ${isActive
+      ? "bg-blue-600 text-white border-blue-600"
+      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+    }`;
 
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-
-      ctx.scale(dpi, dpi);
-    };
-
-    const init = (): void => {
-      circles = [];
-      for (let i = 0; i < circleCount; i++) {
-        const radius = Math.random() * 2 + minRadius;
-        const x = Math.random() * (window.innerWidth - radius * 2) + radius;
-        const y = Math.random() * (window.innerHeight - radius * 2) + radius;
-        circles.push(new Circle(x, y, radius, ctx));
-      }
-    };
-
-    const animate = (): void => {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-
-      const { x: mouseX, y: mouseY } = mouseRef.current;
-
-      for (let i = 0; i < circles.length; i++) {
-        circles[i].update(width, height, mouseX, mouseY);
-      }
-
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    const handleMouseMove = (event: MouseEvent): void => {
-      mouseRef.current.x = event.clientX;
-      mouseRef.current.y = event.clientY;
-    };
-
-    const handleMouseLeave = (): void => {
-      mouseRef.current.x = null;
-      mouseRef.current.y = null;
-    };
-
-    const handleResize = (): void => {
-      resizeCanvas();
-      init();
-    };
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseout", handleMouseLeave);
-
-    resizeCanvas();
-    init();
-    animate();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseout", handleMouseLeave);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return (
-    <div style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', zIndex: -1 }} >
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-        }}
+  const Slider = ({ label, value, onChange, min, max }: any) => (
+    <div className="flex flex-col gap-1 w-full">
+      <div className="flex justify-between text-[10px] uppercase text-gray-500 font-bold tracking-wider">
+        <span>{label}</span>
+        <span>{value}</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
       />
     </div>
   );
-};
 
-export default Background;
+  return (
+    <div className="relative w-full h-full">
+      <Dither
+        mediaType={mediaType}
+        ditherMode={ditherMode}
+        bayerLevel={bayerLevel}
+        isGrayscale={isGrayscale}
+        source={imageUrl || VIDEO_URL}
+        brightness={brightness}
+        contrast={contrast}
+        highlights={highlights}
+        midtones={midtones}
+        blur={blur}
+      />
+
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-4 bg-white/95 p-4 border border-gray-200 w-64 rounded shadow-xl backdrop-blur-sm max-h-[90vh] overflow-y-auto">
+
+        <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Source</span>
+          <div className="flex gap-2">
+            <button onClick={() => setMediaType("image")} className={`flex-1 ${getBtnStyle(mediaType === "image")}`}>Image</button>
+            <button onClick={() => setMediaType("video")} className={`flex-1 ${getBtnStyle(mediaType === "video")}`}>Video</button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Dither Algorithm</span>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setDitherMode("none")} className={getBtnStyle(ditherMode === "none")}>None</button>
+            <button onClick={() => setDitherMode("bayer")} className={getBtnStyle(ditherMode === "bayer")}>Bayer</button>
+            <button onClick={() => setDitherMode("floyd")} className={getBtnStyle(ditherMode === "floyd")}>Floyd</button>
+          </div>
+
+          {ditherMode === "bayer" && (
+            <div className="flex gap-1 mt-1">
+              {([2, 4, 8, 16] as const).map((size) => (
+                <button key={size} onClick={() => setBayerLevel(size)} className={`flex-1 ${getBtnStyle(bayerLevel === size)}`}>{size}x</button>
+              ))}
+            </div>
+          )}
+          {ditherMode !== "none" &&
+            <button onClick={() => setIsGrayScale(!isGrayscale)} className={`mt-1 w-full ${getBtnStyle(isGrayscale)}`}>
+              {isGrayscale ? "B/W Active" : "Enable B/W"}
+            </button>
+          }
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Adjustments</span>
+            <button onClick={resetFilters} className="text-[10px] text-blue-500 hover:underline cursor-pointer">Reset</button>
+          </div>
+
+          <Slider label="Brightness" value={brightness} min={-100} max={100} onChange={setBrightness} />
+          <Slider label="Contrast" value={contrast} min={-100} max={100} onChange={setContrast} />
+          <Slider label="Midtones" value={midtones} min={-100} max={100} onChange={setMidtones} />
+          <Slider label="Highlights" value={highlights} min={-100} max={100} onChange={setHighlights} />
+          <Slider label="Blur" value={blur} min={0} max={20} onChange={setBlur} />
+        </div>
+
+      </div>
+    </div>
+  );
+}

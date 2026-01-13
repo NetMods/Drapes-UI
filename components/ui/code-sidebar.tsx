@@ -150,7 +150,7 @@ export function CodeSidebar() {
               <div className="flex w-full mb-4 font-sans">
                 <button
                   onClick={() => setActiveTab('ts')}
-                  className={`max-sm:text-[0.9rem] outline-0 cursor-pointer flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-l-lg transition-colors ${activeTab === 'ts'
+                  className={`max-sm:text-[0.9rem] outline-0 cursor-pointer flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-l-lg ${activeTab === 'ts'
                     ? 'bg-base-content/20 text-base-content border border-base-content/20 inset-shadow-2xs'
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}
@@ -160,7 +160,7 @@ export function CodeSidebar() {
                 </button>
                 <button
                   onClick={() => setActiveTab('js')}
-                  className={`max-sm:text-[0.9rem] outline-0 cursor-pointer flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-r-lg transition-colors ${activeTab === 'js'
+                  className={`max-sm:text-[0.9rem] outline-0 cursor-pointer flex justify-center items-center font-medium gap-2 px-4 py-1 w-1/2 rounded-r-lg ${activeTab === 'js'
                     ? 'bg-base-content/20 text-base-content border border-base-content/20'
                     : 'bg-base-100/20 text-base-content/70 '
                     }`}
