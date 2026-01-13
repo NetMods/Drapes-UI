@@ -25,13 +25,16 @@ export interface BackgroundConfig {
 export interface Control {
   key: string;
   label: string;
-  type: 'slider' | 'color' | 'select' | 'toggle';
+  type: 'slider' | 'color' | 'select' | 'toggle' | 'media-input';
   min?: number;
   max?: number;
   step?: number;
   options?: string[];
   defaultValue: any;
   description?: string;
+  mediaTypeKey?: string;
+  defaultImage?: string;
+  defaultVideo?: string;
 }
 
 

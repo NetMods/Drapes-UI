@@ -86,14 +86,11 @@ const DitherStudio = ({
 
     if (!canvas || !ctx || !drawSource) return;
 
-    const dpi = window.devicePixelRatio || 1;
-    if (
-      canvas.width !== window.innerWidth * dpi ||
-      canvas.height !== window.innerHeight * dpi
-    ) {
-      canvas.width = window.innerWidth * dpi;
-      canvas.height = window.innerHeight * dpi;
-    }
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
 
     const srcW = drawSource instanceof HTMLVideoElement ? drawSource.videoWidth : drawSource.width;
     const srcH = drawSource instanceof HTMLVideoElement ? drawSource.videoHeight : drawSource.height;
@@ -291,11 +288,11 @@ const DitherStudio = ({
       <canvas
         ref={canvasRef}
         style={{
-          position: "fixed",
+          position: 'absolute',
           top: 0,
           left: 0,
-          width: "100vw",
-          height: "100vh",
+          width: '100%',
+          height: '100%',
           zIndex: -1,
         }}
       />

@@ -40,13 +40,6 @@ export default {
       description: 'Choose between processing a static image or a looping video.',
     },
     {
-      key: 'source',
-      label: 'Source URL',
-      type: 'text',
-      defaultValue: 'https://cdn.waifu.im/8251.jpg',
-      description: 'The URL for the image or video source.',
-    },
-    {
       key: 'ditherMode',
       label: 'Dither Algorithm',
       type: 'select',
@@ -61,6 +54,16 @@ export default {
       options: [2, 4, 8, 16],
       defaultValue: 8,
       description: 'Determines the density of the Bayer dithering pattern.',
+    },
+    {
+      key: 'source',
+      label: 'Media Source',
+      type: 'media-input',
+      defaultValue: 'https://cdn.waifu.im/8251.jpg',
+      defaultImage: 'https://cdn.waifu.im/8251.jpg',
+      defaultVideo: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      description: 'Upload an image or video file to apply dithering effects.',
+      mediaTypeKey: 'mediaType',
     },
     {
       key: 'isGrayscale',

@@ -3,9 +3,10 @@ import { ColorPicker } from "./color-picker";
 import { Select } from "./select";
 import { RangeSlider } from "./slider";
 import { Toggle } from "./toggle";
+import { MediaInput } from "./media-input";
 
 interface Control {
-  type: "slider" | "color" | "toggle" | "select";
+  type: "slider" | "color" | "toggle" | "select" | "media-input";
   key: string;
   label: string;
   min?: number;
@@ -14,6 +15,9 @@ interface Control {
   options?: string[];
   description?: string;
   defaultValue?: string | number | boolean;
+  mediaTypeKey?: string;
+  defaultImage?: string;
+  defaultVideo?: string;
 }
 
 export const ControlPanel = ({ controls }: { controls: Control[] }) => {
@@ -66,6 +70,24 @@ export const ControlPanel = ({ controls }: { controls: Control[] }) => {
             key={control.key}
             {...safeProps}
             options={control.options ?? []}
+          />
+        );
+
+      case "media-input":
+        const mediaType = control.mediaTypeKey
+          ? (values[control.mediaTypeKey] as 'image' | 'video')
+          : 'image';
+        const currentDefault = mediaType === 'image'
+          ? (control.defaultImage || control.defaultValue as string)
+          : (control.defaultVideo || control.defaultValue as string);
+        return (
+          <MediaInput
+            key={control.key}
+            {...safeProps}
+            mediaType={mediaType}
+            defaultValue={currentDefault}
+            defaultImage={control.defaultImage}
+            defaultVideo={control.defaultVideo}
           />
         );
 
