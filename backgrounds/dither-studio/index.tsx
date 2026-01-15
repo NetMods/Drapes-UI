@@ -24,7 +24,7 @@ const DitherStudio = ({
   ditherMode = 'bayer',
   isGrayscale = false,
   bayerLevel = 8,
-  source = 'https://cdn.waifu.im/8251.jpg',
+  source = '/data/8251.jpg',
   brightness = 0,
   contrast = 0,
   highlights = 0,
@@ -172,9 +172,7 @@ const DitherStudio = ({
           }
         }
       } else if (isFloyd) {
-        // ... existing floyd logic ...
         if (isGrayscale && grayBuffer) {
-          // ... (copy existing floyd grayscale logic here)
           for (let py = 0; py < height; py++) {
             for (let px = 0; px < width; px++) {
               const idx = py * width + px;
@@ -197,7 +195,6 @@ const DitherStudio = ({
             data[dIdx] = data[dIdx + 1] = data[dIdx + 2] = val;
           }
         } else if (rgbBuffer) {
-          // ... (copy existing floyd rgb logic here)
           for (let py = 0; py < height; py++) {
             for (let px = 0; px < width; px++) {
               const idx = (py * width + px) * 3;

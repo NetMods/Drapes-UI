@@ -81,7 +81,7 @@ export const BackgroundCard = ({
 
           <div
             className={cn(
-              'relative bg-base-content/10 backdrop-blur-lg sm:bg-base-content/20 ',
+              'relative bg-base-content/10 backdrop-blur-xs sm:bg-base-content/20 ',
               'p-2 border-t border-base-content/20 w-full max-sm:-translate-y-full',
               isHovered && "-translate-y-[5.9rem] "
             )}

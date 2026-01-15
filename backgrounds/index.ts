@@ -38,13 +38,13 @@ const registerEntry: BackgroundEntry[] = [
   { config: ditherStudioConfig, component: DitherStudio, isNew: true },
   { config: mistConfig, component: Mist },
   { config: spiralConfig, component: Spirals },
+  { config: particlesConfig, component: Particles },
   { config: fractalTreeConfig, component: FractalTree },
   { config: fireflyConfig, component: FireFly, isNew: true },
-  { config: snowfallConfig, component: Snowfall },
-  { config: pipesConfig, component: Pipes },
-  { config: particlesConfig, component: Particles },
-  { config: matrixConfig, component: Matrix },
   { config: plasmaWaveConfig, component: PlasmaWave },
+  { config: snowfallConfig, component: Snowfall },
+  { config: matrixConfig, component: Matrix },
+  { config: pipesConfig, component: Pipes },
   // { config: hexagonsConfig, component: Hexagons },
 ]
 
