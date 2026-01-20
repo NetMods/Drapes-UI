@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate-index": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-index.ts",
     "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts",
-    "dev": "pnpm run generate-codes && next dev --turbo",
-    "build": "pnpm run generate-codes && next build",
+    "generate": "pnpm run generate-index && pnpm run generate-codes",
+    "dev": "pnpm run generate && next dev --turbo",
+    "build": "pnpm run generate && next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"
