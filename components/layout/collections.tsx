@@ -3,7 +3,7 @@ import '@/backgrounds';
 import { registry } from '@/lib/registry';
 import useLocalStorage from '@/hooks/use-local-storage';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
 import { useCommandPalette } from './command-palette/context';
@@ -11,9 +11,8 @@ import { useCommandPalette } from './command-palette/context';
 export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
   const [favourite, setFavourite] = useLocalStorage<string[]>('favourite', []);
-  const backgrounds = registry.getAll();
+  let backgrounds = registry.getAll();
   const { searchQuery, handleClearFilter } = useCommandPalette();
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const toggleFavourite = (id: string) => {
     setFavourite(prev =>
@@ -23,7 +22,8 @@ export const Collections = () => {
     );
   };
 
-  const filtered = (() => {
+
+  backgrounds = useMemo(() => {
     let result = activeTab === 'fav'
       ? backgrounds.filter(({ config }) => favourite.includes(config?.id || ""))
       : backgrounds;
@@ -43,11 +43,13 @@ export const Collections = () => {
     }
 
     return result;
-  })()
+
+  }, [searchQuery, activeTab])
+
+
 
   const handleChangeTab = (tab: 'all' | 'fav') => {
     setActiveTab(tab);
-    setHoveredIndex(null)
   }
 
   return (
@@ -65,25 +67,23 @@ export const Collections = () => {
         id='background-collections'
         className={cn(
           'w-full flex flex-wrap justify-center gap-5 px-5 md:px-10 min-h-full scroll-m-28',
-          filtered && "min-h-[80vh]"
+          backgrounds && "min-h-[80vh]"
         )}
       >
         {/* bg-base-content/10 backdrop-blur-3xl */}
-        {filtered.map(({ config, isNew, component: Component }, index) => (
+        {backgrounds.map(({ config, isNew, component: Component }, index) => (
           <BackgroundCard
             key={config.id}
             index={index}
             isNew={isNew}
             config={config}
             component={Component}
-            isHovered={hoveredIndex === index}
             isFavourite={favourite.includes(config?.id || "")}
             toggleFavourite={toggleFavourite}
-            setHoveredIndex={setHoveredIndex}
           />
         ))}
 
-        {activeTab === 'fav' && filtered.length === 0 && (
+        {activeTab === 'fav' && backgrounds.length === 0 && (
           <div className="col-span-full text-center py-12 text-base-content/60 font-sans">
             <p className="text-xl">
               {searchQuery.trim()
@@ -100,7 +100,7 @@ export const Collections = () => {
           </div>
         )}
 
-        {activeTab === 'all' && filtered.length === 0 && searchQuery.trim() && (
+        {activeTab === 'all' && backgrounds.length === 0 && searchQuery.trim() && (
           <div className="col-span-full text-center py-12 text-base-content/60 font-sans">
             <p className="text-xl">No backgrounds match your search.</p>
           </div>

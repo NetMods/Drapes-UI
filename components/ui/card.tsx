@@ -9,28 +9,25 @@ import { ArrowSquareOutIcon, EyeIcon } from '@phosphor-icons/react';
 import { Badge } from './badge';
 import Avatar from './avatar';
 import { toolTipStyle } from './tooltip';
+import { useState } from 'react';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
   component: React.ComponentType<any>;
   index: number;
-  isHovered: boolean;
   isNew?: boolean;
   isFavourite: boolean;
   toggleFavourite: (index: string) => void;
-  setHoveredIndex: (index: number | null) => void;
 }
 
 export const BackgroundCard = ({
   config,
   component: Component,
-  index,
   isFavourite,
   isNew,
-  isHovered,
   toggleFavourite,
-  setHoveredIndex,
 }: BackgroundCardProps) => {
+  const [isHovered, setIsHovered] = useState<boolean>(false)
   const router = useRouter();
   const { openCodeSidebar } = useCodeSidebar();
 
@@ -60,8 +57,8 @@ export const BackgroundCard = ({
           'rounded-[18px]'
         )}
         style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
-        onMouseEnter={() => setHoveredIndex(index)}
-        onMouseLeave={() => setHoveredIndex(null)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <div className="size-full card" >
           <div className="size-full object-cover flex relative" onClick={OpenPreview} >
