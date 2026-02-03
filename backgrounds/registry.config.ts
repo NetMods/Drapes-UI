@@ -14,6 +14,7 @@ export const registryConfig: RegistryEntry[] = [
   { folder: 'dither-studio', isNew: true },
   { folder: 'mist' },
   { folder: 'spirals' },
+  { folder: 'ascii-studio', isNew: true },
   { folder: 'fractal-tree' },
   { folder: 'fluid-lines' },
   { folder: 'matrix' },
