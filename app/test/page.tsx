@@ -1,129 +1,163 @@
 'use client'
-import { useState, useEffect } from "react";
-import Dither, { DitherMode, BayerLevel, MediaType } from "./dither";
+import React, { useRef, useEffect } from 'react';
 
-const VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
+const SwarmShaderOptimized = () => {
+  const canvasRef = useRef(null);
 
-export default function DitherShowcase() {
-  const [ditherMode, setDitherMode] = useState<DitherMode>("none");
-  const [bayerLevel, setBayerLevel] = useState<BayerLevel>(16);
-  const [mediaType, setMediaType] = useState<MediaType>("image");
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isGrayscale, setIsGrayScale] = useState<boolean>(false);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const [brightness, setBrightness] = useState(0);
-  const [contrast, setContrast] = useState(0);
-  const [highlights, setHighlights] = useState(0);
-  const [midtones, setMidtones] = useState(0);
-  const [blur, setBlur] = useState(0);
+    const gl = canvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false
+    });
 
-  const resetFilters = () => {
-    setBrightness(0);
-    setContrast(0);
-    setHighlights(0);
-    setMidtones(0);
-    setBlur(0);
-  };
-
-  const fetchWaifuImage = async () => {
-    if (imageUrl) return;
-    try {
-      const response = await fetch("https://api.waifu.im/search?included_tags=waifu&height=>=1000");
-      const data = await response.json();
-      if (data.images && data.images[0]) {
-        setImageUrl(data.images[0].url);
-      }
-    } catch (e) {
-      console.error("Failed to fetch image", e);
+    if (!gl) {
+      console.error('WebGL 2 not supported');
+      return;
     }
-  };
 
-  useEffect(() => { fetchWaifuImage(); }, []);
 
-  const getBtnStyle = (isActive: boolean) =>
-    `px-3 py-1 text-xs font-medium border outline-0 cursor-pointer transition-colors ${isActive
-      ? "bg-blue-600 text-white border-blue-600"
-      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-    }`;
+    const PIXEL_SCALE = 0.7;
 
-  const Slider = ({ label, value, onChange, min, max }: any) => (
-    <div className="flex flex-col gap-1 w-full">
-      <div className="flex justify-between text-[10px] uppercase text-gray-500 font-bold tracking-wider">
-        <span>{label}</span>
-        <span>{value}</span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-      />
-    </div>
-  );
+    const vertexShaderSource = `#version 300 es
+      in vec2 a_position;
+      void main() {
+        gl_Position = vec4(a_position, 0.0, 1.0);
+      }
+    `;
+
+    const fragmentShaderSource = `#version 300 es
+      precision highp float;
+      
+      uniform vec2 r;
+      uniform float t;
+      out vec4 fragColor;
+
+      void main() {
+        vec3 p;
+        vec3 o = vec3(0.0);
+        float z = 0.0;
+        float f_val = 0.0; // Renamed to avoid confusion with loop var
+
+        // OPTIMIZATION 1: Reduced iterations from 30 -> 18
+        // Visually similar, much faster
+        for(float i = 0.0; i < 18.0; i++) {
+          
+          // Setup Ray
+          vec3 fc = vec3(gl_FragCoord.xy, 0.0);
+          vec3 dir = normalize(fc * 2.0 - vec3(r.xy, r.y));
+          
+          p = z * dir;
+          p.z += t;
+
+          // OPTIMIZATION 2: Reduced inner loop from 6 -> 4
+          // OPTIMIZATION 3: Pre-calculated constants
+          for(float j = 1.0; j < 4.0; j++) {
+            // Replaced / 6.0 with * 0.166
+            p += sin(ceil(p.z * 20.0 + j * vec3(1.0, 2.0, 3.0)) * 0.166 * j) / j;
+          }
+
+          // Distance Field
+          // Replaced / 5.0 with * 0.2
+          f_val = (p.y - z * 0.5 - 2.0 - length(cos(p.xz + 0.5 * z))) * 0.2;
+          
+          z += f_val;
+
+          // Accumulate Color
+          // Using abs() prevents negative artifacts
+          o += 9.0 / abs(f_val);
+        }
+
+        // Tone Mapping
+        // 5000000.0 is the magic number from original golfed code
+        vec3 finalColor = tanh(5000000.0 / (o * o));
+        
+        fragColor = vec4(finalColor, 1.0);
+      }
+    `;
+
+    // --- Boilerplate ---
+    const createShader = (gl, type, source) => {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    };
+
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+    const program = gl.createProgram();
+
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    // Geometry
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+    const posLoc = gl.getAttribLocation(program, "a_position");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    // Uniforms
+    const rLoc = gl.getUniformLocation(program, "r");
+    const tLoc = gl.getUniformLocation(program, "t");
+
+    let animationFrameId;
+    const startTime = Date.now();
+
+    const render = () => {
+      // OPTIMIZATION 4: Smart Resizing
+      // We calculate the required buffer size based on window size * PIXEL_SCALE
+      const displayWidth = Math.floor(canvas.clientWidth * PIXEL_SCALE);
+      const displayHeight = Math.floor(canvas.clientHeight * PIXEL_SCALE);
+
+      // Only resize the GL context if the display size has changed
+      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+
+      const time = (Date.now() - startTime) * 0.001;
+
+      gl.uniform2f(rLoc, canvas.width, canvas.height);
+      gl.uniform1f(tLoc, time);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
+    };
+  }, []);
 
   return (
-    <div className="relative w-full h-full">
-      <Dither
-        mediaType={mediaType}
-        ditherMode={ditherMode}
-        bayerLevel={bayerLevel}
-        isGrayscale={isGrayscale}
-        source={imageUrl || VIDEO_URL}
-        brightness={brightness}
-        contrast={contrast}
-        highlights={highlights}
-        midtones={midtones}
-        blur={blur}
+    <div style={{ width: '100%', height: '100vh', background: '#000' }}>
+      <canvas
+        ref={canvasRef}
+        // CSS ensures it fills the screen, even if internal resolution is lower
+        style={{ width: '100%', height: '100%', display: 'block' }}
       />
-
-      <div className="fixed top-4 right-4 z-50 flex flex-col gap-4 bg-white/95 p-4 border border-gray-200 w-64 rounded shadow-xl backdrop-blur-sm max-h-[90vh] overflow-y-auto">
-
-        <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Source</span>
-          <div className="flex gap-2">
-            <button onClick={() => setMediaType("image")} className={`flex-1 ${getBtnStyle(mediaType === "image")}`}>Image</button>
-            <button onClick={() => setMediaType("video")} className={`flex-1 ${getBtnStyle(mediaType === "video")}`}>Video</button>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 border-b border-gray-100 pb-4">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Dither Algorithm</span>
-          <div className="flex flex-wrap gap-2">
-            <button onClick={() => setDitherMode("none")} className={getBtnStyle(ditherMode === "none")}>None</button>
-            <button onClick={() => setDitherMode("bayer")} className={getBtnStyle(ditherMode === "bayer")}>Bayer</button>
-            <button onClick={() => setDitherMode("floyd")} className={getBtnStyle(ditherMode === "floyd")}>Floyd</button>
-          </div>
-
-          {ditherMode === "bayer" && (
-            <div className="flex gap-1 mt-1">
-              {([2, 4, 8, 16] as const).map((size) => (
-                <button key={size} onClick={() => setBayerLevel(size)} className={`flex-1 ${getBtnStyle(bayerLevel === size)}`}>{size}x</button>
-              ))}
-            </div>
-          )}
-          {ditherMode !== "none" &&
-            <button onClick={() => setIsGrayScale(!isGrayscale)} className={`mt-1 w-full ${getBtnStyle(isGrayscale)}`}>
-              {isGrayscale ? "B/W Active" : "Enable B/W"}
-            </button>
-          }
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Adjustments</span>
-            <button onClick={resetFilters} className="text-[10px] text-blue-500 hover:underline cursor-pointer">Reset</button>
-          </div>
-
-          <Slider label="Brightness" value={brightness} min={-100} max={100} onChange={setBrightness} />
-          <Slider label="Contrast" value={contrast} min={-100} max={100} onChange={setContrast} />
-          <Slider label="Midtones" value={midtones} min={-100} max={100} onChange={setMidtones} />
-          <Slider label="Highlights" value={highlights} min={-100} max={100} onChange={setHighlights} />
-          <Slider label="Blur" value={blur} min={0} max={20} onChange={setBlur} />
-        </div>
-
-      </div>
     </div>
   );
-}
+};
+
+export default SwarmShaderOptimized;

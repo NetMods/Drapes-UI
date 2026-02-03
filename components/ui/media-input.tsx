@@ -98,7 +98,7 @@ export const MediaInput = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between w-full font-mono mb-2">
+      <div className="flex items-center justify-between w-full font-mono">
         <label className="text-xs capitalize text-base-content/80 inline-flex justify-between items-center gap-1 group">
           {label}
           <Tooltip description={description || ""} />

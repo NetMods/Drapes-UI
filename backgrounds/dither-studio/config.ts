@@ -1,6 +1,5 @@
 import { BackgroundConfig } from '@/lib/types';
 import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code'
-
 export default {
   name: 'Dither Studio',
   description: 'A retro-style image and video processor that applies Bayer or Floyd-Steinberg dithering algorithms in real-time.',
@@ -21,6 +20,7 @@ export default {
     highlights: 0,
     midtones: 0,
     blur: 0,
+    objectFit: 'contain',
   },
   code: {
     usage: usageCodeHTML,
@@ -40,6 +40,24 @@ export default {
       description: 'Choose between processing a static image or a looping video.',
     },
     {
+      key: 'source',
+      label: 'Media Source',
+      type: 'media-input',
+      defaultValue: '/data/8251.jpg',
+      defaultImage: '/data/8251.jpg',
+      defaultVideo: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      description: 'Upload an image or video file to apply dithering effects.',
+      mediaTypeKey: 'mediaType',
+    },
+    {
+      key: 'objectFit',
+      label: 'Object Fit',
+      type: 'select',
+      options: ['contain', 'cover', 'fill'],
+      defaultValue: 'contain',
+      description: 'Control how the media fits within the canvas (contain, cover, or fill).',
+    },
+    {
       key: 'ditherMode',
       label: 'Dither Algorithm',
       type: 'select',
@@ -54,16 +72,6 @@ export default {
       options: [2, 4, 8, 16],
       defaultValue: 8,
       description: 'Determines the density of the Bayer dithering pattern.',
-    },
-    {
-      key: 'source',
-      label: 'Media Source',
-      type: 'media-input',
-      defaultValue: '/data/8251.jpg',
-      defaultImage: '/data/8251.jpg',
-      defaultVideo: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-      description: 'Upload an image or video file to apply dithering effects.',
-      mediaTypeKey: 'mediaType',
     },
     {
       key: 'isGrayscale',
