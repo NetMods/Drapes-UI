@@ -45,6 +45,131 @@ export const captureCanvasScreenshot = async (
   }
 };
 
+
+export interface ScreenCaptureOptions {
+  delay?: number;
+  filename?: string;
+  format?: 'png' | 'jpeg' | 'webp';
+  quality?: number;
+}
+
+export const captureScreenshot = async (
+  canvas: HTMLCanvasElement | null,
+  options: ScreenCaptureOptions = {}
+): Promise<{ success: boolean; error?: string }> => {
+  const {
+    delay = 0,
+    filename = 'drapes-screenshot',
+    format = 'png',
+    quality = 1.0
+  } = options;
+
+  if (!canvas) {
+    return { success: false, error: 'Canvas element not found' };
+  }
+
+  if (delay > 0) {
+    await new Promise(resolve => setTimeout(resolve, delay));
+  }
+
+  try {
+    const mimeType = `image/${format}`;
+    const dataURL = canvas.toDataURL(mimeType, quality);
+
+    const link = document.createElement('a');
+    link.download = `${filename}.${format}`;
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: errorMessage };
+  }
+};
+
+export const getCanvasElement = (): HTMLCanvasElement | null => {
+  return document.querySelector('canvas');
+};
+
+export interface RecordingOptions {
+  frameRate?: number;
+  maxDuration?: number;
+  filename?: string;
+}
+
+export interface RecordingController {
+  stop: () => void;
+  isRecording: () => boolean;
+}
+
+export const startCanvasRecording = (
+  canvas: HTMLCanvasElement | null,
+  options: RecordingOptions = {},
+  onStop?: () => void
+): RecordingController | null => {
+  const {
+    frameRate = 30,
+    maxDuration = 30000,
+    filename = 'drapes-recording'
+  } = options;
+
+  if (!canvas) {
+    console.error('Canvas element not found');
+    return null;
+  }
+
+  let isActive = true;
+  const chunks: Blob[] = [];
+
+  const stream = canvas.captureStream(frameRate);
+  const mediaRecorder = new MediaRecorder(stream, {
+    mimeType: 'video/webm;codecs=vp9'
+  });
+
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      chunks.push(event.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    isActive = false;
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.download = `${filename}.webm`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+    onStop?.();
+  };
+
+  mediaRecorder.start();
+
+  const timeoutId = setTimeout(() => {
+    if (isActive && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  }, maxDuration);
+
+  return {
+    stop: () => {
+      clearTimeout(timeoutId);
+      if (mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+    },
+    isRecording: () => isActive && mediaRecorder.state === 'recording'
+  };
+};
+
 // For this to work in webgl canvas, u need to have this in bg - canvas.getContext('webgl', { preserveDrawingBuffer: true });
 /*
 (async () => {
