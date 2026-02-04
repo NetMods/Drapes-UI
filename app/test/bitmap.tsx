@@ -15,9 +15,6 @@ const BitmapShader = () => {
       return;
     }
 
-    // --- Shader Source Code ---
-
-    // Standard vertex shader (renders a full-screen quad)
     const vertexShaderSource = `
       attribute vec2 position;
       void main() {
@@ -25,7 +22,6 @@ const BitmapShader = () => {
       }
     `;
 
-    // Fragment shader: Wraps your core logic
     const fragmentShaderSource = `
       precision highp float;
       
@@ -46,9 +42,6 @@ const BitmapShader = () => {
       }
     `;
 
-    // --- WebGL Boilerplate Setup ---
-
-    // Helper to create shaders
     const createShader = (gl, type, source) => {
       const shader = gl.createShader(type);
       gl.shaderSource(shader, source);
@@ -61,7 +54,6 @@ const BitmapShader = () => {
       return shader;
     };
 
-    // Helper to create program
     const createProgram = (gl, vsSource, fsSource) => {
       const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
       const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
@@ -82,12 +74,10 @@ const BitmapShader = () => {
     const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
     if (!program) return;
 
-    // Look up locations
     const positionLocation = gl.getAttribLocation(program, 'position');
     const timeLocation = gl.getUniformLocation(program, 't');
     const resolutionLocation = gl.getUniformLocation(program, 'r');
 
-    // Create a buffer for the full-screen rectangle (2 triangles)
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(
@@ -103,11 +93,9 @@ const BitmapShader = () => {
       gl.STATIC_DRAW
     );
 
-    // --- Render Loop ---
     let startTime = performance.now();
 
     const render = () => {
-      // Handle resizing
       const displayWidth = canvas.clientWidth;
       const displayHeight = canvas.clientHeight;
 
@@ -119,20 +107,15 @@ const BitmapShader = () => {
 
       gl.useProgram(program);
 
-      // Enable attribute
       gl.enableVertexAttribArray(positionLocation);
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-      // Set Uniforms
-      // t: Time in seconds
       const currentTime = (performance.now() - startTime) / 1000;
       gl.uniform1f(timeLocation, currentTime);
 
-      // r: Resolution
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
 
-      // Draw
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
       animationRef.current = requestAnimationFrame(render);
@@ -140,7 +123,6 @@ const BitmapShader = () => {
 
     render();
 
-    // Cleanup
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       gl.deleteProgram(program);

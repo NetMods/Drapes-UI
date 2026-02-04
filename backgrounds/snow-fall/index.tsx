@@ -1,183 +1,214 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
-interface SnowflakesAnimationProps {
-  maxSnowflakes?: number;
-  snowflakeColor?: string;
-  backgroundColor?: string;
-  minSize?: number;
-  maxSize?: number;
-  minSpeed?: number;
-  maxSpeed?: number;
+interface SnowfallShaderProps {
+  snowflakeCount?: number;
+  speed?: number;
+  windSpeed?: number;
+  color?: string;
+  gradientColorTop?: string;
+  gradientColorBottom?: string;
+  renderScale?: number;
 }
 
-class Snowfall {
-  x: number = 0;
-  y: number = 0;
-  xVel: number = 0;
-  yVel: number = 0;
-  angle: number = 0;
-  angleVel: number = 0;
-  size: number = 0;
-  sizeOsc: number = 0;
-  width: number;
-  height: number;
-  minSize: number;
-  maxSize: number;
-  minSpeed: number;
-  maxSpeed: number;
+const Snowfall = ({
+  snowflakeCount = 20,
+  speed = 0.4,
+  windSpeed = 0.5,
+  color = '#ffffff',
+  gradientColorTop = '#000000',
+  gradientColorBottom = '#0b1026',
+  renderScale = 1,
+}: SnowfallShaderProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  constructor(
-    width: number,
-    height: number,
-    minSize: number,
-    maxSize: number,
-    minSpeed: number,
-    maxSpeed: number,
-    anyY = false
-  ) {
-    this.width = width;
-    this.height = height;
-    this.minSize = minSize;
-    this.maxSize = maxSize;
-    this.minSpeed = minSpeed;
-    this.maxSpeed = maxSpeed;
-    this.spawn(anyY);
-  }
-
-  spawn(anyY = false) {
-    this.x = this.rand(0, this.width);
-    this.y = anyY === true ? this.rand(-50, this.height + 50) : this.rand(-50, -10);
-    this.xVel = this.rand(-0.05, 0.05);
-    this.yVel = this.rand(this.minSpeed, this.maxSpeed);
-    this.angle = this.rand(0, Math.PI * 2);
-    this.angleVel = this.rand(-0.001, 0.001);
-    this.size = this.rand(this.minSize, this.maxSize);
-    this.sizeOsc = this.rand(0.01, 0.5);
-  }
-
-  update(elapsed: number, now: number) {
-    const xForce = this.rand(-0.001, 0.001);
-    if (Math.abs(this.xVel + xForce) < 0.075) {
-      this.xVel += xForce;
-    }
-
-    this.x += this.xVel * elapsed;
-    this.y += this.yVel * elapsed;
-    this.angle += this.xVel * 0.05 * elapsed;
-
-    if (
-      this.y - this.size > this.height ||
-      this.x + this.size < 0 ||
-      this.x - this.size > this.width
-    ) {
-      this.spawn();
-    }
-  }
-
-  render(ctx: CanvasRenderingContext2D) {
-    ctx.save();
-    const { x, y, size } = this;
-    ctx.beginPath();
-    ctx.arc(x, y, size * 0.2, 0, Math.PI * 2, false);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  private rand(min: number, max: number): number {
-    return min + Math.random() * (max - min);
-  }
-}
-
-const SnowflakesAnimation = ({
-  maxSnowflakes = 100,
-  snowflakeColor = '#fff',
-  backgroundColor = '#000',
-  minSize = 7,
-  maxSize = 12,
-  minSpeed = 0.02,
-  maxSpeed = 0.1,
-}: SnowflakesAnimationProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? [
+        parseInt(result[1], 16) / 255,
+        parseInt(result[2], 16) / 255,
+        parseInt(result[3], 16) / 255,
+      ]
+      : [0, 0, 0];
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
 
-    let width = 0;
-    let height = 0;
-    let lastNow = 0;
-    const snowflakes: Snowfall[] = [];
+    if (!gl) {
+      console.error('WebGL not supported');
+      return;
+    }
 
-    const resizeCanvas = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const w = canvas.offsetWidth;
-      const h = canvas.offsetHeight;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      width = w;
-      height = h;
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, width, height);
+    // Removed hardcoded const RENDER_SCALE = 1;
+
+    const vsSource = `
+      attribute vec2 position;
+      void main() {
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    `;
+
+    const fsSource = `
+      precision highp float;
+      uniform float u_time;
+      uniform vec2 u_resolution;
+      uniform vec3 u_color;
+      uniform vec3 u_grad_top;    
+      uniform vec3 u_grad_bottom;
+      uniform float u_count;
+      uniform float u_speed;
+      uniform float u_wind;
+
+      void main() {
+        vec2 r = u_resolution;
+        float t = u_time * u_speed;
+        vec2 FC = gl_FragCoord.xy;
+        
+        // Calculate vertical position (0.0 at bottom, 1.0 at top)
+        float v_pos = FC.y / r.y;
+
+        // Mix the two colors based on vertical position
+        vec3 bg = mix(u_grad_bottom, u_grad_top, v_pos);
+        
+        vec4 o = vec4(bg, 1.0);
+
+        float T = 754.0 / 60.0;
+        
+        for (float i = 0.0; i < 100.0; i++) {
+            if (i >= u_count) break;
+
+            float s = 3.0 + i * 5.0; 
+            float v = floor((2.0 + sin(i)) * 1.0 / (i + 1.0) * s * T) / T;
+            
+            vec2 p = (FC.xy / r.x) * s + vec2(sin(t + i) + (t * u_wind), t * v);
+            
+            vec2 grid = mod(floor(p), 100.0);
+            float h = fract(sin(dot(grid, vec2(12.9898, 78.233) + i)) * 43758.5453);
+            
+            if (h < 0.03) {
+                float intensity = smoothstep(0.2, 0.0, length(fract(p) - 0.5 + (h - 0.5) * 0.7));
+                if (intensity > 0.0) {
+                  o = mix(o, vec4(u_color, 1.0), intensity);
+                }
+            }
+        }
+
+        gl_FragColor = o; 
+      }
+    `;
+
+    const createShader = (gl: WebGLRenderingContext, type: number, source: string) => {
+      const shader = gl.createShader(type);
+      if (!shader) return null;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
     };
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
-    let rafId = 0;
-    let isActive = true;
+    if (!vertexShader || !fragmentShader) return;
 
-    const render = (now: number) => {
-      if (!isActive) return;
-      rafId = requestAnimationFrame(render);
-      const elapsed = now - lastNow;
-      lastNow = now;
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
 
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, width, height);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('Program link error:', gl.getProgramInfoLog(program));
+      return;
+    }
 
-      if (snowflakes.length < maxSnowflakes) {
-        snowflakes.push(
-          new Snowfall(width, height, minSize, maxSize, minSpeed, maxSpeed)
-        );
+    gl.useProgram(program);
+
+    const positionLocation = gl.getAttribLocation(program, 'position');
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    const positions = new Float32Array([
+      -1.0, -1.0,
+      1.0, -1.0,
+      -1.0, 1.0,
+      1.0, 1.0,
+    ]);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const timeLocation = gl.getUniformLocation(program, 'u_time');
+    const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+    const colorLocation = gl.getUniformLocation(program, 'u_color');
+
+    const gradTopLocation = gl.getUniformLocation(program, 'u_grad_top');
+    const gradBottomLocation = gl.getUniformLocation(program, 'u_grad_bottom');
+
+    const countLocation = gl.getUniformLocation(program, 'u_count');
+    const speedLocation = gl.getUniformLocation(program, 'u_speed');
+    const windLocation = gl.getUniformLocation(program, 'u_wind');
+
+    let animationFrameId: number;
+    const startTime = performance.now();
+
+    const render = () => {
+      const displayWidth = Math.floor(canvas.clientWidth * renderScale);
+      const displayHeight = Math.floor(canvas.clientHeight * renderScale);
+
+      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+        canvas.width = displayWidth;
+        canvas.height = displayHeight;
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
       }
 
-      ctx.fillStyle = snowflakeColor;
-      ctx.strokeStyle = snowflakeColor;
+      const currentTime = (performance.now() - startTime) / 1000;
 
-      snowflakes.forEach((snowflake) => {
-        snowflake.update(elapsed, now);
-        snowflake.render(ctx);
-      });
+      gl.uniform1f(timeLocation, currentTime);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+
+      const rgbColor = hexToRgb(color);
+      gl.uniform3f(colorLocation, rgbColor[0], rgbColor[1], rgbColor[2]);
+
+      const rgbTop = hexToRgb(gradientColorTop);
+      const rgbBottom = hexToRgb(gradientColorBottom);
+      gl.uniform3f(gradTopLocation, rgbTop[0], rgbTop[1], rgbTop[2]);
+      gl.uniform3f(gradBottomLocation, rgbBottom[0], rgbBottom[1], rgbBottom[2]);
+
+      gl.uniform1f(countLocation, snowflakeCount);
+      gl.uniform1f(speedLocation, speed);
+      gl.uniform1f(windLocation, windSpeed);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      animationFrameId = requestAnimationFrame(render);
     };
 
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        isActive = false;
-        cancelAnimationFrame(rafId);
-      } else {
-        isActive = true;
-        lastNow = performance.now();
-        rafId = requestAnimationFrame(render);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    lastNow = performance.now();
-    rafId = requestAnimationFrame(render);
+    render();
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      cancelAnimationFrame(rafId);
-      isActive = false;
+      cancelAnimationFrame(animationFrameId);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
     };
-  }, [maxSnowflakes, snowflakeColor, minSize, maxSize, minSpeed, maxSpeed]);
+  }, [
+    color,
+    gradientColorTop,
+    gradientColorBottom,
+    snowflakeCount,
+    speed,
+    windSpeed,
+    renderScale,
+  ]);
 
   return (
     <canvas
@@ -188,11 +219,10 @@ const SnowflakesAnimation = ({
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -10,
-        backgroundColor
+        zIndex: -1,
       }}
     />
   );
 };
 
-export default SnowflakesAnimation;
+export default Snowfall;
