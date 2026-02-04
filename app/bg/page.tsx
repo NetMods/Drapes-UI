@@ -51,15 +51,21 @@ export default function Page() {
     return updatedCode;
   };
 
-  const { openSettingsSidebar } = useSettingsSidebar();
-  const { openCodeSidebar } = useCodeSidebar();
+  const { openSettingsSidebar, closeSettingsSidebar } = useSettingsSidebar();
+  const { openCodeSidebar, closeCodeSidebar } = useCodeSidebar();
 
   const handleLeft = () => {
+    // Close sidebars to prevent old controls affecting new background
+    closeSettingsSidebar();
+    closeCodeSidebar();
     const newId = Math.max(1, currentId - 1)
     router.replace(`?id=${newId}`)
   }
 
   const handleRight = () => {
+    // Close sidebars to prevent old controls affecting new background
+    closeSettingsSidebar();
+    closeCodeSidebar();
     const newId = currentId + 1
     router.replace(`?id=${newId}`)
   }
@@ -85,19 +91,23 @@ export default function Page() {
   return (
     <div>
       <div className="flex justify-between items-center p-1 text-base-content/70 max-sm:justify-center">
-        <SettingsButton action={handleSettingSidebar} className='max-sm:hidden' />
+        <SettingsButton action={handleSettingSidebar} className='max-sm:hidden backdrop-blur-xl' />
 
         <div className="flex justify-center gap-3 items-center max-sm:w-full">
-          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2' />
-          <div className="max-sm:bg-white/10 rounded max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
-          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden p-2' />
+          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2 backdrop-blur-xl' />
+          <div
+            className="max-sm:bg-white/10 rounded max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl py-0.5 lg:text-3xl w-full md:w-60 flex justify-center items-center backdrop-blur-xl"
+          >
+            {config.name}
+          </div>
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden backdrop-blur-xl p-2' />
         </div>
 
-        <CodeButton action={handleCodeSidebar} className='max-sm:hidden' />
+        <CodeButton action={handleCodeSidebar} className='max-sm:hidden backdrop-blur-xl' />
       </div>
 
-      <div className="inset-0 fixed top-0 left-0 -z-10">
-        <Component {...props} />
+      <div className="inset-0 fixed top-0 left-0 -z-10 ">
+        <Component key={currentId} {...props} />
       </div>
 
       <LeftButton
@@ -149,7 +159,7 @@ const RightButton = ({ action, isDisabled, className, size }: { action: () => vo
 const SettingsButton = ({ action, className }: { action: () => void, className?: string }) => {
   return (
     <button
-      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors ${className}`}
+      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm text-base-content transition-colors ${className}`}
       onClick={action}
     >
       <span className='block md:hidden'> <GearIcon weight='bold' size={23} /> </span>
@@ -161,7 +171,7 @@ const SettingsButton = ({ action, className }: { action: () => void, className?:
 const CodeButton = ({ action, className }: { action: () => void, className?: string }) => {
   return (
     <button
-      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm transition-colors ${className}`}
+      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm text-base-content transition-colors ${className}`}
       onClick={action}
     >
       <span className='block md:hidden'> <CodeIcon size={23} weight='bold' /> </span>

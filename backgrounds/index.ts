@@ -39,7 +39,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: particlesConfig, component: Particles },
   { config: distortedRippleConfig, component: DistortedRipple, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
-  { config: ditherStudioConfig, component: DitherStudio, isNew: true },
+  { config: ditherStudioConfig, component: DitherStudio },
   { config: mistConfig, component: Mist },
   { config: spiralsConfig, component: Spirals },
   { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
