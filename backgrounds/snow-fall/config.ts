@@ -84,7 +84,7 @@ export default {
       label: 'Resolution Scale',
       type: 'slider',
       min: 0.1,
-      max: 2.0,
+      max: 1.0,
       step: 0.1,
       defaultValue: 0.5,
       description: 'Internal canvas resolution. Lower values (e.g., 0.5) improve performance significantly.',
