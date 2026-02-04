@@ -8,6 +8,7 @@ import PlasmaWave from './plasma-wave'
 import DitherStudio from './dither-studio'
 import Mist from './mist'
 import Spirals from './spirals'
+import AsciiStudio from './ascii-studio'
 import FractalTree from './fractal-tree'
 import FluidLines from './fluid-lines'
 import Matrix from './matrix'
@@ -24,6 +25,7 @@ import plasmaWaveConfig from './plasma-wave/config';
 import ditherStudioConfig from './dither-studio/config';
 import mistConfig from './mist/config';
 import spiralsConfig from './spirals/config';
+import asciiStudioConfig from './ascii-studio/config';
 import fractalTreeConfig from './fractal-tree/config';
 import fluidLinesConfig from './fluid-lines/config';
 import matrixConfig from './matrix/config';
@@ -37,9 +39,10 @@ const registerEntry: BackgroundEntry[] = [
   { config: particlesConfig, component: Particles },
   { config: distortedRippleConfig, component: DistortedRipple, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
-  { config: ditherStudioConfig, component: DitherStudio, isNew: true },
+  { config: ditherStudioConfig, component: DitherStudio },
   { config: mistConfig, component: Mist },
   { config: spiralsConfig, component: Spirals },
+  { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
   { config: fractalTreeConfig, component: FractalTree },
   { config: fluidLinesConfig, component: FluidLines },
   { config: matrixConfig, component: Matrix },
