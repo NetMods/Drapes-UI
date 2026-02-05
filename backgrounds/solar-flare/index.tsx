@@ -1,22 +1,23 @@
-//@ts-nocheck
 'use client'
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-const SolarShader = () => {
-  const canvasRef = useRef(null);
+interface SolarFlareProps {
+  speed?: number;
+}
+
+const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Use WebGL 2 for 'tanh' support
     const gl = canvas.getContext('webgl2');
     if (!gl) {
       console.error('WebGL 2 not supported');
       return;
     }
-
-    // --- Shader Sources ---
 
     const vsSource = `#version 300 es
       in vec2 a_position;
@@ -25,36 +26,28 @@ const SolarShader = () => {
       }
     `;
 
-    // Mapped variables:
-    // FC -> gl_FragCoord
-    // r  -> u_resolution
-    // t  -> u_time
-    // o  -> fragColor
     const fsSource = `#version 300 es
       precision highp float;
-      
+
       uniform vec2 r;
       uniform float t;
       out vec4 o;
-      
+
       void main() {
         vec4 FC = gl_FragCoord;
-        
-        // Original logic
+
         vec2 p = (FC.xy * 2. - r) / r.y;
         float l = 2. - length(p - 1.);
-        
+
         o = tanh(vec4(1, .4, .2, 0) / max(l, -l * 1e1) / exp(mod(dot(FC, sin(FC.yxyx)) + t, 2.) + sin(t + sin(t / .6 + p.y))));
-        
-        // Force alpha to 1.0 to ensure visibility on standard canvas
+
         o.a = 1.0;
       }
     `;
 
-    // --- Boilerplate Compilation ---
-
-    const createShader = (gl, type, source) => {
+    const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
       const shader = gl.createShader(type);
+      if (!shader) return null;
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -66,8 +59,12 @@ const SolarShader = () => {
     };
 
     const program = gl.createProgram();
+    if (!program) return;
+
     const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
     const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    if (!vs || !fs) return;
 
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
@@ -77,8 +74,6 @@ const SolarShader = () => {
       console.error('Program link error:', gl.getProgramInfoLog(program));
       return;
     }
-
-    // --- Buffers (Full Screen Quad) ---
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -95,58 +90,62 @@ const SolarShader = () => {
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // --- Uniforms ---
-
     const rLocation = gl.getUniformLocation(program, 'r');
     const tLocation = gl.getUniformLocation(program, 't');
 
-    // --- Render Loop ---
+    const resizeCanvas = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    };
 
-    let animationFrameId;
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     const startTime = performance.now();
 
     const render = () => {
-      // Update canvas size to match display size
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
-
       gl.useProgram(program);
 
-      // Pass Resolution (r)
       gl.uniform2f(rLocation, canvas.width, canvas.height);
 
-      // Pass Time (t)
-      const currentTime = (performance.now() - startTime) / 1000;
+      const currentTime = ((performance.now() - startTime) / 1000) * speed;
       gl.uniform1f(tLocation, currentTime);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      animationFrameId = requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
 
     render();
 
-    // --- Cleanup ---
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       gl.deleteProgram(program);
       gl.deleteShader(vs);
       gl.deleteShader(fs);
       gl.deleteBuffer(positionBuffer);
     };
-  }, []);
+  }, [speed]);
 
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: '100%', height: '100%', background: '#000', display: 'block' }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -10,
+      }}
     />
   );
 };
 
-export default SolarShader;
+export default SolarFlare;

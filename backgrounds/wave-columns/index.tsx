@@ -1,20 +1,23 @@
-//@ts-nocheck
 'use client'
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-const PillarsShader = () => {
-  const canvasRef = useRef(null);
+interface WaveColumnsProps {
+  speed?: number;
+}
+
+const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const gl = canvas.getContext('webgl');
+    if (!canvas) return;
 
+    const gl = canvas.getContext('webgl');
     if (!gl) {
       console.error('WebGL not supported');
       return;
     }
-
-    // --- Shader Sources ---
 
     const vertexShaderSource = `
       attribute vec4 a_position;
@@ -27,7 +30,7 @@ const PillarsShader = () => {
       precision highp float;
       uniform vec2 u_resolution;
       uniform float u_time;
-      
+
       #define PI 3.14159265359
 
       void main() {
@@ -35,29 +38,22 @@ const PillarsShader = () => {
         float t = u_time;
         vec2 FC = gl_FragCoord.xy;
 
-        // Core "Pillars" Logic
-        // p: coordinate space transformed for scrolling and scaling
-        // w: domain repetition (modulus)
         vec2 p = (FC.xy * 2. - r) / r.y / 0.3 + t * vec2(2. / PI, 1.0);
         vec2 w = mod(p, 2.0) - 1.0;
 
-        // Calculate color
-        // We use max(0.0, ...) inside sqrt to prevent NaN artifacts from precision errors
         vec4 o = sin(
-          p.y - 
-          sqrt(max(0.0, 1.0 - w.x * w.x)) * cos(ceil(p.x * 0.5) * PI) + 
+          p.y -
+          sqrt(max(0.0, 1.0 - w.x * w.x)) * cos(ceil(p.x * 0.5) * PI) +
           vec4(0.0, 1.0, 2.0, 0.0)
         );
 
-        // Output final color with solid alpha
         gl_FragColor = vec4(o.rgb, 1.0);
       }
     `;
 
-    // --- Compilation Helpers ---
-
-    const createShader = (gl, type, source) => {
+    const createShader = (gl: WebGLRenderingContext, type: number, source: string) => {
       const shader = gl.createShader(type);
+      if (!shader) return null;
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -71,7 +67,11 @@ const PillarsShader = () => {
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
     const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
+    if (!vertexShader || !fragmentShader) return;
+
     const program = gl.createProgram();
+    if (!program) return;
+
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
@@ -83,11 +83,8 @@ const PillarsShader = () => {
 
     gl.useProgram(program);
 
-    // --- Buffer Setup (Full Screen Quad) ---
-
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    // Two triangles covering the clip space (-1 to 1)
     const positions = [
       -1, -1,
       1, -1,
@@ -102,70 +99,61 @@ const PillarsShader = () => {
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // --- Uniforms ---
-
     const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
     const timeLocation = gl.getUniformLocation(program, 'u_time');
 
-    // --- Resize Handler ---
-
-    const resize = () => {
-      // Lookup the size the browser is displaying the canvas in CSS pixels.
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-
-      // Check if the canvas is not the same size.
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
+    const resizeCanvas = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
-    // --- Render Loop ---
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    let animationFrameId;
     const startTime = performance.now();
 
     const render = () => {
-      resize(); // Check for resize every frame
+      const timeInSeconds = ((performance.now() - startTime) * 0.001) * speed;
 
-      const currentTime = performance.now();
-      const timeInSeconds = (currentTime - startTime) * 0.001; // Convert ms to seconds
-
-      // Pass uniforms
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(timeLocation, timeInSeconds);
 
-      // Draw
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-      animationFrameId = requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
 
     render();
 
-    // Cleanup
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       gl.deleteProgram(program);
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
       gl.deleteBuffer(positionBuffer);
     };
-  }, []);
+  }, [speed]);
 
   return (
     <canvas
       ref={canvasRef}
       style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
         width: '100%',
-        height: '100vh',
-        display: 'block',
-        background: '#000'
+        height: '100%',
+        zIndex: -10,
       }}
     />
   );
 };
 
-export default PillarsShader;
+export default WaveColumns;

@@ -9,7 +9,7 @@ import { ArrowSquareOutIcon, EyeIcon } from '@phosphor-icons/react';
 import { Badge } from './badge';
 import Avatar from './avatar';
 import { toolTipStyle } from './tooltip';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -27,9 +27,25 @@ export const BackgroundCard = ({
   isNew,
   toggleFavourite,
 }: BackgroundCardProps) => {
-  const [isHovered, setIsHovered] = useState<boolean>(false)
+  const [isHovered, setIsHovered] = useState<boolean>(false);
   const router = useRouter();
   const { openCodeSidebar } = useCodeSidebar();
+
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 100);
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    setIsHovered(false);
+  };
 
   const OpenPreview = () => router.push(`/bg?id=${config.id}`);
 
@@ -57,8 +73,8 @@ export const BackgroundCard = ({
           'rounded-[18px]'
         )}
         style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <div className="size-full card" >
           <div className="size-full object-cover flex relative" onClick={OpenPreview} >

@@ -1,5 +1,6 @@
 import { BackgroundConfig } from '@/lib/types';
 import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } from './code';
+
 export default {
   name: 'Aura Ring',
   description: 'A mesmerizing WebGL shader creating a glowing aura effect with customizable shapes, themes, and RGB phase shifting.',
@@ -15,11 +16,12 @@ export default {
     intensity: 200.0,
     theme: 'ocean',
     shape: 'circle',
-    scale: 0.5,
+    scale: 0.4,
     offsetX: 0,
     offsetY: 0,
     colorShift: [0, 2, 4],
-    backgroundColor: '#000',
+    transparent: false,
+    backgroundColor: '#000000',
   },
   code: {
     usage: usageCodeHTML,
@@ -55,13 +57,27 @@ export default {
       description: 'The shape of the glowing aura.',
     },
     {
+      key: 'backgroundColor',
+      label: 'Background Color',
+      type: 'color',
+      defaultValue: '#000000',
+      description: 'Hex color for the background (ignored if transparent is true).',
+    },
+    {
+      key: 'transparent',
+      label: 'Transparent',
+      type: 'boolean',
+      defaultValue: false,
+      description: 'If true, the background will be transparent.',
+    },
+    {
       key: 'scale',
       label: 'Scale',
       type: 'slider',
       min: 0.1,
       max: 1,
       step: 0.1,
-      defaultValue: 0.5,
+      defaultValue: 0.4,
       description: 'Controls the size of the shape. 1.0 = fits canvas height, <1 = smaller, >1 = larger.',
     },
     {
@@ -113,13 +129,6 @@ export default {
       step: 0.05,
       defaultValue: 0,
       description: 'Vertical position of the shape center. -1 = bottom, 1 = top.',
-    },
-    {
-      key: 'backgroundColor',
-      label: 'Fallback Color',
-      type: 'color',
-      defaultValue: '#000',
-      description: 'The background color used before the shader loads.',
-    },
+    }
   ],
 } as Omit<BackgroundConfig, 'id'>;

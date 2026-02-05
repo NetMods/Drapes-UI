@@ -1,10 +1,15 @@
 'use client'
-import React, { useLayoutEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-const MosaicShader: React.FC = () => {
+interface KaleidoscopeProps {
+  speed?: number;
+}
+
+const Kaleidoscope = ({ speed = 1.0 }: KaleidoscopeProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -71,40 +76,59 @@ const MosaicShader: React.FC = () => {
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-    let animationFrameId: number;
+    const resizeCanvas = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     const startTime = performance.now();
 
     const render = () => {
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
-
       gl.useProgram(program);
       gl.bindVertexArray(vao);
 
       gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
-      gl.uniform1f(timeUniformLocation, (performance.now() - startTime) / 1000);
+      gl.uniform1f(timeUniformLocation, ((performance.now() - startTime) / 1000) * speed);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
-      animationFrameId = requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       gl.deleteProgram(program);
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteVertexArray(vao);
     };
-  }, []);
+  }, [speed]);
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -10,
+      }}
+    />
+  );
 };
 
-export default MosaicShader;
+export default Kaleidoscope;

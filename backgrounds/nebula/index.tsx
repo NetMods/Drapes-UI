@@ -1,18 +1,21 @@
-//@ts-nocheck
 'use client'
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
-const SwarmShader = () => {
-  const canvasRef = useRef(null);
+interface NebulaProps {
+  speed?: number;
+  brightness?: number;
+}
+
+const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    // Prefer WebGL2 for better performance, fallback to WebGL1
+    if (!canvas) return;
+
     const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-
     if (!gl) return;
-
-    // --- Shader Sources ---
 
     const vertexShaderSource = `
       attribute vec2 position;
@@ -21,31 +24,27 @@ const SwarmShader = () => {
       }
     `;
 
-    // OPTIMIZED FRAGMENT SHADER
     const fragmentShaderSource = `
       precision highp float;
       uniform float time;
       uniform vec2 resolution;
+      uniform float brightness;
 
       void main() {
         vec2 r = resolution;
         float t = time;
         vec3 p;
         vec4 o = vec4(0.0);
-        
+
         float z = 0.0;
         float f = 0.0;
 
-        // OPTIMIZATION 1: Reduced loop count from 100 -> 50
         for(int i = 0; i < 50; i++) {
-          
           vec2 uv = (gl_FragCoord.xy * 2.0 - r) / r.y;
           p = vec3(uv, 1.0) * z;
 
           float f_inner = 1.0;
-          
-          // OPTIMIZATION 2: Reduced inner distortion loop from 9 -> 4
-          // This drastically reduces the trig calculations per pixel
+
           for(int j = 0; j < 4; j++) {
              f_inner += 1.0;
              vec3 p_swiz = p.zxy;
@@ -56,20 +55,17 @@ const SwarmShader = () => {
           f = 0.1 * abs(dot(cos(p * 0.5), cos(p / 0.7)));
 
           z += f;
-          
-          // OPTIMIZATION 3: Increased brightness multiplier (0.1 -> 0.2)
-          // to compensate for fewer loop iterations
-          o += 0.2 * f;
+
+          o += 0.2 * f * brightness;
         }
 
         gl_FragColor = vec4(o.rgb, 1.0);
       }
     `;
 
-    // --- WebGL Boilerplate ---
-
-    const compileShader = (type, source) => {
+    const compileShader = (type: number, source: string) => {
       const shader = gl.createShader(type);
+      if (!shader) return null;
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -85,6 +81,8 @@ const SwarmShader = () => {
     if (!vertexShader || !fragmentShader) return;
 
     const program = gl.createProgram();
+    if (!program) return;
+
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
@@ -104,61 +102,62 @@ const SwarmShader = () => {
 
     const timeLocation = gl.getUniformLocation(program, 'time');
     const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+    const brightnessLocation = gl.getUniformLocation(program, 'brightness');
 
-    // --- Render Loop ---
-    let frameId;
+    const resizeCanvas = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      // Render at 60% resolution for performance
+      const scale = 0.6;
+      canvas.width = Math.round(w * dpr * scale);
+      canvas.height = Math.round(h * dpr * scale);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
     const startTime = performance.now();
 
     const render = () => {
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-
-      // OPTIMIZATION 4: Render at 50% resolution
-      // Most high-end screens have DPR > 2. Rendering this shader 1:1 is wasteful.
-      // 0.5 scale looks almost identical for this specific "noisy" visual.
-      const scale = 0.6;
-      const needWidth = Math.floor(displayWidth * scale);
-      const needHeight = Math.floor(displayHeight * scale);
-
-      if (canvas.width !== needWidth || canvas.height !== needHeight) {
-        canvas.width = needWidth;
-        canvas.height = needHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
-
-      const currentTime = (performance.now() - startTime) / 1000;
+      const currentTime = ((performance.now() - startTime) / 1000) * speed;
       gl.uniform1f(timeLocation, currentTime);
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform1f(brightnessLocation, brightness);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-      frameId = requestAnimationFrame(render);
+      animationRef.current = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
-      cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       gl.deleteProgram(program);
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
       gl.deleteBuffer(buffer);
     };
-  }, []);
+  }, [speed, brightness]);
 
   return (
     <canvas
       ref={canvasRef}
       style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
         width: '100%',
-        height: '100vh',
-        display: 'block',
-        background: '#000',
-        // Optional: Ensures the scaled-up canvas doesn't look blurry
-        // imageRendering: 'pixelated' 
+        height: '100%',
+        zIndex: -10,
       }}
     />
   );
 };
 
-export default SwarmShader;
+export default Nebula;

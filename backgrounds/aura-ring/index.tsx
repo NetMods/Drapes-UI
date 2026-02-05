@@ -48,6 +48,15 @@ const SHAPE_IDS: Record<GradientShape, number> = {
   star: 4,
 };
 
+// Helper to convert hex to normalized RGB (0-1)
+const hexToRgb = (hex: string): [number, number, number] => {
+  const cleanHex = hex.replace('#', '');
+  const r = parseInt(cleanHex.substring(0, 2), 16) / 255;
+  const g = parseInt(cleanHex.substring(2, 4), 16) / 255;
+  const b = parseInt(cleanHex.substring(4, 6), 16) / 255;
+  return [r, g, b];
+};
+
 interface AuraRingProps {
   speed?: number;
   frequency?: number;
@@ -56,10 +65,11 @@ interface AuraRingProps {
   colorShift?: [number, number, number];
   shape?: GradientShape;
   variant?: EffectVariant;
-  backgroundColor?: string;
   offsetX?: number;
   offsetY?: number;
   scale?: number;
+  transparent?: boolean;
+  backgroundColor?: string; // New Prop
 }
 
 const AuraRing = ({
@@ -70,10 +80,11 @@ const AuraRing = ({
   colorShift = [0, 2, 4],
   shape = 'circle',
   variant = 'default',
-  backgroundColor = '#000',
   offsetX = 0,
   offsetY = 0,
-  scale = 0.5,
+  scale = 0.4,
+  transparent = false,
+  backgroundColor = '#000000', // Default to black
 }: AuraRingProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -85,8 +96,14 @@ const AuraRing = ({
     return COLOR_THEMES[theme];
   }, [theme, colorShift]);
 
+  // Convert hex background to RGB array
+  const resolvedBackgroundColor = useMemo(() => {
+    return hexToRgb(backgroundColor);
+  }, [backgroundColor]);
+
   const shapeId = SHAPE_IDS[shape];
   const variantId = variant === 'halo' ? 1 : 0;
+  const transparentId = transparent ? 1 : 0;
 
   const settingsRef = useRef({
     speed,
@@ -97,7 +114,9 @@ const AuraRing = ({
     offsetY,
     shapeId,
     variantId,
-    scale
+    scale,
+    transparentId,
+    backgroundColor: resolvedBackgroundColor, // Add to ref
   });
 
   useEffect(() => {
@@ -110,15 +129,17 @@ const AuraRing = ({
       offsetY,
       shapeId,
       variantId,
-      scale
+      scale,
+      transparentId,
+      backgroundColor: resolvedBackgroundColor,
     };
-  }, [speed, frequency, intensity, resolvedColorShift, offsetX, offsetY, shapeId, variantId, scale]);
+  }, [speed, frequency, intensity, resolvedColorShift, offsetX, offsetY, shapeId, variantId, scale, transparentId, resolvedBackgroundColor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2');
+    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false });
     if (!gl) {
       console.error('WebGL2 is not supported by your browser.');
       return;
@@ -143,6 +164,8 @@ const AuraRing = ({
     uniform int u_shape;
     uniform int u_variant;
     uniform float u_scale;
+    uniform int u_transparent;
+    uniform vec3 u_bg_color; // New Uniform for Background
 
     out vec4 fragColor;
 
@@ -229,8 +252,16 @@ const AuraRing = ({
         col = tanh((1.1 + sin(p.x * u_freq + t + vec4(u_color, 0.0))) / u_intensity / max(l, -l * 0.1));
       }
 
-      fragColor = col;
-      fragColor.a = 1.0; 
+      // -- COLOR BLENDING LOGIC --
+      if (u_transparent == 1) {
+        // Transparent mode: Use brightness as alpha
+        float alpha = max(max(col.r, col.g), col.b);
+        fragColor = vec4(col.rgb, clamp(alpha, 0.0, 1.0));
+      } else {
+        // Opaque mode: Add aura color to the solid background color
+        // clamping col.rgb ensures we don't accidentally subtract color if tanh returns negatives
+        fragColor = vec4(u_bg_color + max(col.rgb, 0.0), 1.0);
+      }
     }
     `;
 
@@ -270,6 +301,7 @@ const AuraRing = ({
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+
     const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
     const timeUniformLocation = gl.getUniformLocation(program, "u_time");
     const freqLocation = gl.getUniformLocation(program, "u_freq");
@@ -279,6 +311,8 @@ const AuraRing = ({
     const shapeLocation = gl.getUniformLocation(program, "u_shape");
     const variantLocation = gl.getUniformLocation(program, "u_variant");
     const scaleLocation = gl.getUniformLocation(program, "u_scale");
+    const transparentLocation = gl.getUniformLocation(program, "u_transparent");
+    const bgColorLocation = gl.getUniformLocation(program, "u_bg_color"); // Get location
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
@@ -303,7 +337,12 @@ const AuraRing = ({
 
       gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
-      const { speed, frequency, intensity, colorShift, offsetX, offsetY, shapeId, variantId, scale } = settingsRef.current;
+      const {
+        speed, frequency, intensity, colorShift,
+        offsetX, offsetY, shapeId, variantId,
+        scale, transparentId, backgroundColor
+      } = settingsRef.current;
+
       const elapsed = (now - startTime) * 0.001;
 
       gl.uniform1f(timeUniformLocation, elapsed * speed);
@@ -314,6 +353,8 @@ const AuraRing = ({
       gl.uniform1i(shapeLocation, shapeId);
       gl.uniform1i(variantLocation, variantId);
       gl.uniform1f(scaleLocation, scale);
+      gl.uniform1i(transparentLocation, transparentId);
+      gl.uniform3fv(bgColorLocation, backgroundColor); // Pass Background Color
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       animationRef.current = requestAnimationFrame(render);
@@ -339,7 +380,7 @@ const AuraRing = ({
         width: '100%',
         height: '100%',
         zIndex: -1,
-        backgroundColor
+        backgroundColor: 'transparent' // Background is now handled by WebGL
       }}
     />
   );
