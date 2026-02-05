@@ -3,13 +3,14 @@ import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
 import Particles from './particles'
-import DistortedRipple from './distorted-ripple'
+import AuraRing from './aura-ring'
 import PlasmaWave from './plasma-wave'
 import DitherStudio from './dither-studio'
 import Mist from './mist'
 import Spirals from './spirals'
 import AsciiStudio from './ascii-studio'
 import FractalTree from './fractal-tree'
+import DistortedRipple from './distorted-ripple'
 import FluidLines from './fluid-lines'
 import BitmapNoise from './bitmap-noise'
 import Matrix from './matrix'
@@ -21,13 +22,14 @@ import Pipes from './pipes'
 
 //import config
 import particlesConfig from './particles/config';
-import distortedRippleConfig from './distorted-ripple/config';
+import auraRingConfig from './aura-ring/config';
 import plasmaWaveConfig from './plasma-wave/config';
 import ditherStudioConfig from './dither-studio/config';
 import mistConfig from './mist/config';
 import spiralsConfig from './spirals/config';
 import asciiStudioConfig from './ascii-studio/config';
 import fractalTreeConfig from './fractal-tree/config';
+import distortedRippleConfig from './distorted-ripple/config';
 import fluidLinesConfig from './fluid-lines/config';
 import bitmapNoiseConfig from './bitmap-noise/config';
 import matrixConfig from './matrix/config';
@@ -39,13 +41,14 @@ import pipesConfig from './pipes/config';
 
 const registerEntry: BackgroundEntry[] = [
   { config: particlesConfig, component: Particles },
-  { config: distortedRippleConfig, component: DistortedRipple, isNew: true },
+  { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: ditherStudioConfig, component: DitherStudio },
   { config: mistConfig, component: Mist },
   { config: spiralsConfig, component: Spirals },
   { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
   { config: fractalTreeConfig, component: FractalTree },
+  { config: distortedRippleConfig, component: DistortedRipple },
   { config: fluidLinesConfig, component: FluidLines },
   { config: bitmapNoiseConfig, component: BitmapNoise, isNew: true },
   { config: matrixConfig, component: Matrix },

@@ -10,13 +10,14 @@ REGISTRY CONFIGURATION
 
 export const RegistryEntries = [
   'particles',
-  'distorted-ripple+',
+  'aura-ring+',
   'plasma-wave',
   'dither-studio',
   'mist',
   'spirals',
   'ascii-studio+',
   'fractal-tree',
+  'distorted-ripple',
   'fluid-lines',
   'bitmap-noise+',
   'matrix',
