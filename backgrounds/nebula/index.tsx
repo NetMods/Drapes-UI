@@ -4,9 +4,32 @@ import { useEffect, useRef } from 'react';
 interface NebulaProps {
   speed?: number;
   brightness?: number;
+  translateX?: number;
+  translateY?: number;
+  scale?: number;
+  density?: number;
+  turbulence?: number;
+  intensity?: number;
+  colorR?: number;
+  colorG?: number;
+  colorB?: number;
+  renderScale?: number;
 }
 
-const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
+const Nebula = ({
+  speed = 1.0,
+  brightness = 1.0,
+  translateX = 0.0,
+  translateY = 0.0,
+  scale = 1.0,
+  density = 0.1,
+  turbulence = 0.5,
+  intensity = 0.2,
+  colorR = 1.0,
+  colorG = 1.0,
+  colorB = 1.0,
+  renderScale = 0.6,
+}: NebulaProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
@@ -29,6 +52,12 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
       uniform float time;
       uniform vec2 resolution;
       uniform float brightness;
+      uniform vec2 translate;
+      uniform float scale;
+      uniform float density;
+      uniform float turbulence;
+      uniform float intensity;
+      uniform vec3 color;
 
       void main() {
         vec2 r = resolution;
@@ -40,7 +69,7 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
         float f = 0.0;
 
         for(int i = 0; i < 50; i++) {
-          vec2 uv = (gl_FragCoord.xy * 2.0 - r) / r.y;
+          vec2 uv = (gl_FragCoord.xy * 2.0 - r) / r.y * scale + translate;
           p = vec3(uv, 1.0) * z;
 
           float f_inner = 1.0;
@@ -48,15 +77,15 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
           for(int j = 0; j < 4; j++) {
              f_inner += 1.0;
              vec3 p_swiz = p.zxy;
-             vec3 rounded = floor(p_swiz / 0.1 - z + 0.5);
-             p += sin(rounded * 0.1 * f_inner - t) / f_inner;
+             vec3 rounded = floor(p_swiz / density - z + 0.5);
+             p += sin(rounded * density * f_inner - t) / f_inner;
           }
 
-          f = 0.1 * abs(dot(cos(p * 0.5), cos(p / 0.7)));
+          f = 0.1 * abs(dot(cos(p * turbulence), cos(p / (turbulence + 0.2))));
 
           z += f;
 
-          o += 0.2 * f * brightness;
+          o += vec4(color, 1.0) * intensity * f * brightness;
         }
 
         gl_FragColor = vec4(o.rgb, 1.0);
@@ -103,15 +132,20 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
     const timeLocation = gl.getUniformLocation(program, 'time');
     const resolutionLocation = gl.getUniformLocation(program, 'resolution');
     const brightnessLocation = gl.getUniformLocation(program, 'brightness');
+    const translateLocation = gl.getUniformLocation(program, 'translate');
+    const scaleLocation = gl.getUniformLocation(program, 'scale');
+    const densityLocation = gl.getUniformLocation(program, 'density');
+    const turbulenceLocation = gl.getUniformLocation(program, 'turbulence');
+    const intensityLocation = gl.getUniformLocation(program, 'intensity');
+    const colorLocation = gl.getUniformLocation(program, 'color');
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
-      // Render at 60% resolution for performance
-      const scale = 0.6;
-      canvas.width = Math.round(w * dpr * scale);
-      canvas.height = Math.round(h * dpr * scale);
+      const resScale = renderScale;
+      canvas.width = Math.round(w * dpr * resScale);
+      canvas.height = Math.round(h * dpr * resScale);
       gl.viewport(0, 0, canvas.width, canvas.height);
     };
 
@@ -125,6 +159,12 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
       gl.uniform1f(timeLocation, currentTime);
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(brightnessLocation, brightness);
+      gl.uniform2f(translateLocation, translateX, translateY);
+      gl.uniform1f(scaleLocation, scale);
+      gl.uniform1f(densityLocation, density);
+      gl.uniform1f(turbulenceLocation, turbulence);
+      gl.uniform1f(intensityLocation, intensity);
+      gl.uniform3f(colorLocation, colorR, colorG, colorB);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -143,7 +183,7 @@ const Nebula = ({ speed = 1.0, brightness = 1.0 }: NebulaProps) => {
       gl.deleteShader(fragmentShader);
       gl.deleteBuffer(buffer);
     };
-  }, [speed, brightness]);
+  }, [speed, brightness, translateX, translateY, scale, density, turbulence, intensity, colorR, colorG, colorB, renderScale]);
 
   return (
     <canvas

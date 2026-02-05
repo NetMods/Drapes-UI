@@ -3,9 +3,31 @@ import { useEffect, useRef } from 'react';
 
 interface CyberGridProps {
   speed?: number;
+  translateX?: number;
+  translateY?: number;
+  perspective?: number;
+  depth?: number;
+  gridDensity?: number;
+  lineGlow?: number;
+  distortion?: number;
+  colorR?: number;
+  colorG?: number;
+  colorB?: number;
 }
 
-const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
+const CyberGrid = ({
+  speed = 1.0,
+  translateX = 0.0,
+  translateY = 0.0,
+  perspective = 4.0,
+  depth = 3.0,
+  gridDensity = 5.0,
+  lineGlow = 0.2,
+  distortion = 0.1,
+  colorR = 1.0,
+  colorG = 0.7,
+  colorB = 0.6,
+}: CyberGridProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
@@ -30,6 +52,13 @@ const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
 
     uniform vec2 u_resolution;
     uniform float u_time;
+    uniform vec2 u_translate;
+    uniform float u_perspective;
+    uniform float u_depth;
+    uniform float u_gridDensity;
+    uniform float u_lineGlow;
+    uniform float u_distortion;
+    uniform vec3 u_color;
     out vec4 fragColor;
 
     void main() {
@@ -38,7 +67,11 @@ const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
       vec4 FC = gl_FragCoord;
       vec4 o = vec4(0.0);
 
-      vec2 p=(2.*FC.xy-r)/r.y,c=4.*p/(3.-p.y)+t;p=5.*p/(2.+fract(dot(cos(round(c)+r),sin(ceil(c+cos(c/.1)))))-p.y)+t;o=tanh(.2/abs(sin(p.x+p.y+vec4(1,.7,.6,0)*sin(p.y))));o*=o;
+      vec2 uv = (2.0 * FC.xy - r) / r.y - u_translate;
+      vec2 c = u_perspective * uv / (u_depth - uv.y) + t;
+      vec2 p = u_gridDensity * uv / (2.0 + fract(dot(cos(round(c) + r), sin(ceil(c + cos(c / u_distortion))))) - uv.y) + t;
+      o = tanh(u_lineGlow / abs(sin(p.x + p.y + vec4(u_color, 0.0) * sin(p.y))));
+      o *= o;
 
       o.a = 1.0;
       fragColor = o;
@@ -75,8 +108,15 @@ const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
     }
 
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
-    const timeUniformLocation = gl.getUniformLocation(program, "u_time");
+    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const timeLocation = gl.getUniformLocation(program, "u_time");
+    const translateLocation = gl.getUniformLocation(program, "u_translate");
+    const perspectiveLocation = gl.getUniformLocation(program, "u_perspective");
+    const depthLocation = gl.getUniformLocation(program, "u_depth");
+    const gridDensityLocation = gl.getUniformLocation(program, "u_gridDensity");
+    const lineGlowLocation = gl.getUniformLocation(program, "u_lineGlow");
+    const distortionLocation = gl.getUniformLocation(program, "u_distortion");
+    const colorLocation = gl.getUniformLocation(program, "u_color");
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -113,8 +153,15 @@ const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
       gl.useProgram(program);
       gl.bindVertexArray(vao);
 
-      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
-      gl.uniform1f(timeUniformLocation, t);
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+      gl.uniform1f(timeLocation, t);
+      gl.uniform2f(translateLocation, translateX, translateY);
+      gl.uniform1f(perspectiveLocation, perspective);
+      gl.uniform1f(depthLocation, depth);
+      gl.uniform1f(gridDensityLocation, gridDensity);
+      gl.uniform1f(lineGlowLocation, lineGlow);
+      gl.uniform1f(distortionLocation, distortion);
+      gl.uniform3f(colorLocation, colorR, colorG, colorB);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -134,7 +181,7 @@ const CyberGrid = ({ speed = 1.0 }: CyberGridProps) => {
       gl.deleteVertexArray(vao);
       gl.deleteBuffer(positionBuffer);
     };
-  }, [speed]);
+  }, [speed, translateX, translateY, perspective, depth, gridDensity, lineGlow, distortion, colorR, colorG, colorB]);
 
   return (
     <canvas

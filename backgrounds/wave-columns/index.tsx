@@ -1,13 +1,48 @@
 'use client'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
+
+export type WaveColumnsTheme = 'default' | 'ocean' | 'sunset' | 'neon' | 'monochrome' | 'aurora' | 'fire' | 'synthwave' | 'ice' | 'forest';
+
+const THEMES: Record<WaveColumnsTheme, [number, number, number]> = {
+  default: [0.0, 1.0, 2.0],
+  ocean: [3.5, 4.0, 5.0],
+  sunset: [0.0, 0.7, 1.8],
+  neon: [0.5, 2.5, 4.5],
+  monochrome: [0.0, 0.0, 0.0],
+  aurora: [2.0, 3.5, 5.0],
+  fire: [0.0, 0.4, 1.2],
+  synthwave: [5.5, 3.8, 5.0],
+  ice: [3.0, 4.2, 5.5],
+  forest: [2.5, 1.5, 3.8],
+};
 
 interface WaveColumnsProps {
   speed?: number;
+  theme?: WaveColumnsTheme;
+  rotation?: number;
+  translateX?: number;
+  translateY?: number;
+  scale?: number;
+  amplitude?: number;
+  waveCount?: number;
 }
 
-const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
+const WaveColumns = ({
+  speed = 1.0,
+  theme = 'default',
+  rotation = 0,
+  translateX = 0,
+  translateY = 0,
+  scale = 0.3,
+  amplitude = 1.0,
+  waveCount = 1.0,
+}: WaveColumnsProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+
+  const colorOffsets = useMemo(() => {
+    return THEMES[theme] ?? THEMES.default;
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,6 +65,13 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
       precision highp float;
       uniform vec2 u_resolution;
       uniform float u_time;
+      uniform vec3 u_colorOffsets;
+      uniform float u_rotation;
+      uniform vec2 u_translate;
+      uniform float u_scale;
+      uniform float u_frequency;
+      uniform float u_amplitude;
+      uniform float u_waveCount;
 
       #define PI 3.14159265359
 
@@ -38,13 +80,23 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
         float t = u_time;
         vec2 FC = gl_FragCoord.xy;
 
-        vec2 p = (FC.xy * 2. - r) / r.y / 0.3 + t * vec2(2. / PI, 1.0);
+        // Apply translation (in normalized screen space)
+        vec2 uv = (FC.xy * 2.0 - r) / r.y;
+        uv -= u_translate;
+
+        // Apply rotation
+        float cosR = cos(u_rotation);
+        float sinR = sin(u_rotation);
+        uv = mat2(cosR, -sinR, sinR, cosR) * uv;
+
+        // Apply scale and time scroll
+        vec2 p = uv / u_scale + t * vec2(2.0 / PI, 1.0);
         vec2 w = mod(p, 2.0) - 1.0;
 
         vec4 o = sin(
-          p.y -
-          sqrt(max(0.0, 1.0 - w.x * w.x)) * cos(ceil(p.x * 0.5) * PI) +
-          vec4(0.0, 1.0, 2.0, 0.0)
+          p.y * u_waveCount -
+          sqrt(max(0.0, 1.0 - w.x * w.x)) * u_amplitude * cos(ceil(p.x * u_frequency) * PI) +
+          vec4(u_colorOffsets, 0.0)
         );
 
         gl_FragColor = vec4(o.rgb, 1.0);
@@ -101,6 +153,13 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
 
     const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
     const timeLocation = gl.getUniformLocation(program, 'u_time');
+    const colorOffsetsLocation = gl.getUniformLocation(program, 'u_colorOffsets');
+    const rotationLocation = gl.getUniformLocation(program, 'u_rotation');
+    const translateLocation = gl.getUniformLocation(program, 'u_translate');
+    const scaleLocation = gl.getUniformLocation(program, 'u_scale');
+    const frequencyLocation = gl.getUniformLocation(program, 'u_frequency');
+    const amplitudeLocation = gl.getUniformLocation(program, 'u_amplitude');
+    const waveCountLocation = gl.getUniformLocation(program, 'u_waveCount');
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -121,6 +180,13 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
 
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(timeLocation, timeInSeconds);
+      gl.uniform3fv(colorOffsetsLocation, colorOffsets);
+      gl.uniform1f(rotationLocation, rotation * PI_RAD);
+      gl.uniform2f(translateLocation, translateX, translateY);
+      gl.uniform1f(scaleLocation, scale);
+      gl.uniform1f(frequencyLocation, 0.5);
+      gl.uniform1f(amplitudeLocation, amplitude);
+      gl.uniform1f(waveCountLocation, waveCount);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -139,7 +205,7 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
       gl.deleteShader(fragmentShader);
       gl.deleteBuffer(positionBuffer);
     };
-  }, [speed]);
+  }, [speed, colorOffsets, rotation, translateX, translateY, scale, amplitude, waveCount]);
 
   return (
     <canvas
@@ -155,5 +221,7 @@ const WaveColumns = ({ speed = 1.0 }: WaveColumnsProps) => {
     />
   );
 };
+
+const PI_RAD = Math.PI / 180;
 
 export default WaveColumns;

@@ -3,9 +3,27 @@ import { useEffect, useRef } from 'react';
 
 interface SolarFlareProps {
   speed?: number;
+  translateX?: number;
+  translateY?: number;
+  intensity?: number;
+  spread?: number;
+  pulseRate?: number;
+  colorR?: number;
+  colorG?: number;
+  colorB?: number;
 }
 
-const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
+const SolarFlare = ({
+  speed = 1.0,
+  translateX = 1.0,
+  translateY = 1.0,
+  intensity = 2.0,
+  spread = 10.0,
+  pulseRate = 0.6,
+  colorR = 1.0,
+  colorG = 0.4,
+  colorB = 0.2,
+}: SolarFlareProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
@@ -31,15 +49,20 @@ const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
 
       uniform vec2 r;
       uniform float t;
+      uniform vec2 u_translate;
+      uniform float u_intensity;
+      uniform float u_spread;
+      uniform float u_pulseRate;
+      uniform vec3 u_color;
       out vec4 o;
 
       void main() {
         vec4 FC = gl_FragCoord;
 
         vec2 p = (FC.xy * 2. - r) / r.y;
-        float l = 2. - length(p - 1.);
+        float l = u_intensity - length(p - u_translate);
 
-        o = tanh(vec4(1, .4, .2, 0) / max(l, -l * 1e1) / exp(mod(dot(FC, sin(FC.yxyx)) + t, 2.) + sin(t + sin(t / .6 + p.y))));
+        o = tanh(vec4(u_color, 0.0) / max(l, -l * u_spread) / exp(mod(dot(FC, sin(FC.yxyx)) + t, 2.) + sin(t + sin(t / u_pulseRate + p.y))));
 
         o.a = 1.0;
       }
@@ -92,6 +115,11 @@ const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
 
     const rLocation = gl.getUniformLocation(program, 'r');
     const tLocation = gl.getUniformLocation(program, 't');
+    const translateLocation = gl.getUniformLocation(program, 'u_translate');
+    const intensityLocation = gl.getUniformLocation(program, 'u_intensity');
+    const spreadLocation = gl.getUniformLocation(program, 'u_spread');
+    const pulseRateLocation = gl.getUniformLocation(program, 'u_pulseRate');
+    const colorLocation = gl.getUniformLocation(program, 'u_color');
 
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
@@ -114,6 +142,11 @@ const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
 
       const currentTime = ((performance.now() - startTime) / 1000) * speed;
       gl.uniform1f(tLocation, currentTime);
+      gl.uniform2f(translateLocation, translateX, translateY);
+      gl.uniform1f(intensityLocation, intensity);
+      gl.uniform1f(spreadLocation, spread);
+      gl.uniform1f(pulseRateLocation, pulseRate);
+      gl.uniform3f(colorLocation, colorR, colorG, colorB);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       animationRef.current = requestAnimationFrame(render);
@@ -131,7 +164,7 @@ const SolarFlare = ({ speed = 1.0 }: SolarFlareProps) => {
       gl.deleteShader(fs);
       gl.deleteBuffer(positionBuffer);
     };
-  }, [speed]);
+  }, [speed, translateX, translateY, intensity, spread, pulseRate, colorR, colorG, colorB]);
 
   return (
     <canvas
