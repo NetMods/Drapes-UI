@@ -20,6 +20,7 @@ export type ColorTheme =
   | 'matrix';
 
 export type GradientShape = 'circle' | 'square' | 'triangle' | 'hexagon' | 'star';
+export type EffectVariant = 'default' | 'halo';
 
 const COLOR_THEMES: Record<ColorTheme, [number, number, number]> = {
   custom: [0, 2, 4],
@@ -54,6 +55,7 @@ interface AuraRingProps {
   theme?: ColorTheme;
   colorShift?: [number, number, number];
   shape?: GradientShape;
+  variant?: EffectVariant;
   backgroundColor?: string;
   offsetX?: number;
   offsetY?: number;
@@ -67,6 +69,7 @@ const AuraRing = ({
   theme = 'rainbow',
   colorShift = [0, 2, 4],
   shape = 'circle',
+  variant = 'default',
   backgroundColor = '#000',
   offsetX = 0,
   offsetY = 0,
@@ -83,12 +86,33 @@ const AuraRing = ({
   }, [theme, colorShift]);
 
   const shapeId = SHAPE_IDS[shape];
+  const variantId = variant === 'halo' ? 1 : 0;
 
-  const settingsRef = useRef({ speed, frequency, intensity, colorShift: resolvedColorShift, offsetX, offsetY, shapeId, scale });
+  const settingsRef = useRef({
+    speed,
+    frequency,
+    intensity,
+    colorShift: resolvedColorShift,
+    offsetX,
+    offsetY,
+    shapeId,
+    variantId,
+    scale
+  });
 
   useEffect(() => {
-    settingsRef.current = { speed, frequency, intensity, colorShift: resolvedColorShift, offsetX, offsetY, shapeId, scale };
-  }, [speed, frequency, intensity, resolvedColorShift, offsetX, offsetY, shapeId, scale]);
+    settingsRef.current = {
+      speed,
+      frequency,
+      intensity,
+      colorShift: resolvedColorShift,
+      offsetX,
+      offsetY,
+      shapeId,
+      variantId,
+      scale
+    };
+  }, [speed, frequency, intensity, resolvedColorShift, offsetX, offsetY, shapeId, variantId, scale]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -104,7 +128,8 @@ const AuraRing = ({
     in vec4 a_position;
     void main() {
       gl_Position = a_position;
-    }`;
+    }
+    `;
 
     const fsSource = `#version 300 es
     precision highp float;
@@ -116,34 +141,28 @@ const AuraRing = ({
     uniform vec3 u_color;
     uniform vec2 u_offset;
     uniform int u_shape;
+    uniform int u_variant;
     uniform float u_scale;
 
     out vec4 fragColor;
 
-    // Distance function for circle (radius 1)
-    float sdCircle(vec2 p) {
-      return length(p) - 1.0;
-    }
-
-    // Distance function for square (side length 2, centered at origin)
+    float sdCircle(vec2 p) { return length(p) - 1.0; }
+    
     float sdSquare(vec2 p) {
       vec2 d = abs(p) - vec2(1.0);
       return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
     }
-
-    // Distance function for equilateral triangle (normalized to fit in -1 to 1 range)
+    
     float sdTriangle(vec2 p) {
       const float k = sqrt(3.0);
-      // Normalize triangle to fit within unit bounds
-      p.y += 0.33; // Center the triangle vertically
+      p.y += 0.33;
       p.x = abs(p.x) - 1.0;
       p.y = p.y + 1.0 / k;
       if (p.x + k * p.y > 0.0) p = vec2(p.x - k * p.y, -k * p.x - p.y) / 2.0;
       p.x -= clamp(p.x, -2.0, 0.0);
       return -length(p) * sign(p.y);
     }
-
-    // Distance function for hexagon (normalized to fit in -1 to 1 range)
+    
     float sdHexagon(vec2 p) {
       const vec3 k = vec3(-0.866025404, 0.5, 0.577350269);
       p = abs(p);
@@ -151,14 +170,12 @@ const AuraRing = ({
       p -= vec2(clamp(p.x, -k.z, k.z), 1.0);
       return length(p) * sign(p.y);
     }
-
-    // Distance function for 5-pointed star (normalized to fit in -1 to 1 range)
+    
     float sdStar(vec2 p) {
-      const float an = 3.14159265 / 5.0;  // 36 degrees
-      const float en = 3.14159265 / 3.0;  // 60 degrees (controls inner radius)
+      const float an = 3.14159265 / 5.0;
+      const float en = 3.14159265 / 3.0;
       vec2 acs = vec2(cos(an), sin(an));
       vec2 ecs = vec2(cos(en), sin(en));
-      
       float bn = mod(atan(p.x, p.y), 2.0 * an) - an;
       p = length(p) * vec2(cos(bn), abs(sin(bn)));
       p -= 1.0 * acs;
@@ -166,14 +183,13 @@ const AuraRing = ({
       return length(p) * sign(p.x);
     }
 
-    // Get distance based on shape type
     float getDistance(vec2 p, int shape) {
       if (shape == 0) return sdCircle(p);
       if (shape == 1) return sdSquare(p);
       if (shape == 2) return sdTriangle(p);
       if (shape == 3) return sdHexagon(p);
       if (shape == 4) return sdStar(p);
-      return sdCircle(p); // fallback
+      return sdCircle(p);
     }
 
     void main() {
@@ -181,32 +197,43 @@ const AuraRing = ({
       float t = u_time;
       vec4 FC = gl_FragCoord;
 
-      // Normalize coordinates to -1 to 1 range (aspect corrected)
       vec2 p = (FC.xy * 2.0 - r.xy) / r.y;
       
-      // Apply offset - multiply by aspect ratio for X to allow full movement
       float aspect = r.x / r.y;
       p.x -= u_offset.x * aspect;
       p.y -= u_offset.y;
       
-      // Apply scale (divide to make larger scale = larger shape)
-      p /= u_scale;
-      
-      // Get distance based on selected shape
-      float dist = getDistance(p, u_shape);
-      
-      // Convert SDF to intensity (positive inside, negative outside)
-      // Adding 1.0 shifts so center of shape has l ≈ 2.0
-      float l = 1.0 - dist;
-      
-      // The math magic: tanh gives the sharp contrast, sin gives the waves
-      vec4 col = tanh((1.1 + sin(p.x * u_freq + t + vec4(u_color, 0.0))) / u_intensity / max(l, -l * 0.1));
+      vec4 col = vec4(0.0);
+
+      if (u_variant == 1) {
+        vec2 hp = p / u_scale;
+        float dist = getDistance(hp, u_shape);
+        float l = 1.0 - dist;
+        
+        float a = atan(hp.y, hp.x);
+        float f = u_freq;
+        
+        float wobble = 2.0 + cos(a * f + cos(a * 5.0 + t)) * sin(a * 4.0 - t);
+        
+        vec4 colorShift = vec4(u_color, 1.0);
+        
+        col = tanh(
+          (cos(hp.x + 0.5 * t + colorShift) + 1.5) / u_intensity / max(l, -l * 0.1) / wobble
+        );
+        
+      } else {
+        p /= u_scale;
+        float dist = getDistance(p, u_shape);
+        float l = 1.0 - dist;
+        
+        col = tanh((1.1 + sin(p.x * u_freq + t + vec4(u_color, 0.0))) / u_intensity / max(l, -l * 0.1));
+      }
 
       fragColor = col;
       fragColor.a = 1.0; 
-    }`;
+    }
+    `;
 
-    // --- Boilerplate ---
     const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
       const shader = gl.createShader(type);
       if (!shader) return null;
@@ -250,6 +277,7 @@ const AuraRing = ({
     const colorLocation = gl.getUniformLocation(program, "u_color");
     const offsetLocation = gl.getUniformLocation(program, "u_offset");
     const shapeLocation = gl.getUniformLocation(program, "u_shape");
+    const variantLocation = gl.getUniformLocation(program, "u_variant");
     const scaleLocation = gl.getUniformLocation(program, "u_scale");
 
     const vao = gl.createVertexArray();
@@ -260,14 +288,11 @@ const AuraRing = ({
     let startTime = performance.now();
 
     const render = (now: number) => {
-      // Handle resizing inside the loop for responsiveness
       const displayWidth = canvas.clientWidth;
       const displayHeight = canvas.clientHeight;
       const dpr = window.devicePixelRatio || 1;
 
-      const needResize = canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr;
-
-      if (needResize) {
+      if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
         canvas.width = displayWidth * dpr;
         canvas.height = displayHeight * dpr;
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -278,9 +303,7 @@ const AuraRing = ({
 
       gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
 
-      const { speed, frequency, intensity, colorShift, offsetX, offsetY, shapeId, scale } = settingsRef.current;
-
-      // Calculate elapsed time
+      const { speed, frequency, intensity, colorShift, offsetX, offsetY, shapeId, variantId, scale } = settingsRef.current;
       const elapsed = (now - startTime) * 0.001;
 
       gl.uniform1f(timeUniformLocation, elapsed * speed);
@@ -289,10 +312,10 @@ const AuraRing = ({
       gl.uniform3fv(colorLocation, colorShift);
       gl.uniform2f(offsetLocation, offsetX, offsetY);
       gl.uniform1i(shapeLocation, shapeId);
+      gl.uniform1i(variantLocation, variantId);
       gl.uniform1f(scaleLocation, scale);
 
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
       animationRef.current = requestAnimationFrame(render);
     };
 

@@ -39,6 +39,14 @@ export default {
       description: 'Predefined color palette for the gradient effect.',
     },
     {
+      key: 'variant',
+      label: 'Variant',
+      type: 'select',
+      options: ['default', 'halo'],
+      defaultValue: 'default',
+      description: 'Different effects for the aura.',
+    },
+    {
       key: 'shape',
       label: 'Shape',
       type: 'select',
