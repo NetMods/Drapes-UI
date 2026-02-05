@@ -1,26 +1,28 @@
-// This file controls which backgrounds are registered and in what order
-// 1. Comment out or remove entries to exclude backgrounds
-// 2. Add isNew: true to mark backgrounds as new
+{/*
+-----------------------------------------------------------------------------
+REGISTRY CONFIGURATION
+-----------------------------------------------------------------------------
+1. To add a background, add its folder name to the list.
+2. To mark it as NEW, add a "+" to the end (e.g. 'my-bg+').
+3. The order below determines the display order in the app.
+-----------------------------------------------------------------------------
+*/}
 
-export interface RegistryEntry {
-  folder: string;
-  isNew?: boolean;
-}
-
-export const registryConfig: RegistryEntry[] = [
-  { folder: 'particles' },
-  { folder: 'distorted-ripple', isNew: true },
-  { folder: 'plasma-wave' },
-  { folder: 'dither-studio' },
-  { folder: 'mist' },
-  { folder: 'spirals' },
-  { folder: 'ascii-studio', isNew: true },
-  { folder: 'fractal-tree' },
-  { folder: 'fluid-lines' },
-  { folder: 'matrix' },
-  { folder: 'firefly-effect' },
-  { folder: 'dot-grid' },
-  { folder: 'noise-field' },
-  { folder: 'snow-fall' },
-  { folder: 'pipes' },
+export const RegistryEntries = [
+  'particles',
+  'distorted-ripple+',
+  'plasma-wave',
+  'dither-studio',
+  'mist',
+  'spirals',
+  'ascii-studio+',
+  'fractal-tree',
+  'fluid-lines',
+  'bitmap-noise+',
+  'matrix',
+  'firefly-effect',
+  'dot-grid',
+  'noise-field',
+  'snow-fall',
+  'pipes',
 ];

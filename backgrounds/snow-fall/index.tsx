@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from 'react';
 
-interface SnowfallShaderProps {
+interface SnowfallProps {
   snowflakeCount?: number;
   speed?: number;
   windSpeed?: number;
@@ -20,7 +20,7 @@ const Snowfall = ({
   gradientColorTop = '#000000',
   gradientColorBottom = '#0b1026',
   renderScale = 1,
-}: SnowfallShaderProps) => {
+}: SnowfallProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const hexToRgb = (hex: string) => {

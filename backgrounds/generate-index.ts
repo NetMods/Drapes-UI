@@ -1,6 +1,6 @@
 import { existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { registryConfig } from './registry.config';
+import { RegistryEntries } from './registry.config';
 
 function kebabToPascal(str: string): string {
   return str
@@ -10,12 +10,13 @@ function kebabToPascal(str: string): string {
 }
 
 function generateIndexFile() {
-  const validBackgrounds = registryConfig.filter(entry => {
-    const indexPath = join('backgrounds', entry.folder, 'index.tsx');
-    const configPath = join('backgrounds', entry.folder, 'config.ts');
+  const validBackgrounds = RegistryEntries.filter(entry => {
+    const folder = entry.endsWith('+') ? entry.slice(0, -1) : entry;
+    const indexPath = join('backgrounds', folder, 'index.tsx');
+    const configPath = join('backgrounds', folder, 'config.ts');
 
     if (!existsSync(indexPath) || !existsSync(configPath)) {
-      console.warn(`⚠️  Skipping ${entry.folder}: missing index.tsx or config.ts`);
+      console.warn(`⚠️  Skipping ${folder}: missing index.tsx or config.ts`);
       return false;
     }
     return true;
@@ -26,12 +27,17 @@ function generateIndexFile() {
     return;
   }
 
-  const backgrounds = validBackgrounds.map(entry => ({
-    folderName: entry.folder,
-    componentName: kebabToPascal(entry.folder),
-    relativePath: `./${entry.folder}`,
-    isNew: entry.isNew || false,
-  }));
+  const backgrounds = validBackgrounds.map(entry => {
+    const folder = entry.endsWith('+') ? entry.slice(0, -1) : entry;
+    const isNew = entry.endsWith('+');
+
+    return {
+      folderName: folder,
+      componentName: kebabToPascal(folder),
+      relativePath: `./${folder}`,
+      isNew: isNew || false,
+    }
+  });
 
   const componentImports = backgrounds
     .map(bg => `import ${bg.componentName} from '${bg.relativePath}'`)

@@ -11,6 +11,7 @@ import Spirals from './spirals'
 import AsciiStudio from './ascii-studio'
 import FractalTree from './fractal-tree'
 import FluidLines from './fluid-lines'
+import BitmapNoise from './bitmap-noise'
 import Matrix from './matrix'
 import FireflyEffect from './firefly-effect'
 import DotGrid from './dot-grid'
@@ -28,6 +29,7 @@ import spiralsConfig from './spirals/config';
 import asciiStudioConfig from './ascii-studio/config';
 import fractalTreeConfig from './fractal-tree/config';
 import fluidLinesConfig from './fluid-lines/config';
+import bitmapNoiseConfig from './bitmap-noise/config';
 import matrixConfig from './matrix/config';
 import fireflyEffectConfig from './firefly-effect/config';
 import dotGridConfig from './dot-grid/config';
@@ -45,6 +47,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
   { config: fractalTreeConfig, component: FractalTree },
   { config: fluidLinesConfig, component: FluidLines },
+  { config: bitmapNoiseConfig, component: BitmapNoise, isNew: true },
   { config: matrixConfig, component: Matrix },
   { config: fireflyEffectConfig, component: FireflyEffect },
   { config: dotGridConfig, component: DotGrid },
