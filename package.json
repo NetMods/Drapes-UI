@@ -5,6 +5,7 @@
   "scripts": {
     "generate-index": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-index.ts",
     "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts",
+    "generate-codes:force": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts --force",
     "generate": "pnpm run generate-index && pnpm run generate-codes",
     "dev": "pnpm run generate && next dev --turbo",
     "build": "pnpm run generate && next build",
@@ -29,8 +30,9 @@
     "@types/node": "^20.19.25",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "baseline-browser-mapping": "^2.9.19",
     "clsx": "^2.1.1",
-    "glob": "^11.1.0",
+    "glob": "^13.0.1",
     "postcss": "^8.5.6",
     "shiki": "^3.19.0",
     "tailwind-merge": "^3.4.0",

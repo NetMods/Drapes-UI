@@ -1,26 +1,42 @@
-// This file controls which backgrounds are registered and in what order
-// 1. Comment out or remove entries to exclude backgrounds
-// 2. Add isNew: true to mark backgrounds as new
+{/*
+-----------------------------------------------------------------------------
+REGISTRY CONFIGURATION
+-----------------------------------------------------------------------------
+1. To add a background, add its folder name to the list.
+2. To mark it as NEW, add a "+" to the end (e.g. 'my-bg+').
+3. The order below determines the display order in the app.
+-----------------------------------------------------------------------------
+*/}
 
-export interface RegistryEntry {
-  folder: string;
-  isNew?: boolean;
-}
-
-export const registryConfig: RegistryEntry[] = [
-  { folder: 'particles' },
-  { folder: 'distorted-ripple', isNew: true },
-  { folder: 'plasma-wave' },
-  { folder: 'dither-studio', isNew: true },
-  { folder: 'mist' },
-  { folder: 'spirals' },
-  { folder: 'fractal-tree' },
-  { folder: 'fluid-lines' },
-  { folder: 'matrix' },
-  { folder: 'firefly-effect' },
-  { folder: 'dot-grid' },
-  { folder: 'noise-field' },
-  { folder: 'snow-fall' },
-  { folder: 'pipes' },
-  // { folder: 'hexagons' },
+export const RegistryEntries = [
+  'particles',
+  'aura-ring+',
+  'horizon-glow+',
+  'dither-studio',
+  'mist',
+  'neon-highway+',
+  'ascii-studio+',
+  'wave-columns+',
+  'fractal-tree',
+  'cyber-grid+',
+  'plasma-wave',
+  'distorted-ripple',
+  'chromatic-spiral+',
+  'fluid-lines',
+  'bitmap-noise+',
+  'matrix',
+  'solar-flare+',
+  'firefly-effect',
+  'vortex-twist+',
+  'snow-fall',
+  'mosaic-flow+',
+  'lunar-ring+',
+  'spirals',
+  'cellular+',
+  'noise-field',
+  'kaleidoscope+',
+  'nebula+',
+  'winter-forest+',
+  'dot-grid',
+  'pipes',
 ];

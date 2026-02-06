@@ -52,15 +52,21 @@ export default function Page() {
     return updatedCode;
   };
 
-  const { openSettingsSidebar } = useSettingsSidebar();
-  const { openCodeSidebar } = useCodeSidebar();
+  const { openSettingsSidebar, closeSettingsSidebar } = useSettingsSidebar();
+  const { openCodeSidebar, closeCodeSidebar } = useCodeSidebar();
 
   const handleLeft = () => {
+    // Close sidebars to prevent old controls affecting new background
+    closeSettingsSidebar();
+    closeCodeSidebar();
     const newId = Math.max(1, currentId - 1)
     router.replace(`?id=${newId}`)
   }
 
   const handleRight = () => {
+    // Close sidebars to prevent old controls affecting new background
+    closeSettingsSidebar();
+    closeCodeSidebar();
     const newId = currentId + 1
     router.replace(`?id=${newId}`)
   }
@@ -121,7 +127,7 @@ export default function Page() {
         className='fixed bottom-4 left-1/2'
         backgroundName={config.name}
         onRecordingStateChange={setIsRecording}
-      />
+       />
     </div>
   )
 }

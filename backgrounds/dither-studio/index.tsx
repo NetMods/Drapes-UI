@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useEffect, useRef, useMemo, useCallback } from "react";
 
 export type DitherMode = "none" | "bayer" | "floyd";
 export type BayerLevel = 2 | 4 | 8 | 16;
@@ -19,6 +19,9 @@ interface DitherProps {
   midtones: number;
   blur: number;
   objectFit: ObjectFit;
+  pixelSize?: number;
+  mouseInteraction?: boolean;
+  mouseRadius?: number;
 }
 
 const vertexShaderSource = `
@@ -52,6 +55,13 @@ const fragmentShaderSource = `
   uniform int u_isGrayscale;
   uniform float u_bayerSize;
   uniform int u_objectFit; // 0 = contain, 1 = cover, 2 = fill
+  
+  uniform float u_pixelSize;
+
+  // Mouse interaction uniforms
+  uniform int u_mouseEnabled;
+  uniform vec2 u_mousePos;
+  uniform float u_mouseRadius;
    
   // --- UTILS ---
 
@@ -157,45 +167,110 @@ const fragmentShaderSource = `
     vec2 bayerCoord = mod(pos, u_bayerSize) / u_bayerSize;
     return texture2D(u_bayerMatrix, bayerCoord).r;
   }
+  
+  // Pixelate the UV coordinates based on pixel size
+  vec2 pixelateUV(vec2 uv, vec2 resolution, float pixelSize) {
+    vec2 pixelCount = resolution / pixelSize;
+    return floor(uv * pixelCount) / pixelCount + (0.5 / pixelCount);
+  }
+  
+  // Get the pixelated screen position for dithering calculations
+  vec2 getPixelatedScreenPos(vec2 fragCoord, float pixelSize) {
+    return floor(fragCoord / pixelSize);
+  }
    
   void main() {
     vec2 uv = calculateUV();
-    
-    // FIX 1: Return transparent (alpha 0) if out of bounds for "contain" mode
+
+    // Always apply pixelation (pixel mode always on)
+    if (u_pixelSize > 1.0) {
+      vec2 screenPos = gl_FragCoord.xy;
+      vec2 pixelatedScreenPos = floor(screenPos / u_pixelSize) * u_pixelSize + u_pixelSize * 0.5;
+
+      vec2 pixelatedNorm = pixelatedScreenPos / u_resolution;
+      vec2 pixelatedTexCoord = vec2(pixelatedNorm.x, 1.0 - pixelatedNorm.y);
+
+      if (u_objectFit == 2) {
+        uv = pixelatedTexCoord;
+      } else {
+        float canvasAspect = u_resolution.x / u_resolution.y;
+        float textureAspect = u_textureSize.x / u_textureSize.y;
+
+        vec2 scale = vec2(1.0);
+
+        if (u_objectFit == 0) {
+          if (canvasAspect > textureAspect) {
+            scale.x = textureAspect / canvasAspect;
+          } else {
+            scale.y = canvasAspect / textureAspect;
+          }
+        } else if (u_objectFit == 1) {
+          if (canvasAspect > textureAspect) {
+            scale.y = canvasAspect / textureAspect;
+          } else {
+            scale.x = textureAspect / canvasAspect;
+          }
+        }
+
+        uv = (pixelatedTexCoord - 0.5) / scale + 0.5;
+      }
+    }
+
     if (isOutOfBounds(uv)) {
       gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
       return;
     }
-    
+
     vec3 color = applyBlur(uv, u_blur);
     color = applyColorCorrection(color);
-    
+
+    // Save undithered color for mouse reveal
+    vec3 unditheredColor = color;
+
+    // Get pixelated position for dithering
+    vec2 ditherPos = gl_FragCoord.xy;
+    if (u_pixelSize > 1.0) {
+      ditherPos = getPixelatedScreenPos(gl_FragCoord.xy, u_pixelSize);
+    }
+
     // Dithering Logic
     if (u_ditherMode == 1) {
       // --- Bayer ---
       if (u_isGrayscale == 1) color = toGrayscale(color);
-      
-      vec2 pixelPos = gl_FragCoord.xy;
-      float threshold = getBayerThreshold(pixelPos);
-      color = step(threshold, color); // Multi-channel dither if color
-      
+
+      float threshold = getBayerThreshold(ditherPos);
+      color = step(threshold, color);
+
     } else if (u_ditherMode == 2) {
-      // --- Stochastic (Floyd replacement) ---
-      // We force grayscale here because stochastic dither looks messy in RGB.
-      // Ideally, Floyd-Steinberg is a 1-bit monochrome operation.
-      vec3 gray = toGrayscale(color);
-      
-      // Generate Interleaved Gradient Noise
-      float noise = interleavedGradientNoise(gl_FragCoord.xy);
-      
-      // Compare luminance to noise threshold
-      // This creates a probabilistically accurate stippling effect
-      color = vec3(step(noise, gray.r));
+      float noise = interleavedGradientNoise(ditherPos);
+
+        if (u_isGrayscale == 1) {
+          vec3 gray = toGrayscale(color);
+          color = vec3(step(noise, gray.r));
+        } else {
+          float noiseR = fract(noise + 0.0);
+          float noiseG = fract(noise + 0.333);
+          float noiseB = fract(noise + 0.666);
+          color = vec3(
+            step(noiseR, color.r),
+            step(noiseG, color.g),
+            step(noiseB, color.b)
+          );
+        }
     } else {
-       // --- None ---
        if (u_isGrayscale == 1) color = toGrayscale(color);
     }
-    
+
+    // Mouse reveal - soft circle around mouse shows less-dithered image
+    if (u_mouseEnabled == 1 && u_mouseRadius > 0.0) {
+      float dist = distance(gl_FragCoord.xy, u_mousePos);
+      // Soft falloff from center to edge using smoothstep
+      float reveal = 1.0 - smoothstep(u_mouseRadius * 0.3, u_mouseRadius, dist);
+      // Keep slight dithering even at center (max ~75% reveal)
+      reveal *= 0.75;
+      color = mix(color, unditheredColor, reveal);
+    }
+
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -212,6 +287,9 @@ const DitherStudio = ({
   midtones = 0,
   blur = 0,
   objectFit = 'contain',
+  pixelSize = 2,
+  mouseInteraction = false,
+  mouseRadius = 100,
 }: DitherProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const glRef = useRef<WebGLRenderingContext | null>(null);
@@ -222,6 +300,7 @@ const DitherStudio = ({
   const imageRef = useRef<HTMLImageElement | null>(null);
   const animationFrameRef = useRef<number>(0);
   const uniformLocationsRef = useRef<Record<string, WebGLUniformLocation | null>>({});
+  const mousePosRef = useRef<{ x: number; y: number }>({ x: -9999, y: -9999 });
 
   const bayerMatrix = useMemo(() => {
     const createMatrix = (n: number): number[][] => {
@@ -242,6 +321,21 @@ const DitherStudio = ({
     };
     return createMatrix(bayerLevel);
   }, [bayerLevel]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    mousePosRef.current = {
+      x: (e.clientX - rect.left) * dpr,
+      y: (rect.height - (e.clientY - rect.top)) * dpr,
+    };
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    mousePosRef.current = { x: -9999, y: -9999 };
+  }, []);
 
   const compileShader = useCallback((gl: WebGLRenderingContext, type: number, source: string) => {
     const shader = gl.createShader(type);
@@ -264,10 +358,9 @@ const DitherStudio = ({
     if (!canvas) return false;
 
     const gl = canvas.getContext('webgl', {
-      alpha: true, // Enable transparency
+      alpha: true,
       premultipliedAlpha: false,
       antialias: false,
-      preserveDrawingBuffer: true
     });
 
     if (!gl) {
@@ -277,7 +370,6 @@ const DitherStudio = ({
 
     glRef.current = gl;
 
-    // Enable blending for transparency
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -333,6 +425,10 @@ const DitherStudio = ({
       u_isGrayscale: gl.getUniformLocation(program, 'u_isGrayscale'),
       u_bayerSize: gl.getUniformLocation(program, 'u_bayerSize'),
       u_objectFit: gl.getUniformLocation(program, 'u_objectFit'),
+      u_pixelSize: gl.getUniformLocation(program, 'u_pixelSize'),
+      u_mouseEnabled: gl.getUniformLocation(program, 'u_mouseEnabled'),
+      u_mousePos: gl.getUniformLocation(program, 'u_mousePos'),
+      u_mouseRadius: gl.getUniformLocation(program, 'u_mouseRadius'),
     };
 
     textureRef.current = gl.createTexture();
@@ -392,7 +488,6 @@ const DitherStudio = ({
       gl.viewport(0, 0, width, height);
     }
 
-    // Clear canvas with transparent color
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -419,9 +514,13 @@ const DitherStudio = ({
     gl.uniform1i(uniforms.u_isGrayscale, isGrayscale ? 1 : 0);
     gl.uniform1f(uniforms.u_bayerSize, bayerLevel);
     gl.uniform1i(uniforms.u_objectFit, objectFit === 'contain' ? 0 : objectFit === 'cover' ? 1 : 2);
+    gl.uniform1f(uniforms.u_pixelSize, pixelSize);
+    gl.uniform1i(uniforms.u_mouseEnabled, mouseInteraction ? 1 : 0);
+    gl.uniform2f(uniforms.u_mousePos, mousePosRef.current.x, mousePosRef.current.y);
+    gl.uniform1f(uniforms.u_mouseRadius, mouseRadius * dpr);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  }, [mediaType, brightness, contrast, highlights, midtones, blur, ditherMode, isGrayscale, bayerLevel, objectFit]);
+  }, [mediaType, brightness, contrast, highlights, midtones, blur, ditherMode, isGrayscale, bayerLevel, objectFit, pixelSize, mouseInteraction, mouseRadius]);
 
   useEffect(() => {
     initWebGL();
@@ -437,7 +536,7 @@ const DitherStudio = ({
 
   useEffect(() => {
     draw();
-  }, [ditherMode, isGrayscale, brightness, contrast, highlights, midtones, blur, objectFit, draw]);
+  }, [ditherMode, isGrayscale, brightness, contrast, highlights, midtones, blur, objectFit, pixelSize, mouseInteraction, mouseRadius, draw]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -460,12 +559,14 @@ const DitherStudio = ({
       }
     }
 
+    const needsLoop = mediaType === 'video' || mouseInteraction;
+
     const loop = () => {
-      if (mediaType === 'video') draw();
+      draw();
       animationFrameRef.current = requestAnimationFrame(loop);
     };
 
-    if (mediaType === 'video') loop();
+    if (needsLoop) loop();
 
     const handleResize = () => draw();
     window.addEventListener('resize', handleResize);
@@ -474,7 +575,7 @@ const DitherStudio = ({
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       window.removeEventListener('resize', handleResize);
     };
-  }, [mediaType, source, draw]);
+  }, [mediaType, source, mouseInteraction, draw]);
 
   return (
     <>
@@ -484,11 +585,12 @@ const DitherStudio = ({
         crossOrigin="anonymous"
         style={{ display: 'none' }}
         loop
-        muted
         playsInline
       />
       <canvas
         ref={canvasRef}
+        onMouseMove={mouseInteraction ? handleMouseMove : undefined}
+        onMouseLeave={mouseInteraction ? handleMouseLeave : undefined}
         style={{
           position: 'absolute',
           top: 0,

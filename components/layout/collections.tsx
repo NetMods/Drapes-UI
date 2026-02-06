@@ -44,9 +44,7 @@ export const Collections = () => {
 
     return result;
 
-  }, [searchQuery, activeTab])
-
-
+  }, [searchQuery, activeTab, favourite])
 
   const handleChangeTab = (tab: 'all' | 'fav') => {
     setActiveTab(tab);
@@ -57,7 +55,7 @@ export const Collections = () => {
       <TabSection
         activeTab={activeTab}
         filterInputValue={searchQuery}
-        backgroundLength={backgrounds.length}
+        backgroundLength={registry.getAll().length}
         favouriteLength={favourite.length}
         handleChangeTab={handleChangeTab}
         handleClearFilter={handleClearFilter}
@@ -148,6 +146,7 @@ const TabSection = ({
         {(['all', 'fav'] as const).map((tab) => {
           const label = tab === 'all' ? 'Our Collections' : 'Your Favourites';
           const count = tab === 'all' ? backgroundLength : favouriteLength;
+
           return (
             <button
               key={tab}

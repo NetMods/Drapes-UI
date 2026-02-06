@@ -1,138 +1,94 @@
 'use client'
-import React, { useRef, useEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 
-const SwarmShaderOptimized = () => {
-  const canvasRef = useRef(null);
+const MosaicShader: React.FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2', {
-      alpha: false,
-      antialias: false
-    });
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
 
-    if (!gl) {
-      console.error('WebGL 2 not supported');
-      return;
-    }
-
-
-    const PIXEL_SCALE = 0.7;
-
-    const vertexShaderSource = `#version 300 es
-      in vec2 a_position;
+    const vsSource = `#version 300 es
+      in vec4 a_position;
       void main() {
-        gl_Position = vec4(a_position, 0.0, 1.0);
-      }
-    `;
+        gl_Position = a_position;
+      }`;
 
-    const fragmentShaderSource = `#version 300 es
+    const fsSource = `#version 300 es
       precision highp float;
-      
       uniform vec2 r;
       uniform float t;
-      out vec4 fragColor;
-
+      out vec4 o;
       void main() {
-        vec3 p;
-        vec3 o = vec3(0.0);
-        float z = 0.0;
-        float f_val = 0.0; // Renamed to avoid confusion with loop var
+        vec4 FC = gl_FragCoord;
+        vec2 p=3.*(FC.xy*2.-r)/r.y,v=p+p+(t+r)*cos(r+ceil(p+sin(p*5.))).yx;o=tanh(.1*(cos(.6*p.x+.3*sin(v.y)+vec4(0,1,2,3))+1.)/length(.9+sin(v)));
+      }`;
 
-        // OPTIMIZATION 1: Reduced iterations from 30 -> 18
-        // Visually similar, much faster
-        for(float i = 0.0; i < 18.0; i++) {
-          
-          // Setup Ray
-          vec3 fc = vec3(gl_FragCoord.xy, 0.0);
-          vec3 dir = normalize(fc * 2.0 - vec3(r.xy, r.y));
-          
-          p = z * dir;
-          p.z += t;
-
-          // OPTIMIZATION 2: Reduced inner loop from 6 -> 4
-          // OPTIMIZATION 3: Pre-calculated constants
-          for(float j = 1.0; j < 4.0; j++) {
-            // Replaced / 6.0 with * 0.166
-            p += sin(ceil(p.z * 20.0 + j * vec3(1.0, 2.0, 3.0)) * 0.166 * j) / j;
-          }
-
-          // Distance Field
-          // Replaced / 5.0 with * 0.2
-          f_val = (p.y - z * 0.5 - 2.0 - length(cos(p.xz + 0.5 * z))) * 0.2;
-          
-          z += f_val;
-
-          // Accumulate Color
-          // Using abs() prevents negative artifacts
-          o += 9.0 / abs(f_val);
-        }
-
-        // Tone Mapping
-        // 5000000.0 is the magic number from original golfed code
-        vec3 finalColor = tanh(5000000.0 / (o * o));
-        
-        fragColor = vec4(finalColor, 1.0);
-      }
-    `;
-
-    // --- Boilerplate ---
-    const createShader = (gl, type, source) => {
+    const createShader = (type: number, source: string) => {
       const shader = gl.createShader(type);
+      if (!shader) return null;
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         return null;
       }
       return shader;
     };
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-    const program = gl.createProgram();
+    const vertexShader = createShader(gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = createShader(gl.FRAGMENT_SHADER, fsSource);
+    if (!vertexShader || !fragmentShader) return;
 
+    const program = gl.createProgram();
+    if (!program) return;
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
-    gl.useProgram(program);
 
-    // Geometry
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+
+    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+    const resolutionUniformLocation = gl.getUniformLocation(program, 'r');
+    const timeUniformLocation = gl.getUniformLocation(program, 't');
+
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1, -1,
+      1, -1,
+      -1, 1,
+      -1, 1,
+      1, -1,
+      1, 1,
+    ]), gl.STATIC_DRAW);
 
-    const posLoc = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(posLoc);
-    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Uniforms
-    const rLoc = gl.getUniformLocation(program, "r");
-    const tLoc = gl.getUniformLocation(program, "t");
-
-    let animationFrameId;
-    const startTime = Date.now();
+    let animationFrameId: number;
+    const startTime = performance.now();
 
     const render = () => {
-      // OPTIMIZATION 4: Smart Resizing
-      // We calculate the required buffer size based on window size * PIXEL_SCALE
-      const displayWidth = Math.floor(canvas.clientWidth * PIXEL_SCALE);
-      const displayHeight = Math.floor(canvas.clientHeight * PIXEL_SCALE);
+      const displayWidth = canvas.clientWidth;
+      const displayHeight = canvas.clientHeight;
 
-      // Only resize the GL context if the display size has changed
       if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
         canvas.width = displayWidth;
         canvas.height = displayHeight;
         gl.viewport(0, 0, canvas.width, canvas.height);
       }
 
-      const time = (Date.now() - startTime) * 0.001;
+      gl.useProgram(program);
+      gl.bindVertexArray(vao);
 
-      gl.uniform2f(rLoc, canvas.width, canvas.height);
-      gl.uniform1f(tLoc, time);
+      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
+      gl.uniform1f(timeUniformLocation, (performance.now() - startTime) / 1000);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       animationFrameId = requestAnimationFrame(render);
@@ -145,19 +101,10 @@ const SwarmShaderOptimized = () => {
       gl.deleteProgram(program);
       gl.deleteShader(vertexShader);
       gl.deleteShader(fragmentShader);
-      gl.deleteBuffer(positionBuffer);
     };
   }, []);
 
-  return (
-    <div style={{ width: '100%', height: '100vh', background: '#000' }}>
-      <canvas
-        ref={canvasRef}
-        // CSS ensures it fills the screen, even if internal resolution is lower
-        style={{ width: '100%', height: '100%', display: 'block' }}
-      />
-    </div>
-  );
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
 };
 
-export default SwarmShaderOptimized;
+export default MosaicShader;

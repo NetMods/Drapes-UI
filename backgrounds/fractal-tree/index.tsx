@@ -29,7 +29,6 @@ const FractalTree = ({
     let width = 0;
     let height = 0;
 
-    // Canvas Resizing Logic
     const resizeCanvas = () => {
       const dpr = window.devicePixelRatio || 1;
       const w = canvas.offsetWidth;
@@ -44,11 +43,9 @@ const FractalTree = ({
       width = w;
       height = h;
 
-      // Restart animation on resize
       start();
     };
 
-    // Math Constants
     const r180 = Math.PI;
     const r90 = Math.PI / 2;
     const r15 = Math.PI / 12;
@@ -59,14 +56,12 @@ const FractalTree = ({
     let prevSteps: (() => void)[] = [];
     let lastTime = performance.now();
 
-    // Helper: Polar to Cartesian
     const polar2cart = (x = 0, y = 0, r = 0, theta = 0) => {
       const dx = r * Math.cos(theta);
       const dy = r * Math.sin(theta);
       return [x + dx, y + dy];
     };
 
-    // Step Logic
     const step = (x: number, y: number, rad: number, counter: { value: number } = { value: 0 }) => {
       const length = random() * branchLength;
       counter.value += 1;
@@ -81,19 +76,14 @@ const FractalTree = ({
       const rad1 = rad + random() * r15;
       const rad2 = rad - random() * r15;
 
-      // Boundary check
       if (nx < -100 || nx > width + 100 || ny < -100 || ny > height + 100) return;
 
       const rate = counter.value <= maxDepth ? 0.8 : branchProbability;
 
-      // Left branch
       if (random() < rate) steps.push(() => step(nx, ny, rad1, counter));
-
-      // Right branch
       if (random() < rate) steps.push(() => step(nx, ny, rad2, counter));
     };
 
-    // Random Root Generator
     const randomMiddle = () => random() * 0.6 + 0.2;
 
     const randomRoot = () => {
@@ -111,7 +101,6 @@ const FractalTree = ({
       }
     };
 
-    // Animation Loop
     const frame = () => {
       const currentTime = performance.now();
 
@@ -121,12 +110,10 @@ const FractalTree = ({
         lastTime = currentTime;
 
         if (!prevSteps.length) {
-          // If tree died out, spawn new root occasionally
           if (random() < 0.05) randomRoot();
         }
 
         prevSteps.forEach((i) => {
-          // 50% chance to defer the step to next frame (simulates organic uneven growth)
           if (random() < 0.5) steps.push(i);
           else i();
         });
