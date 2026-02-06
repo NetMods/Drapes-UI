@@ -96,7 +96,7 @@ export default function Page() {
         <div className="flex justify-center gap-3 items-center max-sm:w-full">
           <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2 backdrop-blur-xl' />
           <div
-            className="max-sm:bg-white/10 rounded max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl py-0.5 lg:text-3xl w-full md:w-60 flex justify-center items-center backdrop-blur-xl"
+            className="max-sm:bg-white/10 rounded text-base-content max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl py-0.5 lg:text-3xl w-full md:w-60 flex justify-center items-center backdrop-blur-xl"
           >
             {config.name}
           </div>

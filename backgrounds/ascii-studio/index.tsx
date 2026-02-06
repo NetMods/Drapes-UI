@@ -212,7 +212,6 @@ const AsciiStudio = ({
   colored = true,
 }: AsciiProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const reqIdRef = useRef<number>(0);
@@ -283,7 +282,7 @@ const AsciiStudio = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl2", { alpha: false, preserveDrawingBuffer: true });
+    const gl = canvas.getContext("webgl2", { alpha: false });
     if (!gl) return;
     glRef.current = gl;
 
@@ -378,22 +377,20 @@ const AsciiStudio = ({
         }
       }
 
-      // --- Resize ---
-      const container = containerRef.current;
       const canvas = canvasRef.current;
-      if (container && canvas) {
+      if (canvas) {
         const dpr = window.devicePixelRatio || 1;
-        const width = container.clientWidth * dpr;
-        const height = container.clientHeight * dpr;
+        const { width, height } = canvas.getBoundingClientRect();
+        const w = width * dpr;
+        const h = height * dpr;
 
-        if (canvas.width !== width || canvas.height !== height) {
-          canvas.width = width;
-          canvas.height = height;
-          gl.viewport(0, 0, width, height);
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+          gl.viewport(0, 0, w, h);
         }
       }
 
-      // --- Draw ---
       gl.useProgram(program);
       const u = uniformsRef.current;
 
@@ -466,24 +463,7 @@ const AsciiStudio = ({
   }, [source, mediaType]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        width: "100%",
-        height: "100%",
-        position: "relative",
-        overflow: "hidden",
-        backgroundColor
-      }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "block",
-        }}
-      />
+    <>
       {mediaType === "video" && (
         <video
           ref={videoRef}
@@ -493,7 +473,18 @@ const AsciiStudio = ({
           style={{ display: "none" }}
         />
       )}
-    </div>
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1,
+        }}
+      />
+    </>
   );
 };
 
