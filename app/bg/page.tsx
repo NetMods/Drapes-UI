@@ -86,19 +86,19 @@ export default function Page() {
   return (
     <div>
       <div className="flex justify-between items-center p-1 text-base-content/70 max-sm:justify-center">
-        <SettingsButton action={handleSettingSidebar} className='max-sm:hidden' />
+        <SettingsButton action={handleSettingSidebar} className='max-sm:hidden backdrop-blur-xl' />
 
         <div className="flex justify-center gap-3 items-center max-sm:w-full">
-          <LeftButton action={handleLeft} isDisabled={currentId === 1 || isRecording} className='max-sm:hidden p-2' />
-          <div className="max-sm:bg-white/10 rounded max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
-          <RightButton action={handleRight} isDisabled={currentId === totalBackground || isRecording} className='max-sm:hidden p-2' />
+          <LeftButton action={handleLeft} isDisabled={currentId === 1 || isRecording} className='max-sm:hidden p-2 backdrop-blur-xl' />
+          <div className="max-sm:bg-white/10 py-0.5 rounded backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground || isRecording} className='max-sm:hidden p-2 backdrop-blur-xl' />
         </div>
 
-        <CodeButton action={handleCodeSidebar} className='max-sm:hidden' />
+        <CodeButton action={handleCodeSidebar} className='max-sm:hidden  backdrop-blur-xl' />
       </div>
 
       <div className="inset-0 fixed top-0 left-0 -z-10">
-        <Component {...props} />
+        <Component key={currentId} {...props} />
       </div>
 
       <LeftButton

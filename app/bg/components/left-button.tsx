@@ -1,9 +1,6 @@
 import { cn } from "@/lib/utils"
 import { ArrowLeftIcon } from "@phosphor-icons/react"
 
-
-
-
 const LeftButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
   return (
     <button
@@ -16,6 +13,8 @@ const LeftButton = ({ action, isDisabled, className, size }: { action: () => voi
     </button>
   )
 }
+
+
 
 
 export default LeftButton

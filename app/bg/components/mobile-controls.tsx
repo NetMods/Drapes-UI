@@ -4,7 +4,6 @@ import CodeButton from "./code-button";
 import { useState } from "react";
 
 
-
 const MobileControls = ({ handleSettingSidebar, handleCodeSidebar }: { handleSettingSidebar: () => void; handleCodeSidebar: () => void }) => {
   const [isClicked, setIsClicked] = useState(false);
 
@@ -32,5 +31,4 @@ const MobileControls = ({ handleSettingSidebar, handleCodeSidebar }: { handleSet
     </div>
   )
 }
-
 export default MobileControls

@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react"
 
+
 const RightButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
   return (
     <button
@@ -12,7 +13,6 @@ const RightButton = ({ action, isDisabled, className, size }: { action: () => vo
     </button>
   )
 }
-
 
 export default RightButton
 
