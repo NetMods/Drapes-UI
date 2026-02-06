@@ -15,7 +15,7 @@ export default {
     scale: 0.1,
     tileSize: 3.0,
     perspective: 3.0,
-    colorIntensity: 0.6,
+    colorIntensity: 0.75,
     noiseFrequency: 7000.0,
     rotation: 0,
     translateX: 0,
@@ -85,7 +85,7 @@ export default {
       min: 0.1,
       max: 1.0,
       step: 0.05,
-      defaultValue: 0.6,
+      defaultValue: 0.75,
       description: 'Brightness of colors',
     },
     {

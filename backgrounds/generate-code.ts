@@ -1,8 +1,10 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, statSync } from 'fs';
 import { join } from 'path';
 import { glob } from 'glob';
-import { BundledTheme, codeToHtml } from 'shiki';
+import { BundledTheme, codeToHtml, createHighlighter } from 'shiki';
 import { transform } from 'sucrase';
+
+const force = process.argv.includes('--force');
 
 export const convertTsToJs = (tsCode: string): string => {
   const result = transform(tsCode, {
@@ -46,7 +48,21 @@ function kebabToPascal(str: string): string {
     .join('');
 }
 
-async function processFile(file: string) {
+function isStale(file: string): boolean {
+  const dir = file.replace('/index.tsx', '');
+  const codePath = join(dir, 'code.ts');
+  const configPath = join(dir, 'config.ts');
+
+  if (!existsSync(codePath)) return true;
+
+  const codeMtime = statSync(codePath).mtimeMs;
+  const indexMtime = statSync(file).mtimeMs;
+  const configMtime = existsSync(configPath) ? statSync(configPath).mtimeMs : 0;
+
+  return indexMtime > codeMtime || configMtime > codeMtime;
+}
+
+async function processFile(file: string, highlighter: Awaited<ReturnType<typeof createHighlighter>>) {
   console.log(`\n- Processing file: ${file}`);
 
   let tsxCode: string = "";
@@ -126,11 +142,9 @@ async function processFile(file: string) {
   const theme = 'vesper' as BundledTheme;
 
   try {
-    [tsxCodeHTML, jsxCodeHTML, usageCodeHTML] = await Promise.all([
-      codeToHtml(tsxCode, { lang: 'tsx', theme }),
-      codeToHtml(jsxCode, { lang: 'jsx', theme }),
-      codeToHtml(usageCode, { lang: 'jsx', theme })
-    ]);
+    tsxCodeHTML = highlighter.codeToHtml(tsxCode, { lang: 'tsx', theme });
+    jsxCodeHTML = highlighter.codeToHtml(jsxCode, { lang: 'jsx', theme });
+    usageCodeHTML = highlighter.codeToHtml(usageCode, { lang: 'jsx', theme });
     console.log(`✓ Generated syntax-highlighted HTML for all sections`);
   } catch (err) {
     console.error(`Failed to generate HTML with Shiki:`, err);
@@ -160,8 +174,22 @@ function writeOutput(dir: string, tsxCodeHTML: string, tsxCode: string, jsxCodeH
 
 (async () => {
   const backgrounds = glob.sync('backgrounds/*/index.tsx');
-  for (const file of backgrounds) {
-    await processFile(file);
+  const toProcess = force ? backgrounds : backgrounds.filter(isStale);
+
+  if (toProcess.length === 0) {
+    console.log(`All ${backgrounds.length} code.ts files are up to date. Skipping.`);
+    return;
   }
+
+  console.log(`Processing ${toProcess.length}/${backgrounds.length} backgrounds${force ? ' (forced)' : ''}...`);
+
+  const highlighter = await createHighlighter({
+    themes: ['vesper'],
+    langs: ['tsx', 'jsx'],
+  });
+
+  await Promise.all(toProcess.map(file => processFile(file, highlighter)));
+
+  highlighter.dispose();
   console.log('All components processed.');
 })();

@@ -3,9 +3,27 @@ import { useEffect, useRef } from 'react';
 
 interface WinterForestProps {
   speed?: number;
+  backgroundColor?: string;
+  snowflakeColor?: string;
+  treeColor?: string;
+  treeCount?: number;
+  windStrength?: number;
+  snowflakeSize?: number;
+  snowSpeed?: number;
+  direction?: 'left' | 'right' | 'none';
 }
 
-const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
+const WinterForest = ({
+  speed = 1.0,
+  backgroundColor = '#e8e8e8',
+  snowflakeColor = '#ffffff',
+  treeColor = '#000000',
+  treeCount = 47,
+  windStrength = 9,
+  snowflakeSize = 2,
+  snowSpeed = 99,
+  direction = 'right',
+}: WinterForestProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
 
@@ -37,15 +55,14 @@ const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
       const x = ctx;
       const S = Math.sin;
 
-      const displayWidth = c.offsetWidth;
       const displayHeight = c.offsetHeight;
 
       // Clear with background color
       x.setTransform(1, 0, 0, 1, 0, 0);
-      x.fillStyle = '#f8f9fa';
+      x.fillStyle = backgroundColor;
       x.fillRect(0, 0, c.width, c.height);
 
-      let j = 47;
+      let j = treeCount;
 
       while (j--) {
         let T = 170;
@@ -60,10 +77,11 @@ const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
         while ((w = i-- / 3)) {
           let y = h - i;
 
-          let X = (j ** 5 - t * T);
+          const dir = direction === 'left' ? -1 : direction === 'right' ? 1 : 0;
+          let X = (j ** 5 - t * T * dir);
 
-          // Draw the Tree (Black Rects)
-          x.fillStyle = '#000000';
+          // Draw the Tree
+          x.fillStyle = treeColor;
           x.fillRect(
             (X % 2500) - (h * y % w) - T,
             (displayHeight * 0.43) - y,
@@ -71,12 +89,13 @@ const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
             3 / (j ** 0.6)
           );
 
-          // Draw the Snow (Clear Rects)
-          let r = (i % 5) + 2;
+          // Draw the Snow
+          let r = (i % 5) + snowflakeSize;
 
-          x.clearRect(
-            (X + i * T) % 2500 + S(t * 3 + i) * 9,
-            (t * 99 + i ** 5) % (displayHeight * 0.43),
+          x.fillStyle = snowflakeColor;
+          x.fillRect(
+            (X + i * T) % 2500 + S(t * 3 + i) * windStrength,
+            (t * snowSpeed + i ** 5) % (displayHeight * 0.43),
             r,
             r
           );
@@ -94,7 +113,7 @@ const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [speed]);
+  }, [speed, backgroundColor, snowflakeColor, treeColor, treeCount, windStrength, snowflakeSize, snowSpeed, direction]);
 
   return (
     <canvas
@@ -106,7 +125,7 @@ const WinterForest = ({ speed = 1.0 }: WinterForestProps) => {
         width: '100%',
         height: '100%',
         zIndex: -10,
-        backgroundColor: '#f8f9fa'
+        backgroundColor: backgroundColor
       }}
     />
   );
