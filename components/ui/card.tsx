@@ -124,9 +124,9 @@ export const BackgroundCard = ({
             </div>
 
             <div className={cn(
-              "absolute top-0 right-2 group flex justify-center items-center",
+              "absolute top-0 right-2 max-md:top-1 max-md:right-0 group flex justify-center items-center",
               "transition-transform duration-500 ease-out",
-              isHovered && '-translate-y-8'
+              isHovered && 'md:-translate-y-8'
             )}>
               <a
                 href={config.author.redirectUrl}
@@ -156,7 +156,6 @@ export const BackgroundCard = ({
               </a>
             </div>
           </div>
-
         </div>
         <button
           className={cn(
