@@ -12,7 +12,7 @@ export default {
   defaultProps: {
     mediaType: 'image',
     ditherMode: 'bayer',
-    isGrayscale: false,
+    colorTheme: 'colorful',
     bayerLevel: 8,
     source: '/data/vegeta.png',
     brightness: 0,
@@ -77,11 +77,12 @@ export default {
       description: 'Determines the density of the Bayer dithering pattern.',
     },
     {
-      key: 'isGrayscale',
-      label: 'Grayscale Mode',
-      type: 'toggle',
-      defaultValue: false,
-      description: 'Convert the output to black and white.',
+      key: 'colorTheme',
+      label: 'Color Theme',
+      type: 'select',
+      options: ['colorful', 'monochrome', 'ink-paper', 'amber-glow', 'pure-ink', 'game-boy', 'nes', 'terminal', 'blueprint', 'neon-punk'],
+      defaultValue: 'colorful',
+      description: 'Choose a color theme for the dithered output.',
     },
     {
       key: 'pixelSize',

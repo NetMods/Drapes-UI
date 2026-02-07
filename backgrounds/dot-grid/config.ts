@@ -3,7 +3,7 @@ import { jsxCode, tsxCode, tsxCodeHTML, jsxCodeHTML, usageCodeHTML, usageCode } 
 
 export default {
   name: 'Dot Grid',
-  description: 'A dynamic background featuring a grid of dots that smoothly scale and animate on hover interaction.',
+  description: 'A dynamic background featuring a grid of dots that displace away from the cursor.',
   author: {
     name: "Aryan",
     imageUrl: 'https://pbs.twimg.com/profile_images/1927618320246919168/nvaCh-o8_400x400.jpg',
@@ -13,15 +13,12 @@ export default {
   defaultProps: {
     dotSpacing: 30,
     dotBaseSize: 2,
-    influenceRadius: 150,
-    maxScale: 8,
+    influenceRadius: 200,
+    displacementStrength: 40,
     backgroundColor: '#0a0a0a',
-    glowColor: '#8b5cf6',
     dotColor: '#646464',
-    activeDotColor: '#a78bfa',
-    glowCoreColor: '#ffffff',
-    numLayers: 2,
-    hiddots: false,
+    mouseInteraction: true,
+    shape: 'circle',
   },
   code: {
     usage: usageCodeHTML,
@@ -40,32 +37,11 @@ export default {
       description: 'The overall background color for the dot grid.',
     },
     {
-      key: 'glowColor',
-      label: 'Glow Color',
-      type: 'color',
-      defaultValue: '#8b5cf6',
-      description: 'The outer glow color applied to scaled dots on hover.',
-    },
-    {
       key: 'dotColor',
       label: 'Dot Color',
       type: 'color',
       defaultValue: '#646464',
-      description: 'The base color for inactive/normal dots.',
-    },
-    {
-      key: 'activeDotColor',
-      label: 'Active Dot Color',
-      type: 'color',
-      defaultValue: '#a78bfa',
-      description: 'The color for middle layers of dots during hover interaction.',
-    },
-    {
-      key: 'glowCoreColor',
-      label: 'Glow Core Color',
-      type: 'color',
-      defaultValue: '#ffffff',
-      description: 'The bright core color at the center of active dots.',
+      description: 'The color of the dots.',
     },
     {
       key: 'dotSpacing',
@@ -78,6 +54,21 @@ export default {
       description: 'The distance between individual dots in the grid.',
     },
     {
+      key: 'mouseInteraction',
+      label: 'Mouse Interaction',
+      type: 'toggle',
+      defaultValue: true,
+      description: 'Enable or disable the mouse displacement effect.',
+    },
+    {
+      key: 'shape',
+      label: 'Shape',
+      type: 'select',
+      options: ['circle', 'triangle', 'square'],
+      defaultValue: 'circle',
+      description: 'The shape used for each dot in the grid.',
+    },
+    {
       key: 'dotBaseSize',
       label: 'Dot Size',
       type: 'slider',
@@ -88,14 +79,14 @@ export default {
       description: 'The base size of each dot in the grid.',
     },
     {
-      key: 'maxScale',
-      label: 'Scaled Dots Size',
+      key: 'displacementStrength',
+      label: 'Displacement Strength',
       type: 'slider',
       min: 0,
-      max: 20,
-      step: 2,
-      defaultValue: 8,
-      description: 'The maximum scale factor applied to dots during hover interaction.',
+      max: 200,
+      step: 10,
+      defaultValue: 40,
+      description: 'How far dots are pushed away from the cursor.',
     },
     {
       key: 'influenceRadius',
@@ -104,25 +95,8 @@ export default {
       min: 0,
       max: 400,
       step: 10,
-      defaultValue: 150,
-      description: 'The radius within which dots respond to hover by scaling.',
+      defaultValue: 200,
+      description: 'The radius within which dots respond to the cursor.',
     },
-    {
-      key: 'numLayers',
-      label: 'Number of Layers',
-      type: 'slider',
-      min: 0,
-      max: 10,
-      step: 1,
-      defaultValue: 2,
-      description: 'The number of overlapping dot grid layers for added depth.',
-    },
-    {
-      key: "hiddots",
-      label: "Hide Dots",
-      value: false,
-      type: 'toggle',
-      description: "Hide the dots and only show when hovered"
-    }
   ],
 } as Omit<BackgroundConfig, 'id'>;
