@@ -124,7 +124,7 @@ export default function Page() {
         handleCodeSidebar={handleCodeSidebar}
       />
       <ToolButton
-        className='fixed bottom-4 left-1/2'
+        className='hidden sm:fixed bottom-4 left-1/2'
         backgroundName={config.name}
         onRecordingStateChange={setIsRecording}
        />

@@ -1,4 +1,4 @@
-import { DotsThreeCircleIcon, CameraIcon, RecordIcon, StopCircleIcon, XIcon } from "@phosphor-icons/react"
+import { CameraIcon, PlayIcon, StopCircleIcon, XIcon, WrenchIcon } from "@phosphor-icons/react"
 import { cn, captureScreenshot, getCanvasElement, startCanvasRecording, RecordingController } from "@/lib/utils"
 import { useState, useRef } from "react"
 
@@ -68,7 +68,7 @@ const ToolButton = ({
   ]
 
   const rightTools = [
-    { icon: isRecording ? StopCircleIcon : RecordIcon, label: isRecording ? "Stop Recording" : "Record", onClick: handleRecordToggle, isRecording },
+    { icon: isRecording ? StopCircleIcon : PlayIcon, label: isRecording ? "Stop Recording" : "Record", onClick: handleRecordToggle, isRecording },
   ]
 
   return (
@@ -90,7 +90,7 @@ const ToolButton = ({
             transitionDelay: isOpen ? `${index * 50}ms` : `${(leftTools.length - index - 1) * 50}ms`
           }}
         >
-          <item.icon size={23} />
+          <item.icon weight="duotone" size={23} />
         </button>
       ))}
 
@@ -101,7 +101,7 @@ const ToolButton = ({
           isOpen && "rotate-90"
         )}
       >
-        {isOpen ? <XIcon size={23} /> : <DotsThreeCircleIcon size={23} />}
+        {isOpen ? <XIcon size={23} /> : <WrenchIcon weight="duotone" size={23} />}
       </button>
 
       {rightTools.map((item, index) => (
@@ -114,7 +114,7 @@ const ToolButton = ({
             isOpen
               ? "opacity-100 scale-100 ml-2"
               : "opacity-0 scale-0 w-0 pointer-events-none",
-            item.isRecording
+            item.label.includes("Record") && item.isRecording
               ? "text-red-500 bg-red-500/20 animate-pulse"
               : "text-base-content/70"
           )}
@@ -122,7 +122,7 @@ const ToolButton = ({
             transitionDelay: isOpen ? `${index * 50}ms` : `${(rightTools.length - index - 1) * 50}ms`
           }}
         >
-          <item.icon size={23} />
+          <item.icon weight="duotone" size={23} />
         </button>
       ))}
     </div>
