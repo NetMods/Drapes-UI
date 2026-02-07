@@ -207,21 +207,9 @@ pnpm dev
 
 ## Step 5: Registering the Background in `backgrounds/index.ts`
 
-To make your background discoverable by the application, add an import statement in the root `backgrounds/index.ts` file. This ensures it's included in the exported backgrounds registry.
-
-1. Open `backgrounds/index.ts`.
-2. Add the import in the same respective order as existing imports.
-3. Example import:
-```tsx
-   ...
-   import DotGrid from './dot-grid';
-
-   ...
-   import dotGridConfig from './dot-grid/config';
-```
-
-
-This step is essential for runtime loading and prevents the component from being excluded from builds.
+1. To add a background, add its folder name to the list.
+2. To mark it as NEW, add a "+" to the end (e.g. 'my-bg+').
+3. The order below determines the display order in the app.
 
 ## Step 6: Submitting Your Contribution
 
