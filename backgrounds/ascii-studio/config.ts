@@ -80,7 +80,7 @@ export default {
       key: 'colorTheme',
       label: 'Color Theme',
       type: 'select',
-      options: ['colorful', 'monochrome', 'ink-paper', 'amber-glow', 'pure-ink', 'game-boy', 'nes', 'terminal', 'blueprint', 'neon-punk'],
+      options: ['colorful', 'monochrome', 'ink-paper', 'amber-glow', 'game-boy', 'nes', 'terminal', 'blueprint', 'neon-punk'],
       defaultValue: 'colorful',
       description: 'Choose a color theme for the ASCII output.',
     },

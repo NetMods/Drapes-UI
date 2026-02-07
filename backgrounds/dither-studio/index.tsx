@@ -6,19 +6,18 @@ export type DitherMode = "none" | "bayer" | "floyd";
 export type BayerLevel = 2 | 4 | 8 | 16;
 export type MediaType = "image" | "video";
 export type ObjectFit = "contain" | "cover" | "fill";
-export type ColorTheme = 'colorful' | 'monochrome' | 'ink-paper' | 'amber-glow' | 'pure-ink' | 'game-boy' | 'nes' | 'terminal' | 'blueprint' | 'neon-punk';
+export type ColorTheme = 'colorful' | 'monochrome' | 'ink-paper' | 'amber-glow' | 'game-boy' | 'nes' | 'terminal' | 'blueprint' | 'neon-punk';
 
 const THEME_COLORS: Record<ColorTheme, { fg: [number, number, number]; bg: [number, number, number]; useOriginalColors: boolean }> = {
-  'colorful':   { fg: [1, 1, 1],          bg: [0, 0, 0],          useOriginalColors: true },
-  'monochrome': { fg: [1, 1, 1],          bg: [0, 0, 0],          useOriginalColors: false },
-  'ink-paper':  { fg: [0.11, 0.09, 0.08], bg: [0.96, 0.94, 0.91], useOriginalColors: false },
-  'amber-glow': { fg: [1, 0.69, 0],       bg: [0.1, 0.03, 0],    useOriginalColors: false },
-  'pure-ink':   { fg: [0, 0, 0],          bg: [1, 1, 1],          useOriginalColors: false },
-  'game-boy':   { fg: [0.19, 0.38, 0.19], bg: [0.61, 0.74, 0.06], useOriginalColors: false },
-  'nes':        { fg: [0.97, 0.97, 0.97], bg: [0, 0.25, 0.66],   useOriginalColors: false },
-  'terminal':   { fg: [0, 1, 0.25],       bg: [0.05, 0.05, 0.05], useOriginalColors: false },
-  'blueprint':  { fg: [0.88, 0.93, 1],    bg: [0.04, 0.09, 0.16], useOriginalColors: false },
-  'neon-punk':  { fg: [1, 0.08, 0.58],    bg: [0.06, 0, 0.13],   useOriginalColors: false },
+  'colorful': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: true },
+  'monochrome': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: false },
+  'ink-paper': { fg: [0.11, 0.09, 0.08], bg: [0.96, 0.94, 0.91], useOriginalColors: false },
+  'amber-glow': { fg: [1, 0.69, 0], bg: [0.1, 0.03, 0], useOriginalColors: false },
+  'game-boy': { fg: [0.19, 0.38, 0.19], bg: [0.61, 0.74, 0.06], useOriginalColors: false },
+  'nes': { fg: [0.97, 0.97, 0.97], bg: [0, 0.25, 0.66], useOriginalColors: false },
+  'terminal': { fg: [0, 1, 0.25], bg: [0.05, 0.05, 0.05], useOriginalColors: false },
+  'blueprint': { fg: [0.88, 0.93, 1], bg: [0.04, 0.09, 0.16], useOriginalColors: false },
+  'neon-punk': { fg: [1, 0.08, 0.58], bg: [0.06, 0, 0.13], useOriginalColors: false },
 };
 
 interface DitherProps {
