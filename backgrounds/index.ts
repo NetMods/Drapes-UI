@@ -13,6 +13,7 @@ import WaveColumns from './wave-columns'
 import FractalTree from './fractal-tree'
 import CyberGrid from './cyber-grid'
 import PlasmaWave from './plasma-wave'
+import HalftoneStudio from './halftone-studio'
 import DistortedRipple from './distorted-ripple'
 import ChromaticSpiral from './chromatic-spiral'
 import FluidLines from './fluid-lines'
@@ -45,6 +46,7 @@ import waveColumnsConfig from './wave-columns/config';
 import fractalTreeConfig from './fractal-tree/config';
 import cyberGridConfig from './cyber-grid/config';
 import plasmaWaveConfig from './plasma-wave/config';
+import halftoneStudioConfig from './halftone-studio/config';
 import distortedRippleConfig from './distorted-ripple/config';
 import chromaticSpiralConfig from './chromatic-spiral/config';
 import fluidLinesConfig from './fluid-lines/config';
@@ -77,6 +79,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: fractalTreeConfig, component: FractalTree },
   { config: cyberGridConfig, component: CyberGrid, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
+  { config: halftoneStudioConfig, component: HalftoneStudio, isNew: true },
   { config: distortedRippleConfig, component: DistortedRipple },
   { config: chromaticSpiralConfig, component: ChromaticSpiral, isNew: true },
   { config: fluidLinesConfig, component: FluidLines },

@@ -20,6 +20,7 @@ export const RegistryEntries = [
   'fractal-tree',
   'cyber-grid+',
   'plasma-wave',
+  'halftone-studio+',
   'distorted-ripple',
   'chromatic-spiral+',
   'fluid-lines',

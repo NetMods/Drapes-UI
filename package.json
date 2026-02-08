@@ -6,9 +6,10 @@
     "generate-index": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-index.ts",
     "generate-codes": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts",
     "generate-codes:force": "NODE_NO_WARNINGS=1 pnpx tsx backgrounds/generate-code.ts --force",
-    "generate": "pnpm run generate-index && pnpm run generate-codes",
-    "dev": "pnpm run generate && next dev --turbo",
-    "build": "pnpm run generate && next build",
+    "generate-dev": "pnpm run generate-index && pnpm run generate-codes",
+    "generate-build": "pnpm run generate-index && pnpm run generate-codes:force",
+    "dev": "pnpm run generate-dev && next dev --turbo",
+    "build": "pnpm run generate-build && next build",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write"

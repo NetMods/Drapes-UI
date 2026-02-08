@@ -10,6 +10,7 @@ import { Badge } from './badge';
 import Avatar from './avatar';
 import { toolTipStyle } from './tooltip';
 import { useState, useRef } from 'react';
+import { analytics } from '@/lib/analytics';
 
 interface BackgroundCardProps {
   config: BackgroundConfig;
@@ -47,10 +48,15 @@ export const BackgroundCard = ({
     setIsHovered(false);
   };
 
-  const OpenPreview = () => router.push(`/bg?id=${config.id}`);
+  const OpenPreview = () => {
+    analytics.cardPreview(config.id || '', config.name);
+    router.push(`/bg?id=${config.id}`);
+  };
 
   const handleShowCode = () => {
+    analytics.cardCode(config.id || '', config.name);
     const data: CodeSidebarData = {
+      id: config.id,
       name: config.name,
       usage: config.code.usage,
       rawUsage: config.code.rawUsage,
@@ -79,7 +85,7 @@ export const BackgroundCard = ({
         <div className="size-full card" >
           <div className="size-full object-cover flex relative" onClick={OpenPreview} >
             <img
-              src={`/thumbnails/${config.name.split(' ').join('-').toLowerCase()}.webp`}
+              src={`/thumbnails/${config.name?.split(' ').join('-').toLowerCase()}.webp`}
               className={cn(
                 'w-full h-full object-cover',
                 isHovered && 'hidden'
@@ -129,19 +135,19 @@ export const BackgroundCard = ({
               isHovered && 'md:-translate-y-8'
             )}>
               <a
-                href={config.author.redirectUrl}
+                href={config.author?.redirectUrl}
                 target='_blank'
                 rel='noopener noreferrer'
               >
                 <Avatar
-                  url={config.author.imageUrl}
+                  url={config.author?.imageUrl}
                   className={cn(
                     'rounded-full border-2 border-base-content/20 size-10',
                     'cursor-pointer md:size-16',
                   )}
                 />
                 <span className={cn(toolTipStyle, "font-semibold px-1 py-0 whitespace-nowrap")}>
-                  @{config.author.name}
+                  @{config.author?.name}
                 </span>
                 <span
                   className={cn(
