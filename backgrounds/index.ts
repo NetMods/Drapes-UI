@@ -11,9 +11,10 @@ import NeonHighway from './neon-highway'
 import AsciiStudio from './ascii-studio'
 import WaveColumns from './wave-columns'
 import HalftoneStudio from './halftone-studio'
-import DottedSurface from './dotted-surface'
+import NeuralField from './neural-field'
 import FractalTree from './fractal-tree'
 import BadTelevision from './bad-television'
+import DottedSurface from './dotted-surface'
 import LiquidWarp from './liquid-warp'
 import CyberGrid from './cyber-grid'
 import DistortedRipple from './distorted-ripple'
@@ -48,9 +49,10 @@ import neonHighwayConfig from './neon-highway/config';
 import asciiStudioConfig from './ascii-studio/config';
 import waveColumnsConfig from './wave-columns/config';
 import halftoneStudioConfig from './halftone-studio/config';
-import dottedSurfaceConfig from './dotted-surface/config';
+import neuralFieldConfig from './neural-field/config';
 import fractalTreeConfig from './fractal-tree/config';
 import badTelevisionConfig from './bad-television/config';
+import dottedSurfaceConfig from './dotted-surface/config';
 import liquidWarpConfig from './liquid-warp/config';
 import cyberGridConfig from './cyber-grid/config';
 import distortedRippleConfig from './distorted-ripple/config';
@@ -85,9 +87,10 @@ const registerEntry: BackgroundEntry[] = [
   { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
   { config: waveColumnsConfig, component: WaveColumns },
   { config: halftoneStudioConfig, component: HalftoneStudio, isNew: true },
-  { config: dottedSurfaceConfig, component: DottedSurface },
+  { config: neuralFieldConfig, component: NeuralField },
   { config: fractalTreeConfig, component: FractalTree },
   { config: badTelevisionConfig, component: BadTelevision, isNew: true },
+  { config: dottedSurfaceConfig, component: DottedSurface },
   { config: liquidWarpConfig, component: LiquidWarp },
   { config: cyberGridConfig, component: CyberGrid },
   { config: distortedRippleConfig, component: DistortedRipple },
