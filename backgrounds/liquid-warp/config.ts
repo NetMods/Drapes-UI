@@ -11,7 +11,7 @@ export default {
   },
   tags: ['animated', 'shader', 'liquid', 'warp', 'colorful'],
   defaultProps: {
-    speed: 0.1,
+    speed: 0.01,
     warpIntensity: 1.5,
     warpFrequency: 10.0,
     iterations: 10,
@@ -39,7 +39,7 @@ export default {
       min: 0.01,
       max: 0.5,
       step: 0.01,
-      defaultValue: 0.1,
+      defaultValue: 0.01,
       description: 'Overall animation speed',
     },
     {
