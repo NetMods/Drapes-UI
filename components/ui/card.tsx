@@ -32,19 +32,11 @@ export const BackgroundCard = ({
   const router = useRouter();
   const { openCodeSidebar } = useCodeSidebar();
 
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const handleMouseEnter = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsHovered(true);
-    }, 100);
+    setIsHovered(true);
   };
 
   const handleMouseLeave = () => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
     setIsHovered(false);
   };
 
@@ -128,7 +120,6 @@ export const BackgroundCard = ({
                 Code
               </button>
             </div>
-
             <div className={cn(
               "absolute top-0 right-2 max-md:top-1 max-md:right-0 group flex justify-center items-center",
               "transition-transform duration-500 ease-out",

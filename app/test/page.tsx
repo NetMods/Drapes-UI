@@ -1,31 +1,79 @@
-'use client'
-import React, { useLayoutEffect, useRef } from 'react';
+'use client';
+import { cn } from '@/lib/utils';
+import React, { useEffect, useRef } from 'react';
 
-const MosaicShader: React.FC = () => {
+type DottedSurfaceProps = React.ComponentProps<'div'> & {
+  dotColor?: string;
+};
+
+const mat4 = {
+  perspective: (fov: number, aspect: number, near: number, far: number) => {
+    const f = 1.0 / Math.tan(fov / 2);
+    const nf = 1 / (near - far);
+    return [
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, (2 * far * near) * nf, 0
+    ];
+  },
+  translate: (x: number, y: number, z: number) => [
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    x, y, z, 1
+  ]
+};
+
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255]
+    : [0.5, 0.5, 0.5];
+};
+
+function DottedSurface({ className, dotColor = '#808080', ...props }: DottedSurfaceProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>(0);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2');
+    const gl = canvas.getContext('webgl', { alpha: true, antialias: true });
     if (!gl) return;
 
-    const vsSource = `#version 300 es
-      in vec4 a_position;
-      void main() {
-        gl_Position = a_position;
-      }`;
+    const vsSource = `
+            attribute vec3 position;
+            attribute vec2 gridIndex;
+            
+            uniform mat4 uProjectionMatrix;
+            uniform mat4 uViewMatrix;
+            uniform float uTime;
+            
+            void main() {
+                vec3 pos = position;
+                
+                float y = sin((gridIndex.x + uTime) * 0.3) * 50.0 + sin((gridIndex.y + uTime) * 0.5) * 50.0;
+                pos.y = y;
 
-    const fsSource = `#version 300 es
-      precision highp float;
-      uniform vec2 r;
-      uniform float t;
-      out vec4 o;
-      void main() {
-        vec4 FC = gl_FragCoord;
-        vec2 p=3.*(FC.xy*2.-r)/r.y,v=p+p+(t+r)*cos(r+ceil(p+sin(p*5.))).yx;o=tanh(.1*(cos(.6*p.x+.3*sin(v.y)+vec4(0,1,2,3))+1.)/length(.9+sin(v)));
-      }`;
+                gl_Position = uProjectionMatrix * uViewMatrix * vec4(pos, 1.0);
+                
+                gl_PointSize = 8.0 * (1000.0 / gl_Position.w); 
+            }
+        `;
+
+    const fsSource = `
+            precision mediump float;
+            uniform vec3 uColor;
+            
+            void main() {
+                vec2 coord = gl_PointCoord - vec2(0.5);
+                if(length(coord) > 0.5) discard;
+                
+                gl_FragColor = vec4(uColor, 0.8)
+            }
+        `;
 
     const createShader = (type: number, source: string) => {
       const shader = gl.createShader(type);
@@ -33,6 +81,7 @@ const MosaicShader: React.FC = () => {
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         return null;
       }
@@ -41,6 +90,7 @@ const MosaicShader: React.FC = () => {
 
     const vertexShader = createShader(gl.VERTEX_SHADER, vsSource);
     const fragmentShader = createShader(gl.FRAGMENT_SHADER, fsSource);
+
     if (!vertexShader || !fragmentShader) return;
 
     const program = gl.createProgram();
@@ -48,63 +98,97 @@ const MosaicShader: React.FC = () => {
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
+    gl.useProgram(program);
 
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+    const SEPARATION = 150;
+    const AMOUNTX = 40;
+    const AMOUNTY = 60;
+    const positions: number[] = [];
+    const indices: number[] = [];
 
-    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-    const resolutionUniformLocation = gl.getUniformLocation(program, 'r');
-    const timeUniformLocation = gl.getUniformLocation(program, 't');
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+        const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+        positions.push(x, 0, z);
+        indices.push(ix, iy);
+      }
+    }
 
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1,
-      1, -1,
-      -1, 1,
-      -1, 1,
-      1, -1,
-      1, 1,
-    ]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    const vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    const positionLoc = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(positionLoc);
+    gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 0, 0);
 
-    let animationFrameId: number;
-    const startTime = performance.now();
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(indices), gl.STATIC_DRAW);
 
-    const render = () => {
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
+    const indexLoc = gl.getAttribLocation(program, 'gridIndex');
+    gl.enableVertexAttribArray(indexLoc);
+    gl.vertexAttribPointer(indexLoc, 2, gl.FLOAT, false, 0, 0);
 
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
+    const timeLoc = gl.getUniformLocation(program, 'uTime');
+    const projLoc = gl.getUniformLocation(program, 'uProjectionMatrix');
+    const viewLoc = gl.getUniformLocation(program, 'uViewMatrix');
+    const colorLoc = gl.getUniformLocation(program, 'uColor');
 
-      gl.useProgram(program);
-      gl.bindVertexArray(vao);
+    const rgb = hexToRgb(dotColor);
+    gl.uniform3fv(colorLoc, rgb);
 
-      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
-      gl.uniform1f(timeUniformLocation, (performance.now() - startTime) / 1000);
+    const viewMatrix = mat4.translate(0, -355, -1220);
+    gl.uniformMatrix4fv(viewLoc, false, new Float32Array(viewMatrix));
 
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      animationFrameId = requestAnimationFrame(render);
+    let count = 0;
+
+    const resize = () => {
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+
+      const aspect = window.innerWidth / window.innerHeight;
+      const projectionMatrix = mat4.perspective(60 * Math.PI / 180, aspect, 1, 10000);
+      gl.uniformMatrix4fv(projLoc, false, new Float32Array(projectionMatrix));
     };
 
-    render();
+    window.addEventListener('resize', resize);
+    resize();
+
+    const animate = () => {
+      count += 0.1;
+      gl.uniform1f(timeLoc, count);
+
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.POINTS, 0, positions.length / 3);
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
       gl.deleteProgram(program);
-      gl.deleteShader(vertexShader);
-      gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteBuffer(indexBuffer);
     };
-  }, []);
+  }, [dotColor]);
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
-};
-
-export default MosaicShader;
+  return (
+    <div className={cn('pointer-events-none fixed inset-0 -z-1', className)} {...props}>
+      <canvas
+        ref={canvasRef}
+        className="block h-full w-full"
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
+  );
+}
+export default DottedSurface;
