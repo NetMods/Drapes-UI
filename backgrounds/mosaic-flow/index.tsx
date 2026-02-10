@@ -12,6 +12,8 @@ interface MosaicFlowProps {
   translateX?: number;
   translateY?: number;
   backgroundColor?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
 }
 
 const MosaicFlow = ({
@@ -19,12 +21,14 @@ const MosaicFlow = ({
   scale = 0.1,
   tileSize = 3.0,
   perspective = 3.0,
-  colorIntensity = 0.75,
+  colorIntensity = 1.0,
   noiseFrequency = 7000.0,
   rotation = 0,
   translateX = 0,
   translateY = 0,
   backgroundColor = '#000000',
+  primaryColor = '#8c00ff',
+  secondaryColor = '#00eaff',
 }: MosaicFlowProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
@@ -58,6 +62,8 @@ const MosaicFlow = ({
       uniform float u_rotation;
       uniform vec2 u_translate;
       uniform vec3 u_bgColor;
+      uniform vec3 u_color1; 
+      uniform vec3 u_color2;
 
       vec2 rotate2D(vec2 p, float angle) {
         float c = cos(angle);
@@ -68,30 +74,27 @@ const MosaicFlow = ({
       void main() {
         vec2 FC = gl_FragCoord.xy;
 
-        // Normalize coordinates
         vec2 p = (2.0 * FC.xy - r) / r.y;
 
-        // Apply translation
         p += u_translate;
 
-        // Apply rotation
         p = rotate2D(p, u_rotation);
 
-        // Apply perspective and scale
         p = p / u_scale / (u_perspective - p.y) + t;
 
-        // Calculate mosaic pattern
         vec2 tiled = ceil(p + sin(p * u_tileSize).yx);
+        
         float noise = sin(dot(tiled, vec2(17.0, 79.0))) * u_noiseFrequency;
+        
+        float mixFactor = 0.5 + 0.5 * sin(noise);
 
-        // Generate colors with fixed alpha
-        vec3 color = sin(noise + vec3(0.0, 1.0, 2.0)) * u_colorIntensity + u_colorIntensity;
+        vec3 color = mix(u_color1, u_color2, mixFactor);
+        
+        color = color * u_colorIntensity;
 
-        // Clamp colors to valid range and mix with background
-        color = clamp(color, 0.0, 1.0);
-        vec3 finalColor = mix(u_bgColor, color, length(color) / 1.732);
+        float fade = smoothstep(0.0, 1.0, length(color)); 
+        vec3 finalColor = mix(u_bgColor, color, fade);
 
-        // Output with solid alpha
         gl_FragColor = vec4(finalColor, 1.0);
       }
     `;
@@ -145,7 +148,7 @@ const MosaicFlow = ({
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Get all uniform locations
+    // Get uniform locations
     const resolutionLocation = gl.getUniformLocation(program, 'r');
     const timeLocation = gl.getUniformLocation(program, 't');
     const scaleLocation = gl.getUniformLocation(program, 'u_scale');
@@ -156,8 +159,9 @@ const MosaicFlow = ({
     const rotationLocation = gl.getUniformLocation(program, 'u_rotation');
     const translateLocation = gl.getUniformLocation(program, 'u_translate');
     const bgColorLocation = gl.getUniformLocation(program, 'u_bgColor');
+    const color1Location = gl.getUniformLocation(program, 'u_color1');
+    const color2Location = gl.getUniformLocation(program, 'u_color2');
 
-    // Parse background color
     const hexToRgb = (hex: string) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result ? {
@@ -184,6 +188,8 @@ const MosaicFlow = ({
     const render = () => {
       const currentTime = ((performance.now() - startTime) / 1000) * speed;
       const bgColor = hexToRgb(backgroundColor);
+      const c1 = hexToRgb(primaryColor);
+      const c2 = hexToRgb(secondaryColor);
 
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
       gl.uniform1f(timeLocation, currentTime);
@@ -195,6 +201,8 @@ const MosaicFlow = ({
       gl.uniform1f(rotationLocation, rotation);
       gl.uniform2f(translateLocation, translateX, translateY);
       gl.uniform3f(bgColorLocation, bgColor.r, bgColor.g, bgColor.b);
+      gl.uniform3f(color1Location, c1.r, c1.g, c1.b);
+      gl.uniform3f(color2Location, c2.r, c2.g, c2.b);
 
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -213,7 +221,11 @@ const MosaicFlow = ({
       gl.deleteShader(fragmentShader);
       gl.deleteBuffer(buffer);
     };
-  }, [speed, scale, tileSize, perspective, colorIntensity, noiseFrequency, rotation, translateX, translateY, backgroundColor]);
+  }, [
+    speed, scale, tileSize, perspective, colorIntensity, noiseFrequency,
+    rotation, translateX, translateY, backgroundColor,
+    primaryColor, secondaryColor // Added to dependency array
+  ]);
 
   return (
     <canvas

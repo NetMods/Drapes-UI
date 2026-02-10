@@ -14,7 +14,7 @@ pnpm install
 
 # Development workflow
 pnpm dev                # Runs generate scripts + starts Next.js dev server with Turbo
-pnpm run generate       # Runs both generate-index and generate-codes
+pnpm run generate-dev       # Runs both generate-index and generate-codes
 pnpm run generate-index # Regenerates backgrounds/index.ts from registry.config.ts
 pnpm run generate-codes # Generates code.ts files for all backgrounds
 
