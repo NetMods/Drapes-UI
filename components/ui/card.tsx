@@ -51,6 +51,7 @@ export const BackgroundCard = ({
 
   const handleShowCode = () => {
     const data: CodeSidebarData = {
+      id: parseInt(config.id!),
       name: config.name,
       usage: config.code.usage,
       rawUsage: config.code.rawUsage,

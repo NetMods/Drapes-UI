@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon } from '@phosphor-icons/react';
+import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon, LinkIcon } from '@phosphor-icons/react';
 import { MouseEvent, useEffect, useState } from "react"
 import { BundledLanguage, codeToHtml } from 'shiki';
 
@@ -10,9 +10,12 @@ type Props = {
   filename?: string;
   dynamic?: string;
   language?: string;
+  type?: string
+  id?: number
+  raw?: boolean
 };
 
-export default function Code({ htmlCode, code, filename, dynamic, language }: Props) {
+export default function Code({ htmlCode, code, filename, dynamic, language, type, id, raw }: Props) {
   const [html, setHtml] = useState<string>(htmlCode)
 
   useEffect(() => {
@@ -24,10 +27,15 @@ export default function Code({ htmlCode, code, filename, dynamic, language }: Pr
     }
   }, [htmlCode, dynamic])
 
-  const copyCode = (e: MouseEvent<HTMLButtonElement>) => {
+  const copyData = (e: MouseEvent<HTMLButtonElement>, raw?: boolean) => {
     const button = e.currentTarget;
     button.classList.add('clicked');
-    navigator.clipboard.writeText(code);
+    if (!raw && raw === undefined) {
+      navigator.clipboard.writeText(code)
+    } else {
+      const rawURL = `http://localhost:3000/api/v1/raw?id=${id}&type=${type}`
+      navigator.clipboard.writeText(rawURL)
+    }
     setTimeout(() => button.classList.remove('clicked'), 500);
   };
 
@@ -61,12 +69,26 @@ export default function Code({ htmlCode, code, filename, dynamic, language }: Pr
           </div>
         }
         <button
-          onClick={copyCode}
+          onClick={(event: MouseEvent<HTMLButtonElement>) => {
+            copyData(event)
+          }}
           className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
         >
           <ClipboardTextIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
           <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
         </button>
+        {
+          raw &&
+          <button
+            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+              copyData(event, true)
+            }}
+            className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
+          >
+            <LinkIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
+            <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
+          </button>
+        }
       </div>
       {html ? (
         <div

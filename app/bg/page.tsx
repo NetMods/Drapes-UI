@@ -77,6 +77,7 @@ export default function Page() {
 
   const handleCodeSidebar = () => {
     const data: CodeSidebarData = {
+      id: parseInt(id!),
       name: config.name,
       usage: config.code.usage,
       rawUsage: generateUsageCode(),

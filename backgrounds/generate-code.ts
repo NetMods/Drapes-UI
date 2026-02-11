@@ -5,6 +5,8 @@ import { BundledTheme, codeToHtml, createHighlighter } from 'shiki';
 import { transform } from 'sucrase';
 
 const force = process.argv.includes('--force');
+const quiet = process.argv.includes('--quiet');
+const log = quiet ? (..._args: unknown[]) => {} : console.log.bind(console);
 
 export const convertTsToJs = (tsCode: string): string => {
   const result = transform(tsCode, {
@@ -63,12 +65,12 @@ function isStale(file: string): boolean {
 }
 
 async function processFile(file: string, highlighter: Awaited<ReturnType<typeof createHighlighter>>) {
-  console.log(`\n- Processing file: ${file}`);
+  log(`\n- Processing file: ${file}`);
 
   let tsxCode: string = "";
   try {
     tsxCode += readFileSync(file, 'utf-8');
-    console.log(`✓ Read TSX file (${tsxCode.trim().split('\n').length} lines)`);
+    log(`✓ Read TSX file (${tsxCode.trim().split('\n').length} lines)`);
   } catch (err) {
     console.error(`✗ Failed to read TSX file: ${file}`, err);
     return;
@@ -77,7 +79,7 @@ async function processFile(file: string, highlighter: Awaited<ReturnType<typeof 
   let jsxCode: string = "";
   try {
     jsxCode += convertTsToJs(tsxCode);
-    console.log(`✓ Converted TSX → JSX`);
+    log(`✓ Converted TSX → JSX`);
   } catch (err) {
     console.error(`✗ Failed to convert TSX to JSX for: ${file}`, err);
     return;
@@ -86,7 +88,7 @@ async function processFile(file: string, highlighter: Awaited<ReturnType<typeof 
   const dir = file.replace('/index.tsx', '');
   const folderName = dir.split('/').pop() || '';
   const componentName = kebabToPascal(folderName);
-  console.log(`✓ Component Name: ${componentName}`);
+  log(`✓ Component Name: ${componentName}`);
 
   const configPath = join(dir, 'config.ts');
   let usageCode = '';
@@ -145,7 +147,7 @@ async function processFile(file: string, highlighter: Awaited<ReturnType<typeof 
     tsxCodeHTML = highlighter.codeToHtml(tsxCode, { lang: 'tsx', theme });
     jsxCodeHTML = highlighter.codeToHtml(jsxCode, { lang: 'jsx', theme });
     usageCodeHTML = highlighter.codeToHtml(usageCode, { lang: 'jsx', theme });
-    console.log(`✓ Generated syntax-highlighted HTML for all sections`);
+    log(`✓ Generated syntax-highlighted HTML for all sections`);
   } catch (err) {
     console.error(`Failed to generate HTML with Shiki:`, err);
     return;
@@ -166,7 +168,7 @@ function writeOutput(dir: string, tsxCodeHTML: string, tsxCode: string, jsxCodeH
   const outputPath = join(dir, 'code.ts');
   try {
     writeFileSync(outputPath, output);
-    console.log(`✓ Saved code.ts → ${outputPath}\n`);
+    log(`✓ Saved code.ts → ${outputPath}\n`);
   } catch (err) {
     console.error(`✗ Failed to write code.ts: ${outputPath}`, err);
   }
@@ -177,11 +179,11 @@ function writeOutput(dir: string, tsxCodeHTML: string, tsxCode: string, jsxCodeH
   const toProcess = force ? backgrounds : backgrounds.filter(isStale);
 
   if (toProcess.length === 0) {
-    console.log(`All ${backgrounds.length} code.ts files are up to date. Skipping.`);
+    log(`All ${backgrounds.length} code.ts files are up to date. Skipping.`);
     return;
   }
 
-  console.log(`Processing ${toProcess.length}/${backgrounds.length} backgrounds${force ? ' (forced)' : ''}...`);
+  log(`Processing ${toProcess.length}/${backgrounds.length} backgrounds${force ? ' (forced)' : ''}...`);
 
   const highlighter = await createHighlighter({
     themes: ['vesper'],
@@ -191,5 +193,5 @@ function writeOutput(dir: string, tsxCodeHTML: string, tsxCode: string, jsxCodeH
   await Promise.all(toProcess.map(file => processFile(file, highlighter)));
 
   highlighter.dispose();
-  console.log('All components processed.');
+  log('All components processed.');
 })();
