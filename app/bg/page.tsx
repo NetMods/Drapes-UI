@@ -21,6 +21,7 @@ export default function Page() {
   const { props, setProps } = useBackgroundProps();
   const propsRef = useRef(props);
   const [isRecording, setIsRecording] = useState(false);
+  const stopRecordingRef = useRef<(() => void) | null>(null);
 
   useEffect(() => { propsRef.current = props; }, [props]);
 
@@ -56,7 +57,7 @@ export default function Page() {
   const { openCodeSidebar, closeCodeSidebar } = useCodeSidebar();
 
   const handleLeft = () => {
-    // Close sidebars to prevent old controls affecting new background
+    stopRecordingRef.current?.();
     closeSettingsSidebar();
     closeCodeSidebar();
     const newId = Math.max(1, currentId - 1)
@@ -64,7 +65,7 @@ export default function Page() {
   }
 
   const handleRight = () => {
-    // Close sidebars to prevent old controls affecting new background
+    stopRecordingRef.current?.();
     closeSettingsSidebar();
     closeCodeSidebar();
     const newId = currentId + 1
@@ -95,9 +96,9 @@ export default function Page() {
         <SettingsButton action={handleSettingSidebar} className='max-sm:hidden backdrop-blur-xl' />
 
         <div className="flex justify-center gap-3 items-center max-sm:w-full">
-          <LeftButton action={handleLeft} isDisabled={currentId === 1 || isRecording} className='max-sm:hidden p-2 backdrop-blur-xl' />
+          <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2 backdrop-blur-xl' />
           <div className="max-sm:bg-white/10 py-0.5 rounded backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
-          <RightButton action={handleRight} isDisabled={currentId === totalBackground || isRecording} className='max-sm:hidden p-2 backdrop-blur-xl' />
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden p-2 backdrop-blur-xl' />
         </div>
 
         <CodeButton action={handleCodeSidebar} className='max-sm:hidden  backdrop-blur-xl' />
@@ -109,13 +110,13 @@ export default function Page() {
 
       <LeftButton
         action={handleLeft}
-        isDisabled={currentId === 1 || isRecording}
+        isDisabled={currentId === 1}
         className='fixed top-1/2 sm:hidden bg-white/10 border border-white/30 text-base-content/70 ml-1 p-1 rounded-xl backdrop-blur-xl'
         size={23}
       />
       <RightButton
         action={handleRight}
-        isDisabled={currentId === totalBackground || isRecording}
+        isDisabled={currentId === totalBackground}
         className='fixed top-1/2 right-0 sm:hidden bg-white/10 border border-white/30 text-base-content/70 mr-1 p-1 rounded-xl backdrop-blur-xl'
         size={23}
       />
@@ -127,6 +128,7 @@ export default function Page() {
         className='hidden sm:fixed bottom-4 left-1/2'
         backgroundName={config.name}
         onRecordingStateChange={setIsRecording}
+        onRegisterStop={(fn) => { stopRecordingRef.current = fn; }}
        />
     </div>
   )
