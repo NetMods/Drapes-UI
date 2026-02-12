@@ -42,7 +42,7 @@ export default function Code({ htmlCode, code, filename, dynamic, language, type
   return (
     <div className='bg-base-100/30 rounded-lg'>
       <div
-        className={cn('flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b',
+        className={cn('flex overflow-hidden justify-between items-center px-2 py-1.5 pb-1 border-b',
           'border-white/15 transition-all bg-base-100/10 backdrop-blur-3xl rounded-t-lg')}
       >
         {filename &&
@@ -68,27 +68,29 @@ export default function Code({ htmlCode, code, filename, dynamic, language, type
             ))}
           </div>
         }
-        <button
-          onClick={(event: MouseEvent<HTMLButtonElement>) => {
-            copyData(event)
-          }}
-          className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
-        >
-          <ClipboardTextIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
-          <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
-        </button>
-        {
-          raw &&
+        <div className='flex justify-center items-center gap-0.5'>
+          {
+            raw &&
+            <button
+              onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                copyData(event, true)
+              }}
+              className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
+            >
+              <LinkIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
+              <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
+            </button>
+          }
           <button
             onClick={(event: MouseEvent<HTMLButtonElement>) => {
-              copyData(event, true)
+              copyData(event)
             }}
             className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
           >
-            <LinkIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
+            <ClipboardTextIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
             <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
           </button>
-        }
+        </div>
       </div>
       {html ? (
         <div
