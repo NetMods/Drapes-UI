@@ -48,7 +48,7 @@ export default {
       type: 'media-input',
       defaultValue: '/data/vegeta.png',
       defaultImage: '/data/vegeta.png',
-      defaultVideo: '/data/cell.mp4',
+      defaultVideo: '/data/vegeta.mp4',
       description: 'Upload an image or video file to apply dithering effects.',
       mediaTypeKey: 'mediaType',
     },
