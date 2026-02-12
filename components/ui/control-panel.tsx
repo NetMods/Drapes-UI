@@ -1,5 +1,5 @@
 import { useBackgroundProps } from "@/lib/background-context";
-import { ColorPicker } from "./color-picker";
+import ColorPicker from "./color-picker";
 import { Select } from "./select";
 import { RangeSlider } from "./slider";
 import { Toggle } from "./toggle";
