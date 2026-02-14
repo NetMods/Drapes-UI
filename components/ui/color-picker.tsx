@@ -12,7 +12,6 @@ import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Tooltip } from "./tooltip";
 
 // --- Configuration ---
-const CENTER_COLOR = "#FFFFFF";
 
 const INNER_RING_COLORS = [
   "#FCA5A5", "#FDBA74", "#FEF08A", "#86EFAC", "#93C5FD", "#C4B5FD",
@@ -121,7 +120,7 @@ const FLOWER_DIAMETER = FLOWER_EXTENT * 2;
 
 const ColorPicker = ({
   label,
-  value = "#29774e",
+  value,
   onChange,
   description,
   onReset,
@@ -301,7 +300,7 @@ const ColorPicker = ({
 
                   {/* Center Dot - highest z-index */}
                   <ColorDot
-                    color={CENTER_COLOR}
+                    color={value!}
                     angle={0}
                     radius={0}
                     size={CENTER_SIZE}
