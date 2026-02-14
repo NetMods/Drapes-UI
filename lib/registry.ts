@@ -15,6 +15,11 @@ class BackgroundRegistry {
     return Array.from(this.backgrounds.values());
   }
 
+  getNext(start: number, offset: number) {
+    return Array.from(this.backgrounds.values()).slice(start, offset);
+  }
+
+
   getSize(): Number {
     return this.backgrounds.size
   }
