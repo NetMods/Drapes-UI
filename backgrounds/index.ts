@@ -25,6 +25,7 @@ import BitmapNoise from './bitmap-noise'
 import Matrix from './matrix'
 import PlasmaWave from './plasma-wave'
 import SolarFlare from './solar-flare'
+import KineticDistortion from './kinetic-distortion'
 import DotGrid from './dot-grid'
 import VortexTwist from './vortex-twist'
 import SnowFall from './snow-fall'
@@ -40,6 +41,7 @@ import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
 
 //import config
+import kineticDistortionConfig from './kinetic-distortion/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -99,6 +101,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: fluidLinesConfig, component: FluidLines },
   { config: bitmapNoiseConfig, component: BitmapNoise },
   { config: matrixConfig, component: Matrix },
+  { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: solarFlareConfig, component: SolarFlare },
   { config: dotGridConfig, component: DotGrid },

@@ -4,9 +4,10 @@ import { Select } from "./select";
 import { RangeSlider } from "./slider";
 import { Toggle } from "./toggle";
 import { MediaInput } from "./media-input";
+import { TextInput } from "./text-input";
 
 interface Control {
-  type: "slider" | "color" | "toggle" | "select" | "media-input";
+  type: "slider" | "color" | "toggle" | "select" | "media-input" | "text-input";
   key: string;
   label: string;
   min?: number;
@@ -15,6 +16,8 @@ interface Control {
   options?: string[];
   description?: string;
   defaultValue?: string | number | boolean;
+  placeholder?: string;
+  maxLength?: number;
   mediaTypeKey?: string;
   defaultImage?: string;
   defaultVideo?: string;
@@ -70,6 +73,17 @@ export const ControlPanel = ({ controls }: { controls: Control[] }) => {
             key={control.key}
             {...safeProps}
             options={control.options ?? []}
+          />
+        );
+
+      case "text-input":
+        return (
+          <TextInput
+            key={control.key}
+            {...safeProps}
+            placeholder={control.placeholder}
+            maxLength={control.maxLength}
+            onReset={() => updateProp(control.key, control.defaultValue)}
           />
         );
 

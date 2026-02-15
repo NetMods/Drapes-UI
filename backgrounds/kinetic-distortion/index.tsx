@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
-interface SlicedTextProps {
+interface KineticDistortionProps {
   text?: string;
   fontSize?: number;
   fontFamily?: string;
@@ -16,8 +16,8 @@ interface SlicedTextProps {
   sliceGap?: number;
 }
 
-const SlicedText: React.FC<SlicedTextProps> = ({
-  text = 'lokasasmita',
+const KineticDistortion = ({
+  text = 'DRAPES',
   fontSize = 280,
   fontFamily = 'Inter, sans-serif',
   textColor = '#f5f5f5',
@@ -28,7 +28,7 @@ const SlicedText: React.FC<SlicedTextProps> = ({
   sensitivity = 1,
   stripWidth = 2,
   sliceGap = 0,
-}) => {
+}: KineticDistortionProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(0);
 
@@ -37,10 +37,11 @@ const SlicedText: React.FC<SlicedTextProps> = ({
   const smoothedVel = useRef({ x: 0, y: 0 });
   const isHovering = useRef(false);
 
+  const dims = useRef({ w: 0, h: 0, dpr: 1 });
+
   const rowSprings = useRef<{ x: number; y: number; vx: number; vy: number }[]>([]);
   const renderDispX = useRef<Float32Array>(new Float32Array(0));
   const renderDispY = useRef<Float32Array>(new Float32Array(0));
-  // Per-row random factor for varied spring speeds (broken mirror stagger)
   const rowSpringFactor = useRef<Float32Array>(new Float32Array(0));
 
   useEffect(() => {
@@ -58,33 +59,34 @@ const SlicedText: React.FC<SlicedTextProps> = ({
 
     const handleResize = () => {
       const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      dims.current = { w, h, dpr };
 
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
       ctx.scale(dpr, dpr);
 
-      offscreenCanvas.width = rect.width * dpr;
-      offscreenCanvas.height = rect.height * dpr;
+      offscreenCanvas.width = w * dpr;
+      offscreenCanvas.height = h * dpr;
       offCtx.scale(dpr, dpr);
 
       offCtx.fillStyle = backgroundColor;
-      offCtx.fillRect(0, 0, rect.width, rect.height);
+      offCtx.fillRect(0, 0, w, h);
 
       offCtx.fillStyle = textColor;
       offCtx.font = `900 ${fontSize}px ${fontFamily}`;
       offCtx.textAlign = 'center';
       offCtx.textBaseline = 'middle';
-      offCtx.fillText(text, rect.width / 2 + textOffsetX, rect.height / 2 + textOffsetY);
+      offCtx.fillText(text, w / 2 + textOffsetX, h / 2 + textOffsetY);
 
-      rows = Math.ceil(rect.height / sliceHeight);
+      rows = Math.ceil(h / sliceHeight);
       rowSprings.current = Array.from({ length: rows }, () => ({
         x: 0, y: 0, vx: 0, vy: 0,
       }));
       renderDispX.current = new Float32Array(rows);
       renderDispY.current = new Float32Array(rows);
 
-      // Assign random spring factor per row (0.3 = very slow, 1.8 = very fast)
       rowSpringFactor.current = new Float32Array(rows);
       for (let i = 0; i < rows; i++) {
         rowSpringFactor.current[i] = 0.3 + Math.random() * 1.5;
@@ -100,7 +102,7 @@ const SlicedText: React.FC<SlicedTextProps> = ({
       isHovering.current = true;
     };
 
-    const handleMouseLeave = () => {
+    const handlePointerReset = () => {
       isHovering.current = false;
       mouse.current = { x: -9999, y: -9999 };
       prevMouse.current = { x: -9999, y: -9999 };
@@ -119,18 +121,8 @@ const SlicedText: React.FC<SlicedTextProps> = ({
       isHovering.current = true;
     };
 
-    const handleTouchEnd = () => {
-      isHovering.current = false;
-      mouse.current = { x: -9999, y: -9999 };
-      prevMouse.current = { x: -9999, y: -9999 };
-      smoothedVel.current = { x: 0, y: 0 };
-    };
-
     const animate = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const w = rect.width;
-      const h = rect.height;
+      const { w, h, dpr } = dims.current;
 
       // --- VELOCITY ---
       let targetVx = 0;
@@ -150,9 +142,8 @@ const SlicedText: React.FC<SlicedTextProps> = ({
       const stretchStrength = 10.0 * sensitivity;
       const baseStiffness = 0.04;
       const baseDamping = 0.85;
-      const stripW = stripWidth;
 
-      // --- UPDATE PER-ROW SPRINGS (varied speeds) ---
+      // --- UPDATE PER-ROW SPRINGS ---
       const springs = rowSprings.current;
       const factors = rowSpringFactor.current;
       const mouseX = mouse.current.x;
@@ -175,7 +166,6 @@ const SlicedText: React.FC<SlicedTextProps> = ({
           s.vx = 0;
           s.vy = 0;
         } else {
-          // Per-row varied spring: factor scales stiffness, inversely scales damping
           const stiff = baseStiffness * f;
           const damp = baseDamping + (1.0 - f) * 0.08;
 
@@ -227,7 +217,6 @@ const SlicedText: React.FC<SlicedTextProps> = ({
         const drawSliceH = sliceHeight - sliceGap;
 
         if (!hasDisp) {
-          // No displacement — draw full row (minus gap)
           ctx.drawImage(
             offscreenCanvas,
             0, sy * dpr, w * dpr, drawSliceH * dpr,
@@ -236,7 +225,6 @@ const SlicedText: React.FC<SlicedTextProps> = ({
           continue;
         }
 
-        // Displaced row — draw with dynamic gap (top-aligned, gap at bottom)
         const leftEnd = Math.max(0, Math.floor(mouseX - radiusX));
         if (leftEnd > 0) {
           ctx.drawImage(
@@ -255,11 +243,8 @@ const SlicedText: React.FC<SlicedTextProps> = ({
           );
         }
 
-        const startX = Math.max(0, leftEnd);
-        const endX = Math.min(w, rightStart);
-
-        for (let dx = startX; dx < endX; dx += stripW) {
-          const colCenter = dx + stripW / 2;
+        for (let dx = leftEnd; dx < rightStart; dx += stripWidth) {
+          const colCenter = dx + stripWidth / 2;
           const xDist = Math.abs(mouseX - colCenter);
 
           let xInfluence = 0;
@@ -271,7 +256,7 @@ const SlicedText: React.FC<SlicedTextProps> = ({
           const dispY = rowDispY * xInfluence;
 
           const sourceX = dx - dispX;
-          const sw = Math.min(stripW, endX - dx);
+          const sw = Math.min(stripWidth, rightStart - dx);
           const clampedSrcX = Math.max(0, Math.min(w - sw, sourceX));
 
           ctx.drawImage(
@@ -287,10 +272,10 @@ const SlicedText: React.FC<SlicedTextProps> = ({
 
     window.addEventListener('resize', handleResize);
     canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
+    canvas.addEventListener('mouseleave', handlePointerReset);
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd);
-    canvas.addEventListener('touchcancel', handleTouchEnd);
+    canvas.addEventListener('touchend', handlePointerReset);
+    canvas.addEventListener('touchcancel', handlePointerReset);
 
     handleResize();
     requestRef.current = requestAnimationFrame(animate);
@@ -298,22 +283,28 @@ const SlicedText: React.FC<SlicedTextProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
       canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      canvas.removeEventListener('mouseleave', handlePointerReset);
       canvas.removeEventListener('touchmove', handleTouchMove);
-      canvas.removeEventListener('touchend', handleTouchEnd);
-      canvas.removeEventListener('touchcancel', handleTouchEnd);
+      canvas.removeEventListener('touchend', handlePointerReset);
+      canvas.removeEventListener('touchcancel', handlePointerReset);
       cancelAnimationFrame(requestRef.current);
     };
   }, [text, fontSize, fontFamily, textColor, backgroundColor, sliceHeight, textOffsetX, textOffsetY, sensitivity, stripWidth, sliceGap]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', overflow: 'hidden', backgroundColor }}>
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: '100%' }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor,
+        touchAction: 'none',
+      }}
+    />
   );
 };
 
-export default SlicedText;
+export default KineticDistortion;
