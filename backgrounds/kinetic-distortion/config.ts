@@ -22,6 +22,8 @@ export default {
     sensitivity: 1,
     stripWidth: 2,
     sliceGap: 0,
+    enableGlitch: false,
+    glitchIntensity: 1,
   },
   code: {
     usage: usageCodeHTML,
@@ -124,6 +126,23 @@ export default {
       step: 10,
       defaultValue: 0,
       description: 'Vertical offset of the text from center.',
+    },
+    {
+      key: 'enableGlitch',
+      label: 'Enable Glitch',
+      type: 'toggle',
+      defaultValue: false,
+      description: 'Activate RGB split & shake glitch effect on hover (disables kinetic distortion while active).',
+    },
+    {
+      key: 'glitchIntensity',
+      label: 'Glitch Intensity',
+      type: 'slider',
+      min: 0.1,
+      max: 3,
+      step: 0.1,
+      defaultValue: 1,
+      description: 'Controls the strength of the glitch effect (RGB split, displacement, shake).',
     },
   ],
 } as Omit<BackgroundConfig, 'id'>;

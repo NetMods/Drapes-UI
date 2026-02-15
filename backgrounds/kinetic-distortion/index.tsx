@@ -14,6 +14,8 @@ interface KineticDistortionProps {
   sensitivity?: number;
   stripWidth?: number;
   sliceGap?: number;
+  enableGlitch?: boolean;
+  glitchIntensity?: number;
 }
 
 const KineticDistortion = ({
@@ -28,6 +30,8 @@ const KineticDistortion = ({
   sensitivity = 1,
   stripWidth = 2,
   sliceGap = 0,
+  enableGlitch = false,
+  glitchIntensity = 1,
 }: KineticDistortionProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const requestRef = useRef<number>(0);
@@ -44,6 +48,13 @@ const KineticDistortion = ({
   const renderDispY = useRef<Float32Array>(new Float32Array(0));
   const rowSpringFactor = useRef<Float32Array>(new Float32Array(0));
 
+  const glitchAmount = useRef(0);
+  const glitchTimer = useRef(0);
+  const glitchSliceOffsets = useRef<Float32Array>(new Float32Array(0));
+  const glitchRgbOffset = useRef(0);
+  const glitchShake = useRef({ x: 0, y: 0 });
+  const lastGlitchPos = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -54,6 +65,14 @@ const KineticDistortion = ({
     const offscreenCanvas = document.createElement('canvas');
     const offCtx = offscreenCanvas.getContext('2d');
     if (!offCtx) return;
+
+    const rCanvas = document.createElement('canvas');
+    const rCtx = rCanvas.getContext('2d');
+    const gCanvas = document.createElement('canvas');
+    const gCtx = gCanvas.getContext('2d');
+    const bCanvas = document.createElement('canvas');
+    const bCtx = bCanvas.getContext('2d');
+    if (!rCtx || !gCtx || !bCtx) return;
 
     let rows = 0;
 
@@ -80,12 +99,31 @@ const KineticDistortion = ({
       offCtx.textBaseline = 'middle';
       offCtx.fillText(text, w / 2 + textOffsetX, h / 2 + textOffsetY);
 
+      const channels = [
+        { canvas: rCanvas, ctx: rCtx, color: '#ff0000' },
+        { canvas: gCanvas, ctx: gCtx, color: '#00ff00' },
+        { canvas: bCanvas, ctx: bCtx, color: '#0000ff' },
+      ];
+      for (const ch of channels) {
+        ch.canvas.width = w * dpr;
+        ch.canvas.height = h * dpr;
+        ch.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ch.ctx.scale(dpr, dpr);
+        ch.ctx.clearRect(0, 0, w, h);
+        ch.ctx.fillStyle = ch.color;
+        ch.ctx.font = `900 ${fontSize}px ${fontFamily}`;
+        ch.ctx.textAlign = 'center';
+        ch.ctx.textBaseline = 'middle';
+        ch.ctx.fillText(text, w / 2 + textOffsetX, h / 2 + textOffsetY);
+      }
+
       rows = Math.ceil(h / sliceHeight);
       rowSprings.current = Array.from({ length: rows }, () => ({
         x: 0, y: 0, vx: 0, vy: 0,
       }));
       renderDispX.current = new Float32Array(rows);
       renderDispY.current = new Float32Array(rows);
+      glitchSliceOffsets.current = new Float32Array(rows);
 
       rowSpringFactor.current = new Float32Array(rows);
       for (let i = 0; i < rows; i++) {
@@ -124,6 +162,44 @@ const KineticDistortion = ({
     const animate = () => {
       const { w, h, dpr } = dims.current;
 
+      // --- GLITCH RAMP ---
+      const glitchTarget = (isHovering.current && enableGlitch) ? 1 : 0;
+      const glitchRampSpeed = glitchTarget === 1 ? 0.08 : 0.12;
+      glitchAmount.current += (glitchTarget - glitchAmount.current) * glitchRampSpeed;
+      if (Math.abs(glitchAmount.current - glitchTarget) < 0.005) glitchAmount.current = glitchTarget;
+
+      const ga = glitchAmount.current;
+
+      // --- UPDATE GLITCH PATTERN ---
+      if (ga > 0.01) {
+        glitchTimer.current++;
+        if (glitchTimer.current % 4 === 0) {
+          const offsets = glitchSliceOffsets.current;
+          for (let r = 0; r < rows; r++) {
+            offsets[r] = Math.random() < 0.12
+              ? (Math.random() - 0.5) * 50 * glitchIntensity * ga
+              : 0;
+          }
+          if (Math.random() < 0.3) {
+            const blockStart = Math.floor(Math.random() * rows);
+            const blockSize = Math.floor(Math.random() * 8) + 2;
+            const blockOffset = (Math.random() - 0.5) * 80 * glitchIntensity * ga;
+            for (let r = blockStart; r < Math.min(rows, blockStart + blockSize); r++) {
+              offsets[r] = blockOffset;
+            }
+          }
+          glitchRgbOffset.current = (Math.random() * 10 + 3) * glitchIntensity * ga;
+          glitchShake.current = {
+            x: (Math.random() - 0.5) * 6 * glitchIntensity * ga,
+            y: (Math.random() - 0.5) * 4 * glitchIntensity * ga,
+          };
+        }
+      } else {
+        glitchTimer.current = 0;
+        glitchRgbOffset.current = 0;
+        glitchShake.current = { x: 0, y: 0 };
+      }
+
       // --- VELOCITY ---
       let targetVx = 0;
       let targetVy = 0;
@@ -139,7 +215,8 @@ const KineticDistortion = ({
       // --- CONFIG ---
       const radiusX = 300;
       const radiusY = 160;
-      const stretchStrength = 10.0 * sensitivity;
+      const kineticFactor = 1 - ga;
+      const stretchStrength = 10.0 * sensitivity * kineticFactor;
       const baseStiffness = 0.04;
       const baseDamping = 0.85;
 
@@ -155,7 +232,7 @@ const KineticDistortion = ({
         const s = springs[r];
         const f = factors[r];
 
-        if (isHovering.current && dy < radiusY) {
+        if (isHovering.current && dy < radiusY && kineticFactor > 0.01) {
           const yInfluence = Math.pow((radiusY - dy) / radiusY, 2.5);
           const targetX = smoothedVel.current.x * yInfluence * stretchStrength;
           const targetY = smoothedVel.current.y * yInfluence * stretchStrength * 0.4;
@@ -205,65 +282,163 @@ const KineticDistortion = ({
         if (Math.abs(pushedY) > Math.abs(ry[r])) ry[r] = pushedY;
       }
 
+      // --- TRACK LAST VALID GLITCH POSITION ---
+      if (isHovering.current && mouseX > -9000) {
+        lastGlitchPos.current = { x: mouseX, y: mouseY };
+      }
+
       // --- RENDER ---
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, w, h);
 
-      for (let r = 0; r < rows; r++) {
-        const sy = r * sliceHeight;
-        const rowDispX = rx[r];
-        const rowDispY = ry[r];
-        const hasDisp = Math.abs(rowDispX) > 0.1 || Math.abs(rowDispY) > 0.1;
-        const drawSliceH = sliceHeight - sliceGap;
+      if (ga > 0.01) {
+        // --- LOCALIZED GLITCH + BASE RENDER ---
+        const glitchRadiusX = 250;
+        const glitchRadiusY = 150;
+        const rgbOff = glitchRgbOffset.current;
+        const sliceOffs = glitchSliceOffsets.current;
+        const shakeX = glitchShake.current.x;
+        const shakeY = glitchShake.current.y;
+        const gx = lastGlitchPos.current.x;
+        const gy = lastGlitchPos.current.y;
 
-        if (!hasDisp) {
+        const glitchLeft = Math.max(0, Math.floor(gx - glitchRadiusX));
+        const glitchRight = Math.min(w, Math.ceil(gx + glitchRadiusX));
+
+        // Pass 1: Draw base image from offscreen for all rows
+        for (let r = 0; r < rows; r++) {
+          const sy = r * sliceHeight;
+          const drawSliceH = sliceHeight - sliceGap;
+          const rowCenterY = sy + sliceHeight / 2;
+          const dy = Math.abs(gy - rowCenterY);
+          const yInfluence = dy < glitchRadiusY
+            ? Math.pow((glitchRadiusY - dy) / glitchRadiusY, 2) * ga
+            : 0;
+
+          if (yInfluence < 0.01) {
+            // Non-glitch row: draw fully from offscreen
+            ctx.drawImage(
+              offscreenCanvas,
+              0, sy * dpr, w * dpr, drawSliceH * dpr,
+              0, sy, w, drawSliceH,
+            );
+          } else {
+            // Glitch row: draw left and right non-glitch segments from offscreen
+            if (glitchLeft > 0) {
+              ctx.drawImage(
+                offscreenCanvas,
+                0, sy * dpr, glitchLeft * dpr, drawSliceH * dpr,
+                0, sy, glitchLeft, drawSliceH,
+              );
+            }
+            if (glitchRight < w) {
+              ctx.drawImage(
+                offscreenCanvas,
+                glitchRight * dpr, sy * dpr, (w - glitchRight) * dpr, drawSliceH * dpr,
+                glitchRight, sy, w - glitchRight, drawSliceH,
+              );
+            }
+            // Middle area keeps the background from fillRect — RGB channels drawn in pass 2
+          }
+        }
+
+        // Pass 2: Draw RGB split in glitch area (clipped)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(glitchLeft, 0, glitchRight - glitchLeft, h);
+        ctx.clip();
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (let r = 0; r < rows; r++) {
+          const sy = r * sliceHeight;
+          const drawSliceH = sliceHeight - sliceGap;
+          const rowCenterY = sy + sliceHeight / 2;
+          const dy = Math.abs(gy - rowCenterY);
+          const yInfluence = dy < glitchRadiusY
+            ? Math.pow((glitchRadiusY - dy) / glitchRadiusY, 2) * ga
+            : 0;
+
+          if (yInfluence < 0.01) continue;
+
+          const sliceOff = sliceOffs[r] * yInfluence;
+          const rowRgb = rgbOff * yInfluence;
+
           ctx.drawImage(
-            offscreenCanvas,
+            rCanvas,
             0, sy * dpr, w * dpr, drawSliceH * dpr,
-            0, sy, w, drawSliceH,
+            sliceOff - rowRgb + shakeX, sy + shakeY, w, drawSliceH,
           );
-          continue;
-        }
-
-        const leftEnd = Math.max(0, Math.floor(mouseX - radiusX));
-        if (leftEnd > 0) {
           ctx.drawImage(
-            offscreenCanvas,
-            0, sy * dpr, leftEnd * dpr, drawSliceH * dpr,
-            0, sy, leftEnd, drawSliceH,
+            gCanvas,
+            0, sy * dpr, w * dpr, drawSliceH * dpr,
+            sliceOff + shakeX, sy + shakeY, w, drawSliceH,
           );
-        }
-
-        const rightStart = Math.min(w, Math.ceil(mouseX + radiusX));
-        if (rightStart < w) {
           ctx.drawImage(
-            offscreenCanvas,
-            rightStart * dpr, sy * dpr, (w - rightStart) * dpr, drawSliceH * dpr,
-            rightStart, sy, w - rightStart, drawSliceH,
+            bCanvas,
+            0, sy * dpr, w * dpr, drawSliceH * dpr,
+            sliceOff + rowRgb + shakeX, sy + shakeY, w, drawSliceH,
           );
         }
 
-        for (let dx = leftEnd; dx < rightStart; dx += stripWidth) {
-          const colCenter = dx + stripWidth / 2;
-          const xDist = Math.abs(mouseX - colCenter);
+        ctx.restore();
+      } else {
+        // --- KINETIC RENDER ---
+        for (let r = 0; r < rows; r++) {
+          const sy = r * sliceHeight;
+          const rowDispX = rx[r];
+          const rowDispY = ry[r];
+          const hasDisp = Math.abs(rowDispX) > 0.1 || Math.abs(rowDispY) > 0.1;
+          const drawSliceH = sliceHeight - sliceGap;
 
-          let xInfluence = 0;
-          if (xDist < radiusX) {
-            xInfluence = Math.pow((radiusX - xDist) / radiusX, 2.5);
+          if (!hasDisp) {
+            ctx.drawImage(
+              offscreenCanvas,
+              0, sy * dpr, w * dpr, drawSliceH * dpr,
+              0, sy, w, drawSliceH,
+            );
+            continue;
           }
 
-          const dispX = rowDispX * xInfluence;
-          const dispY = rowDispY * xInfluence;
+          const leftEnd = Math.max(0, Math.floor(mouseX - radiusX));
+          if (leftEnd > 0) {
+            ctx.drawImage(
+              offscreenCanvas,
+              0, sy * dpr, leftEnd * dpr, drawSliceH * dpr,
+              0, sy, leftEnd, drawSliceH,
+            );
+          }
 
-          const sourceX = dx - dispX;
-          const sw = Math.min(stripWidth, rightStart - dx);
-          const clampedSrcX = Math.max(0, Math.min(w - sw, sourceX));
+          const rightStart = Math.min(w, Math.ceil(mouseX + radiusX));
+          if (rightStart < w) {
+            ctx.drawImage(
+              offscreenCanvas,
+              rightStart * dpr, sy * dpr, (w - rightStart) * dpr, drawSliceH * dpr,
+              rightStart, sy, w - rightStart, drawSliceH,
+            );
+          }
 
-          ctx.drawImage(
-            offscreenCanvas,
-            clampedSrcX * dpr, sy * dpr, sw * dpr, drawSliceH * dpr,
-            dx, sy + dispY, sw, drawSliceH,
-          );
+          for (let dx = leftEnd; dx < rightStart; dx += stripWidth) {
+            const colCenter = dx + stripWidth / 2;
+            const xDist = Math.abs(mouseX - colCenter);
+
+            let xInfluence = 0;
+            if (xDist < radiusX) {
+              xInfluence = Math.pow((radiusX - xDist) / radiusX, 2.5);
+            }
+
+            const dispX = rowDispX * xInfluence;
+            const dispY = rowDispY * xInfluence;
+
+            const sourceX = dx - dispX;
+            const sw = Math.min(stripWidth, rightStart - dx);
+            const clampedSrcX = Math.max(0, Math.min(w - sw, sourceX));
+
+            ctx.drawImage(
+              offscreenCanvas,
+              clampedSrcX * dpr, sy * dpr, sw * dpr, drawSliceH * dpr,
+              dx, sy + dispY, sw, drawSliceH,
+            );
+          }
         }
       }
 
@@ -289,7 +464,7 @@ const KineticDistortion = ({
       canvas.removeEventListener('touchcancel', handlePointerReset);
       cancelAnimationFrame(requestRef.current);
     };
-  }, [text, fontSize, fontFamily, textColor, backgroundColor, sliceHeight, textOffsetX, textOffsetY, sensitivity, stripWidth, sliceGap]);
+  }, [text, fontSize, fontFamily, textColor, backgroundColor, sliceHeight, textOffsetX, textOffsetY, sensitivity, stripWidth, sliceGap, enableGlitch, glitchIntensity]);
 
   return (
     <canvas
