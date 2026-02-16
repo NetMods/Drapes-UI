@@ -9,6 +9,7 @@ REGISTRY CONFIGURATION
 */}
 
 export const RegistryEntries = [
+  'animals+',
   'kinetic-distortion+',
   'particles',
   'aura-ring+',

@@ -5,9 +5,10 @@ import { RangeSlider } from "./slider";
 import { Toggle } from "./toggle";
 import { MediaInput } from "./media-input";
 import { TextInput } from "./text-input";
+import { DownloadButton } from "./download-button";
 
 interface Control {
-  type: "slider" | "color" | "toggle" | "select" | "media-input" | "text-input";
+  type: "slider" | "color" | "toggle" | "select" | "media-input" | "text-input" | "download";
   key: string;
   label: string;
   min?: number;
@@ -21,6 +22,8 @@ interface Control {
   mediaTypeKey?: string;
   defaultImage?: string;
   defaultVideo?: string;
+  downloadUrlKey?: string;
+  downloadUrls?: Record<string, string>;
 }
 
 export const ControlPanel = ({ controls }: { controls: Control[] }) => {
@@ -86,6 +89,21 @@ export const ControlPanel = ({ controls }: { controls: Control[] }) => {
             onReset={() => updateProp(control.key, control.defaultValue)}
           />
         );
+
+      case "download": {
+        const urlKey = control.downloadUrlKey;
+        const urlMap = control.downloadUrls || {};
+        const currentKey = urlKey ? String(values[urlKey]) : "";
+        const downloadUrl = urlMap[currentKey] || (control.defaultValue as string) || "";
+        return (
+          <DownloadButton
+            key={control.key}
+            label={control.label}
+            description={control.description}
+            url={downloadUrl}
+          />
+        );
+      }
 
       case "media-input":
         const mediaType = control.mediaTypeKey

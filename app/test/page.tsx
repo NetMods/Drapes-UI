@@ -1,319 +1,190 @@
-'use client';
+"use client";
 
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef } from "react";
 
-interface SlicedTextProps {
-  text?: string;
-  fontSize?: number;
-  fontFamily?: string;
-  textColor?: string;
-  backgroundColor?: string;
-  sliceHeight?: number;
-  textOffsetX?: number;
-  textOffsetY?: number;
-  sensitivity?: number;
-  stripWidth?: number;
-  sliceGap?: number;
+type SpriteConfig = {
+  src: string;
+  width: number;
+  height: number;
+  scale: number;
+  fps: number;
+  colsWalk: number;
+  colsIdle: number;
+};
+
+const SPRITE_DATA: Record<string, SpriteConfig> = {
+  bull: {
+    src: "/data/Bull_animation_with_shadow.png",
+    width: 64,
+    height: 64,
+    scale: 3,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  sheep: {
+    src: "/data/Sheep_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 5,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  pig: {
+    src: "/data/Piglet_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 4,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  chick: {
+    src: "/data/Chick_animation_with_shadow.png",
+    width: 16,
+    height: 16,
+    scale: 5,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  turkey: {
+    src: "/data/Turkey_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 4,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+};
+
+
+interface AnimalAnimationProps {
+  animal?: string;
 }
 
-const SlicedText: React.FC<SlicedTextProps> = ({
-  text = 'lokasasmita',
-  fontSize = 280,
-  fontFamily = 'Inter, sans-serif',
-  textColor = '#f5f5f5',
-  backgroundColor = '#0e0e0e',
-  sliceHeight = 8,
-  textOffsetX = 0,
-  textOffsetY = 0,
-  sensitivity = 1,
-  stripWidth = 2,
-  sliceGap = 0,
-}) => {
+function AnimalAnimation({ animal = "turkey" }: AnimalAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const requestRef = useRef<number>(0);
 
-  const mouse = useRef({ x: -9999, y: -9999 });
-  const prevMouse = useRef({ x: -9999, y: -9999 });
-  const smoothedVel = useRef({ x: 0, y: 0 });
-  const isHovering = useRef(false);
-
-  const rowSprings = useRef<{ x: number; y: number; vx: number; vy: number }[]>([]);
-  const renderDispX = useRef<Float32Array>(new Float32Array(0));
-  const renderDispY = useRef<Float32Array>(new Float32Array(0));
-  // Per-row random factor for varied spring speeds (broken mirror stagger)
-  const rowSpringFactor = useRef<Float32Array>(new Float32Array(0));
+  const selectedConfig = SPRITE_DATA[animal.toLowerCase()] || SPRITE_DATA["sheep"];
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const offscreenCanvas = document.createElement('canvas');
-    const offCtx = offscreenCanvas.getContext('2d');
-    if (!offCtx) return;
-
-    let rows = 0;
-
-    const handleResize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-
-      offscreenCanvas.width = rect.width * dpr;
-      offscreenCanvas.height = rect.height * dpr;
-      offCtx.scale(dpr, dpr);
-
-      offCtx.fillStyle = backgroundColor;
-      offCtx.fillRect(0, 0, rect.width, rect.height);
-
-      offCtx.fillStyle = textColor;
-      offCtx.font = `900 ${fontSize}px ${fontFamily}`;
-      offCtx.textAlign = 'center';
-      offCtx.textBaseline = 'middle';
-      offCtx.fillText(text, rect.width / 2 + textOffsetX, rect.height / 2 + textOffsetY);
-
-      rows = Math.ceil(rect.height / sliceHeight);
-      rowSprings.current = Array.from({ length: rows }, () => ({
-        x: 0, y: 0, vx: 0, vy: 0,
-      }));
-      renderDispX.current = new Float32Array(rows);
-      renderDispY.current = new Float32Array(rows);
-
-      // Assign random spring factor per row (0.3 = very slow, 1.8 = very fast)
-      rowSpringFactor.current = new Float32Array(rows);
-      for (let i = 0; i < rows; i++) {
-        rowSpringFactor.current[i] = 0.3 + Math.random() * 1.5;
-      }
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.imageSmoothingEnabled = false;
     };
+    window.addEventListener("resize", resize);
+    resize();
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-      isHovering.current = true;
+    const img = new Image();
+    img.src = selectedConfig.src;
+    let isLoaded = false;
+    img.onload = () => { isLoaded = true; };
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let targetX = x;
+    let targetY = y;
+
+    let frame = 0;
+    let dir = 0;
+    let isIdle = true;
+
+    let lastTime = 0;
+    let timer = 0;
+    const interval = 1000 / selectedConfig.fps;
+    const SPEED = 6;
+
+    const onMouseMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
     };
+    window.addEventListener("mousemove", onMouseMove);
 
-    const handleMouseLeave = () => {
-      isHovering.current = false;
-      mouse.current = { x: -9999, y: -9999 };
-      prevMouse.current = { x: -9999, y: -9999 };
-      smoothedVel.current = { x: 0, y: 0 };
-    };
+    let rafId: number;
 
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const touch = e.touches[0];
-      if (!touch) return;
-      const rect = canvas.getBoundingClientRect();
-      mouse.current = {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      };
-      isHovering.current = true;
-    };
+    const loop = (timestamp: number) => {
+      rafId = requestAnimationFrame(loop);
+      if (!isLoaded) return;
 
-    const handleTouchEnd = () => {
-      isHovering.current = false;
-      mouse.current = { x: -9999, y: -9999 };
-      prevMouse.current = { x: -9999, y: -9999 };
-      smoothedVel.current = { x: 0, y: 0 };
-    };
+      const dt = timestamp - lastTime;
+      lastTime = timestamp;
 
-    const animate = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      const w = rect.width;
-      const h = rect.height;
+      const dx = targetX - x;
+      const dy = targetY - y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const wasIdle = isIdle;
 
-      // --- VELOCITY ---
-      let targetVx = 0;
-      let targetVy = 0;
-      if (isHovering.current && prevMouse.current.x > -9000) {
-        targetVx = mouse.current.x - prevMouse.current.x;
-        targetVy = mouse.current.y - prevMouse.current.y;
-      }
-      prevMouse.current = { ...mouse.current };
+      if (dist > 10) {
+        isIdle = false;
+        x += (dx / dist) * SPEED;
+        y += (dy / dist) * SPEED;
 
-      smoothedVel.current.x += (targetVx - smoothedVel.current.x) * 0.15;
-      smoothedVel.current.y += (targetVy - smoothedVel.current.y) * 0.15;
-
-      // --- CONFIG ---
-      const radiusX = 300;
-      const radiusY = 160;
-      const stretchStrength = 10.0 * sensitivity;
-      const baseStiffness = 0.04;
-      const baseDamping = 0.85;
-      const stripW = stripWidth;
-
-      // --- UPDATE PER-ROW SPRINGS (varied speeds) ---
-      const springs = rowSprings.current;
-      const factors = rowSpringFactor.current;
-      const mouseX = mouse.current.x;
-      const mouseY = mouse.current.y;
-
-      for (let r = 0; r < rows; r++) {
-        const rowCenterY = r * sliceHeight + sliceHeight / 2;
-        const dy = Math.abs(mouseY - rowCenterY);
-        const s = springs[r];
-        const f = factors[r];
-
-        if (isHovering.current && dy < radiusY) {
-          const yInfluence = Math.pow((radiusY - dy) / radiusY, 2.5);
-          const targetX = smoothedVel.current.x * yInfluence * stretchStrength;
-          const targetY = smoothedVel.current.y * yInfluence * stretchStrength * 0.4;
-          const lerpSpeed = 0.12 + yInfluence * 0.2;
-
-          s.x += (targetX - s.x) * lerpSpeed;
-          s.y += (targetY - s.y) * lerpSpeed;
-          s.vx = 0;
-          s.vy = 0;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          dir = dx > 0 ? 3 : 2;
         } else {
-          // Per-row varied spring: factor scales stiffness, inversely scales damping
-          const stiff = baseStiffness * f;
-          const damp = baseDamping + (1.0 - f) * 0.08;
-
-          s.vx += -stiff * s.x;
-          s.vy += -stiff * s.y;
-          s.vx *= damp;
-          s.vy *= damp;
-          s.x += s.vx;
-          s.y += s.vy;
-
-          if (Math.abs(s.x) < 0.01 && Math.abs(s.vx) < 0.01) { s.x = 0; s.vx = 0; }
-          if (Math.abs(s.y) < 0.01 && Math.abs(s.vy) < 0.01) { s.y = 0; s.vy = 0; }
+          dir = dy > 0 ? 0 : 1;
         }
+      } else {
+        isIdle = true;
       }
 
-      // --- PROPAGATE: pushed slices push neighbors ---
-      const rx = renderDispX.current;
-      const ry = renderDispY.current;
-      const push = 0.7;
+      if (wasIdle !== isIdle) frame = 0;
 
-      for (let r = 0; r < rows; r++) {
-        rx[r] = springs[r].x;
-        ry[r] = springs[r].y;
+      timer += dt;
+      if (timer > interval) {
+        timer = 0;
+        const maxFrames = isIdle ? selectedConfig.colsIdle : selectedConfig.colsWalk;
+        frame = (frame + 1) % maxFrames;
       }
 
-      for (let r = 1; r < rows; r++) {
-        const pushedX = rx[r - 1] * push;
-        const pushedY = ry[r - 1] * push;
-        if (Math.abs(pushedX) > Math.abs(rx[r])) rx[r] = pushedX;
-        if (Math.abs(pushedY) > Math.abs(ry[r])) ry[r] = pushedY;
-      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      for (let r = rows - 2; r >= 0; r--) {
-        const pushedX = rx[r + 1] * push;
-        const pushedY = ry[r + 1] * push;
-        if (Math.abs(pushedX) > Math.abs(rx[r])) rx[r] = pushedX;
-        if (Math.abs(pushedY) > Math.abs(ry[r])) ry[r] = pushedY;
-      }
+      let row = dir;
+      if (isIdle) row += 4;
 
-      // --- RENDER ---
-      ctx.fillStyle = backgroundColor;
-      ctx.fillRect(0, 0, w, h);
+      const sx = frame * selectedConfig.width;
+      const sy = row * selectedConfig.height;
 
-      for (let r = 0; r < rows; r++) {
-        const sy = r * sliceHeight;
-        const rowDispX = rx[r];
-        const rowDispY = ry[r];
-        const hasDisp = Math.abs(rowDispX) > 0.1 || Math.abs(rowDispY) > 0.1;
-        const drawSliceH = sliceHeight - sliceGap;
+      const drawW = selectedConfig.width * selectedConfig.scale;
+      const drawH = selectedConfig.height * selectedConfig.scale;
 
-        if (!hasDisp) {
-          // No displacement — draw full row (minus gap)
-          ctx.drawImage(
-            offscreenCanvas,
-            0, sy * dpr, w * dpr, drawSliceH * dpr,
-            0, sy, w, drawSliceH,
-          );
-          continue;
-        }
-
-        // Displaced row — draw with dynamic gap (top-aligned, gap at bottom)
-        const leftEnd = Math.max(0, Math.floor(mouseX - radiusX));
-        if (leftEnd > 0) {
-          ctx.drawImage(
-            offscreenCanvas,
-            0, sy * dpr, leftEnd * dpr, drawSliceH * dpr,
-            0, sy, leftEnd, drawSliceH,
-          );
-        }
-
-        const rightStart = Math.min(w, Math.ceil(mouseX + radiusX));
-        if (rightStart < w) {
-          ctx.drawImage(
-            offscreenCanvas,
-            rightStart * dpr, sy * dpr, (w - rightStart) * dpr, drawSliceH * dpr,
-            rightStart, sy, w - rightStart, drawSliceH,
-          );
-        }
-
-        const startX = Math.max(0, leftEnd);
-        const endX = Math.min(w, rightStart);
-
-        for (let dx = startX; dx < endX; dx += stripW) {
-          const colCenter = dx + stripW / 2;
-          const xDist = Math.abs(mouseX - colCenter);
-
-          let xInfluence = 0;
-          if (xDist < radiusX) {
-            xInfluence = Math.pow((radiusX - xDist) / radiusX, 2.5);
-          }
-
-          const dispX = rowDispX * xInfluence;
-          const dispY = rowDispY * xInfluence;
-
-          const sourceX = dx - dispX;
-          const sw = Math.min(stripW, endX - dx);
-          const clampedSrcX = Math.max(0, Math.min(w - sw, sourceX));
-
-          ctx.drawImage(
-            offscreenCanvas,
-            clampedSrcX * dpr, sy * dpr, sw * dpr, drawSliceH * dpr,
-            dx, sy + dispY, sw, drawSliceH,
-          );
-        }
-      }
-
-      requestRef.current = requestAnimationFrame(animate);
+      ctx.drawImage(
+        img,
+        sx, sy, selectedConfig.width, selectedConfig.height,
+        x - drawW / 2, y - drawH / 2, drawW, drawH
+      );
     };
 
-    window.addEventListener('resize', handleResize);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseleave', handleMouseLeave);
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd);
-    canvas.addEventListener('touchcancel', handleTouchEnd);
-
-    handleResize();
-    requestRef.current = requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(loop);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseleave', handleMouseLeave);
-      canvas.removeEventListener('touchmove', handleTouchMove);
-      canvas.removeEventListener('touchend', handleTouchEnd);
-      canvas.removeEventListener('touchcancel', handleTouchEnd);
-      cancelAnimationFrame(requestRef.current);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
     };
-  }, [text, fontSize, fontFamily, textColor, backgroundColor, sliceHeight, textOffsetX, textOffsetY, sensitivity, stripWidth, sliceGap]);
+  }, [selectedConfig]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', overflow: 'hidden', backgroundColor }}>
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: '100%' }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        pointerEvents: "none",
+        zIndex: 9999,
+      }}
+    />
   );
-};
+}
 
-export default SlicedText;
+export default AnimalAnimation;
