@@ -82,7 +82,8 @@ import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
+  // { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
+  // { config: animalsConfig, component: Animals, isNew: true },
   { config: particlesConfig, component: Particles },
   { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: horizonGlowConfig, component: HorizonGlow, isNew: true },
@@ -103,7 +104,6 @@ const registerEntry: BackgroundEntry[] = [
   { config: chromaticSpiralConfig, component: ChromaticSpiral },
   { config: fluidLinesConfig, component: FluidLines },
   { config: bitmapNoiseConfig, component: BitmapNoise },
-  { config: animalsConfig, component: Animals, isNew: true },
   { config: matrixConfig, component: Matrix },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: solarFlareConfig, component: SolarFlare },
