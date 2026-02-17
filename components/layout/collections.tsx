@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { BackgroundCard } from '../ui/card';
 import { StarIcon } from '@phosphor-icons/react';
 import { useCommandPalette } from './command-palette/context';
+import { analytics } from '@/lib/analytics';
 
 export const Collections = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'fav'>('all');
@@ -15,6 +16,18 @@ export const Collections = () => {
   const { searchQuery, handleClearFilter } = useCommandPalette();
 
   const toggleFavourite = (id: string) => {
+    const background = backgrounds.find(bg => bg.config.id === id);
+    const isRemoving = favourite.includes(id);
+
+    // Track the favorite toggle
+    if (background) {
+      analytics.toggleFavorite(
+        id,
+        background.config.name,
+        isRemoving ? 'remove' : 'add'
+      );
+    }
+
     setFavourite(prev =>
       prev.includes(id)
         ? prev.filter(x => x !== id)

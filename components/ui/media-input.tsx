@@ -41,9 +41,20 @@ export const MediaInput = ({
     };
   }, []);
 
-  // Handle mediaType changes - switch to appropriate default if no custom file
+  // Handle mediaType changes - switch to appropriate default
   useEffect(() => {
-    if (prevMediaTypeRef.current !== mediaType && !isCustomFile) {
+    if (prevMediaTypeRef.current !== mediaType) {
+      // Clear custom file when media type changes since image files can't play as video and vice versa
+      if (isCustomFile) {
+        if (objectUrlRef.current) {
+          URL.revokeObjectURL(objectUrlRef.current);
+          objectUrlRef.current = null;
+        }
+        setFileName(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
       const newDefault = mediaType === 'image' ? defaultImage : defaultVideo;
       if (newDefault) {
         onChange(newDefault);

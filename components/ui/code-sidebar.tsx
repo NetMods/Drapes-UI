@@ -143,6 +143,9 @@ export function CodeSidebar() {
                     dynamic={data.rawUsage}
                     htmlCode={data?.usage}
                     code={data?.rawUsage}
+                    backgroundId={data.id}
+                    backgroundName={data.name}
+                    codeType='usage'
                   />
                 )}
               </div>
@@ -179,6 +182,9 @@ export function CodeSidebar() {
                     id={data.id}
                     type={activeTab}
                     raw
+                    backgroundId={data.id}
+                    backgroundName={data.name}
+                    codeType={activeTab === 'js' ? 'jsx' : 'tsx'}
                   />
                 }
               </div>

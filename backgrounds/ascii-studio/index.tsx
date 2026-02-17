@@ -12,6 +12,19 @@ export type AsciiMode =
 
 export type MediaType = "image" | "video";
 export type ObjectFit = "contain" | "cover" | "fill";
+export type ColorTheme = 'colorful' | 'monochrome' | 'ink-paper' | 'amber-glow' | 'game-boy' | 'nes' | 'terminal' | 'blueprint' | 'neon-punk';
+
+const THEME_COLORS: Record<ColorTheme, { fg: [number, number, number]; bg: [number, number, number]; useOriginalColors: boolean }> = {
+  'colorful': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: true },
+  'monochrome': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: false },
+  'ink-paper': { fg: [0.11, 0.09, 0.08], bg: [0.96, 0.94, 0.91], useOriginalColors: false },
+  'amber-glow': { fg: [1, 0.69, 0], bg: [0.1, 0.03, 0], useOriginalColors: false },
+  'game-boy': { fg: [0.19, 0.38, 0.19], bg: [0.61, 0.74, 0.06], useOriginalColors: false },
+  'nes': { fg: [0.97, 0.97, 0.97], bg: [0, 0.25, 0.66], useOriginalColors: false },
+  'terminal': { fg: [0, 1, 0.25], bg: [0.05, 0.05, 0.05], useOriginalColors: false },
+  'blueprint': { fg: [0.88, 0.93, 1], bg: [0.04, 0.09, 0.16], useOriginalColors: false },
+  'neon-punk': { fg: [1, 0.08, 0.58], bg: [0.06, 0, 0.13], useOriginalColors: false },
+};
 
 interface AsciiProps {
   mediaType: MediaType;
@@ -19,10 +32,12 @@ interface AsciiProps {
   source: string;
   objectFit?: ObjectFit;
   fontSize?: number;
-  color?: string;
-  backgroundColor?: string;
+  colorTheme?: ColorTheme;
   inverted?: boolean;
-  colored?: boolean;
+  brightness?: number;
+  contrast?: number;
+  highlights?: number;
+  midtones?: number;
 }
 
 const ASCII_CHARS: Record<AsciiMode, string> = {
@@ -65,6 +80,35 @@ uniform vec3 u_solidColor;     // RGB color if not colored
 uniform vec3 u_bgColor;        // Background color
 uniform vec2 u_mediaResolution; // Resolution of the source media
 uniform int u_objectFit;       // 0: fill, 1: contain, 2: cover
+
+uniform float u_brightness;
+uniform float u_contrast;
+uniform float u_highlights;
+uniform float u_midtones;
+
+vec3 applyColorCorrection(vec3 color) {
+    float b = u_brightness / 100.0;
+    float c = (u_contrast + 100.0) / 100.0;
+    float cSqu = c * c;
+
+    float gamma = 1.0;
+    if (u_midtones < 0.0) {
+        gamma = 1.0 + u_midtones / -100.0;
+    } else {
+        gamma = 1.0 - u_midtones / 200.0;
+    }
+
+    float h = 1.0 + u_highlights / 200.0;
+
+    vec3 val = color;
+    val = (val - 0.5) * cSqu + 0.5;
+    val += b;
+    val = max(val, vec3(0.0));
+    val = pow(val, vec3(gamma));
+    val = mix(val, val * h, step(0.5, val));
+
+    return clamp(val, 0.0, 1.0);
+}
 
 // Convert RGB to luminance
 float getLuminance(vec3 color) {
@@ -129,7 +173,8 @@ void main() {
     }
     
     vec4 mediaColor = texture(u_mediaTexture, mediaUV);
-    
+    mediaColor.rgb = applyColorCorrection(mediaColor.rgb);
+
     // 3. Determine Character
     float luminance = getLuminance(mediaColor.rgb);
     if (u_inverted) luminance = 1.0 - luminance;
@@ -157,17 +202,6 @@ void main() {
 `;
 
 // --- Helpers ---
-
-const hexToRgb = (hex: string): [number, number, number] => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? [
-      parseInt(result[1], 16) / 255,
-      parseInt(result[2], 16) / 255,
-      parseInt(result[3], 16) / 255,
-    ]
-    : [1, 1, 1];
-};
 
 const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
   const shader = gl.createShader(type);
@@ -206,10 +240,12 @@ const AsciiStudio = ({
   source,
   objectFit = "contain",
   fontSize = 14,
-  color = "#eeeeee",
-  backgroundColor = "#000000",
+  colorTheme = "colorful",
   inverted = false,
-  colored = true,
+  brightness = 0,
+  contrast = 0,
+  highlights = 0,
+  midtones = 0,
 }: AsciiProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -308,6 +344,10 @@ const AsciiStudio = ({
       u_bgColor: gl.getUniformLocation(program, "u_bgColor"),
       u_mediaResolution: gl.getUniformLocation(program, "u_mediaResolution"),
       u_objectFit: gl.getUniformLocation(program, "u_objectFit"),
+      u_brightness: gl.getUniformLocation(program, "u_brightness"),
+      u_contrast: gl.getUniformLocation(program, "u_contrast"),
+      u_highlights: gl.getUniformLocation(program, "u_highlights"),
+      u_midtones: gl.getUniformLocation(program, "u_midtones"),
     };
 
     // Geometry (Fullscreen Quad)
@@ -403,12 +443,16 @@ const AsciiStudio = ({
       gl.uniform2f(u.u_resolution, canvasRef.current!.width, canvasRef.current!.height);
       gl.uniform2f(u.u_gridSize, charDataRef.current.width, charDataRef.current.height);
       gl.uniform1i(u.u_inverted, inverted ? 1 : 0);
-      gl.uniform1i(u.u_colored, colored ? 1 : 0);
 
-      const rgbColor = hexToRgb(color);
-      gl.uniform3f(u.u_solidColor, rgbColor[0], rgbColor[1], rgbColor[2]);
-      const rgbBg = hexToRgb(backgroundColor);
-      gl.uniform3f(u.u_bgColor, rgbBg[0], rgbBg[1], rgbBg[2]);
+      const theme = THEME_COLORS[colorTheme];
+      gl.uniform1i(u.u_colored, theme.useOriginalColors ? 1 : 0);
+      gl.uniform3f(u.u_solidColor, theme.fg[0], theme.fg[1], theme.fg[2]);
+      gl.uniform3f(u.u_bgColor, theme.bg[0], theme.bg[1], theme.bg[2]);
+
+      gl.uniform1f(u.u_brightness, brightness);
+      gl.uniform1f(u.u_contrast, contrast);
+      gl.uniform1f(u.u_highlights, highlights);
+      gl.uniform1f(u.u_midtones, midtones);
       gl.uniform2f(u.u_mediaResolution, mediaW, mediaH);
 
       let fitMode = 1; // Contain
@@ -436,7 +480,7 @@ const AsciiStudio = ({
     return () => {
       cancelAnimationFrame(reqIdRef.current);
     }
-  }, [mediaType, asciiMode, objectFit, fontSize, color, backgroundColor, inverted, colored, source]);
+  }, [mediaType, asciiMode, objectFit, fontSize, colorTheme, inverted, brightness, contrast, highlights, midtones, source]);
 
   // 4. Source Handling
   useEffect(() => {

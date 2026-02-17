@@ -6,11 +6,24 @@ export type DitherMode = "none" | "bayer" | "floyd";
 export type BayerLevel = 2 | 4 | 8 | 16;
 export type MediaType = "image" | "video";
 export type ObjectFit = "contain" | "cover" | "fill";
+export type ColorTheme = 'colorful' | 'monochrome' | 'ink-paper' | 'amber-glow' | 'game-boy' | 'nes' | 'terminal' | 'blueprint' | 'neon-punk';
+
+const THEME_COLORS: Record<ColorTheme, { fg: [number, number, number]; bg: [number, number, number]; useOriginalColors: boolean }> = {
+  'colorful': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: true },
+  'monochrome': { fg: [1, 1, 1], bg: [0, 0, 0], useOriginalColors: false },
+  'ink-paper': { fg: [0.11, 0.09, 0.08], bg: [0.96, 0.94, 0.91], useOriginalColors: false },
+  'amber-glow': { fg: [1, 0.69, 0], bg: [0.1, 0.03, 0], useOriginalColors: false },
+  'game-boy': { fg: [0.19, 0.38, 0.19], bg: [0.61, 0.74, 0.06], useOriginalColors: false },
+  'nes': { fg: [0.97, 0.97, 0.97], bg: [0, 0.25, 0.66], useOriginalColors: false },
+  'terminal': { fg: [0, 1, 0.25], bg: [0.05, 0.05, 0.05], useOriginalColors: false },
+  'blueprint': { fg: [0.88, 0.93, 1], bg: [0.04, 0.09, 0.16], useOriginalColors: false },
+  'neon-punk': { fg: [1, 0.08, 0.58], bg: [0.06, 0, 0.13], useOriginalColors: false },
+};
 
 interface DitherProps {
   mediaType: MediaType;
   ditherMode: DitherMode;
-  isGrayscale: boolean;
+  colorTheme: ColorTheme;
   bayerLevel: BayerLevel;
   source: string;
   brightness: number;
@@ -52,7 +65,9 @@ const fragmentShaderSource = `
   uniform float u_blur;
    
   uniform int u_ditherMode; // 0 = none, 1 = bayer, 2 = floyd (stochastic)
-  uniform int u_isGrayscale;
+  uniform int u_useOriginalColors;
+  uniform vec3 u_themeFg;
+  uniform vec3 u_themeBg;
   uniform float u_bayerSize;
   uniform int u_objectFit; // 0 = contain, 1 = cover, 2 = fill
   
@@ -234,9 +249,11 @@ const fragmentShaderSource = `
     }
 
     // Dithering Logic
+    bool grayscale = u_useOriginalColors == 0;
+
     if (u_ditherMode == 1) {
       // --- Bayer ---
-      if (u_isGrayscale == 1) color = toGrayscale(color);
+      if (grayscale) color = toGrayscale(color);
 
       float threshold = getBayerThreshold(ditherPos);
       color = step(threshold, color);
@@ -244,7 +261,7 @@ const fragmentShaderSource = `
     } else if (u_ditherMode == 2) {
       float noise = interleavedGradientNoise(ditherPos);
 
-        if (u_isGrayscale == 1) {
+        if (grayscale) {
           vec3 gray = toGrayscale(color);
           color = vec3(step(noise, gray.r));
         } else {
@@ -258,7 +275,18 @@ const fragmentShaderSource = `
           );
         }
     } else {
-       if (u_isGrayscale == 1) color = toGrayscale(color);
+       if (grayscale) color = toGrayscale(color);
+    }
+
+    // Apply theme colors
+    if (u_useOriginalColors == 0) {
+      color = mix(u_themeBg, u_themeFg, color);
+    }
+
+    // Apply theme to undithered color for mouse reveal
+    if (u_useOriginalColors == 0) {
+      float lum = dot(unditheredColor, vec3(0.299, 0.587, 0.114));
+      unditheredColor = mix(u_themeBg, u_themeFg, vec3(lum));
     }
 
     // Mouse reveal - soft circle around mouse shows less-dithered image
@@ -278,7 +306,7 @@ const fragmentShaderSource = `
 const DitherStudio = ({
   mediaType = 'image',
   ditherMode = 'bayer',
-  isGrayscale = false,
+  colorTheme = 'colorful',
   bayerLevel = 8,
   source,
   brightness = 0,
@@ -422,7 +450,9 @@ const DitherStudio = ({
       u_midtones: gl.getUniformLocation(program, 'u_midtones'),
       u_blur: gl.getUniformLocation(program, 'u_blur'),
       u_ditherMode: gl.getUniformLocation(program, 'u_ditherMode'),
-      u_isGrayscale: gl.getUniformLocation(program, 'u_isGrayscale'),
+      u_useOriginalColors: gl.getUniformLocation(program, 'u_useOriginalColors'),
+      u_themeFg: gl.getUniformLocation(program, 'u_themeFg'),
+      u_themeBg: gl.getUniformLocation(program, 'u_themeBg'),
       u_bayerSize: gl.getUniformLocation(program, 'u_bayerSize'),
       u_objectFit: gl.getUniformLocation(program, 'u_objectFit'),
       u_pixelSize: gl.getUniformLocation(program, 'u_pixelSize'),
@@ -511,7 +541,10 @@ const DitherStudio = ({
     gl.uniform1f(uniforms.u_midtones, midtones);
     gl.uniform1f(uniforms.u_blur, blur);
     gl.uniform1i(uniforms.u_ditherMode, ditherMode === 'none' ? 0 : ditherMode === 'bayer' ? 1 : 2);
-    gl.uniform1i(uniforms.u_isGrayscale, isGrayscale ? 1 : 0);
+    const theme = THEME_COLORS[colorTheme];
+    gl.uniform1i(uniforms.u_useOriginalColors, theme.useOriginalColors ? 1 : 0);
+    gl.uniform3f(uniforms.u_themeFg, theme.fg[0], theme.fg[1], theme.fg[2]);
+    gl.uniform3f(uniforms.u_themeBg, theme.bg[0], theme.bg[1], theme.bg[2]);
     gl.uniform1f(uniforms.u_bayerSize, bayerLevel);
     gl.uniform1i(uniforms.u_objectFit, objectFit === 'contain' ? 0 : objectFit === 'cover' ? 1 : 2);
     gl.uniform1f(uniforms.u_pixelSize, pixelSize);
@@ -520,7 +553,7 @@ const DitherStudio = ({
     gl.uniform1f(uniforms.u_mouseRadius, mouseRadius * dpr);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  }, [mediaType, brightness, contrast, highlights, midtones, blur, ditherMode, isGrayscale, bayerLevel, objectFit, pixelSize, mouseInteraction, mouseRadius]);
+  }, [mediaType, brightness, contrast, highlights, midtones, blur, ditherMode, colorTheme, bayerLevel, objectFit, pixelSize, mouseInteraction, mouseRadius]);
 
   useEffect(() => {
     initWebGL();
@@ -536,7 +569,7 @@ const DitherStudio = ({
 
   useEffect(() => {
     draw();
-  }, [ditherMode, isGrayscale, brightness, contrast, highlights, midtones, blur, objectFit, pixelSize, mouseInteraction, mouseRadius, draw]);
+  }, [ditherMode, colorTheme, brightness, contrast, highlights, midtones, blur, objectFit, pixelSize, mouseInteraction, mouseRadius, draw]);
 
   useEffect(() => {
     const video = videoRef.current;

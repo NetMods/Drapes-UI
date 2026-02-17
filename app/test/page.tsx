@@ -1,110 +1,191 @@
-'use client'
-import React, { useLayoutEffect, useRef } from 'react';
+"use client";
 
-const MosaicShader: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+import { useEffect, useRef } from "react";
 
-  useLayoutEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const gl = canvas.getContext('webgl2');
-    if (!gl) return;
-
-    const vsSource = `#version 300 es
-      in vec4 a_position;
-      void main() {
-        gl_Position = a_position;
-      }`;
-
-    const fsSource = `#version 300 es
-      precision highp float;
-      uniform vec2 r;
-      uniform float t;
-      out vec4 o;
-      void main() {
-        vec4 FC = gl_FragCoord;
-        vec2 p=3.*(FC.xy*2.-r)/r.y,v=p+p+(t+r)*cos(r+ceil(p+sin(p*5.))).yx;o=tanh(.1*(cos(.6*p.x+.3*sin(v.y)+vec4(0,1,2,3))+1.)/length(.9+sin(v)));
-      }`;
-
-    const createShader = (type: number, source: string) => {
-      const shader = gl.createShader(type);
-      if (!shader) return null;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        gl.deleteShader(shader);
-        return null;
-      }
-      return shader;
-    };
-
-    const vertexShader = createShader(gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = createShader(gl.FRAGMENT_SHADER, fsSource);
-    if (!vertexShader || !fragmentShader) return;
-
-    const program = gl.createProgram();
-    if (!program) return;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
-
-    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-    const resolutionUniformLocation = gl.getUniformLocation(program, 'r');
-    const timeUniformLocation = gl.getUniformLocation(program, 't');
-
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1, -1,
-      1, -1,
-      -1, 1,
-      -1, 1,
-      1, -1,
-      1, 1,
-    ]), gl.STATIC_DRAW);
-
-    const vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-    let animationFrameId: number;
-    const startTime = performance.now();
-
-    const render = () => {
-      const displayWidth = canvas.clientWidth;
-      const displayHeight = canvas.clientHeight;
-
-      if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-        gl.viewport(0, 0, canvas.width, canvas.height);
-      }
-
-      gl.useProgram(program);
-      gl.bindVertexArray(vao);
-
-      gl.uniform2f(resolutionUniformLocation, canvas.width, canvas.height);
-      gl.uniform1f(timeUniformLocation, (performance.now() - startTime) / 1000);
-
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      animationFrameId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      gl.deleteProgram(program);
-      gl.deleteShader(vertexShader);
-      gl.deleteShader(fragmentShader);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />;
+type SpriteConfig = {
+  src: string;
+  width: number;
+  height: number;
+  scale: number;
+  fps: number;
+  colsWalk: number;
+  colsIdle: number;
 };
 
-export default MosaicShader;
+const SPRITE_DATA: Record<string, SpriteConfig> = {
+  bull: {
+    src: "/data/Bull_animation_with_shadow.png",
+    width: 64,
+    height: 64,
+    scale: 3,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  sheep: {
+    src: "/data/Sheep_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 5,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  pig: {
+    src: "/data/Piglet_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 4,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  chick: {
+    src: "/data/Chick_animation_with_shadow.png",
+    width: 16,
+    height: 16,
+    scale: 5,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+  turkey: {
+    src: "/data/Turkey_animation_with_shadow.png",
+    width: 32,
+    height: 32,
+    scale: 4,
+    fps: 12,
+    colsWalk: 6,
+    colsIdle: 4,
+  },
+};
+
+
+interface AnimalAnimationProps {
+  animal?: string;
+}
+
+function AnimalAnimation({ animal = "turkey" }: AnimalAnimationProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedConfig = SPRITE_DATA[animal.toLowerCase()] || SPRITE_DATA["sheep"];
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      ctx.imageSmoothingEnabled = false;
+    };
+    window.addEventListener("resize", resize);
+    resize();
+
+    const img = new Image();
+    img.src = selectedConfig.src;
+    let isLoaded = false;
+    img.onload = () => { isLoaded = true; };
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let targetX = x;
+    let targetY = y;
+
+    let frame = 0;
+    let dir = 0;
+    let isIdle = true;
+
+    let lastTime = 0;
+    let timer = 0;
+    const interval = 1000 / selectedConfig.fps;
+    const SPEED = 6;
+
+    const onMouseMove = (e: MouseEvent) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+
+    let rafId: number;
+
+    const loop = (timestamp: number) => {
+      rafId = requestAnimationFrame(loop);
+      if (!isLoaded) return;
+
+      const dt = timestamp - lastTime;
+      lastTime = timestamp;
+
+      const dx = targetX - x;
+      const dy = targetY - y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const wasIdle = isIdle;
+
+      if (dist > 10) {
+        isIdle = false;
+        x += (dx / dist) * SPEED;
+        y += (dy / dist) * SPEED;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+          dir = dx > 0 ? 3 : 2;
+        } else {
+          dir = dy > 0 ? 0 : 1;
+        }
+      } else {
+        isIdle = true;
+      }
+
+      if (wasIdle !== isIdle) frame = 0;
+
+      timer += dt;
+      if (timer > interval) {
+        timer = 0;
+        const maxFrames = isIdle ? selectedConfig.colsIdle : selectedConfig.colsWalk;
+        frame = (frame + 1) % maxFrames;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      let row = dir;
+      if (isIdle) row += 4;
+
+      const sx = frame * selectedConfig.width;
+      const sy = row * selectedConfig.height;
+
+      const drawW = selectedConfig.width * selectedConfig.scale;
+      const drawH = selectedConfig.height * selectedConfig.scale;
+
+      ctx.drawImage(
+        img,
+        sx, sy, selectedConfig.width, selectedConfig.height,
+        x - drawW / 2, y - drawH / 2, drawW, drawH
+      );
+    };
+
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
+    };
+  }, [selectedConfig]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        pointerEvents: "none",
+        zIndex: 9999,
+      }}
+    />
+  );
+}
+
+export default AnimalAnimation;

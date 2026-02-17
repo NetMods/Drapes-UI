@@ -4,11 +4,11 @@ import { registry } from '@/lib/registry';
 import { ControlPanel } from '@/components/ui/control-panel';
 import { CodeSidebarData, useCodeSidebar } from "@/components/ui/code-sidebar"
 import { useSettingsSidebar } from "@/components/ui/settings-sidebar"
-import { CaretUpIcon, GearIcon, ArrowLeftIcon, ArrowRightIcon, CodeIcon } from "@phosphor-icons/react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react";
 import { useBackgroundProps } from '@/lib/background-context';
-import { cn } from '@/lib/utils';
+import { SettingsButton, LeftButton, RightButton, CodeButton, MobileControls } from './components'
+import ToolButton from './components/tools-button';
 
 export default function Page() {
   const searchParams = useSearchParams()
@@ -20,6 +20,8 @@ export default function Page() {
 
   const { props, setProps } = useBackgroundProps();
   const propsRef = useRef(props);
+  const [isRecording, setIsRecording] = useState(false);
+  const stopRecordingRef = useRef<(() => void) | null>(null);
 
   useEffect(() => { propsRef.current = props; }, [props]);
 
@@ -55,7 +57,7 @@ export default function Page() {
   const { openCodeSidebar, closeCodeSidebar } = useCodeSidebar();
 
   const handleLeft = () => {
-    // Close sidebars to prevent old controls affecting new background
+    stopRecordingRef.current?.();
     closeSettingsSidebar();
     closeCodeSidebar();
     const newId = Math.max(1, currentId - 1)
@@ -63,7 +65,7 @@ export default function Page() {
   }
 
   const handleRight = () => {
-    // Close sidebars to prevent old controls affecting new background
+    stopRecordingRef.current?.();
     closeSettingsSidebar();
     closeCodeSidebar();
     const newId = currentId + 1
@@ -96,115 +98,39 @@ export default function Page() {
 
         <div className="flex justify-center gap-3 items-center max-sm:w-full">
           <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2 backdrop-blur-xl' />
-          <div
-            className="max-sm:bg-white/10 rounded text-base-content max-sm:backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl py-0.5 lg:text-3xl w-full md:w-60 flex justify-center items-center backdrop-blur-xl"
-          >
-            {config.name}
-          </div>
-          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden backdrop-blur-xl p-2' />
+          <div className="max-sm:bg-white/10 py-0.5 rounded backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
+          <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden p-2 backdrop-blur-xl' />
         </div>
 
-        <CodeButton action={handleCodeSidebar} className='max-sm:hidden backdrop-blur-xl' />
+        <CodeButton action={handleCodeSidebar} className='max-sm:hidden  backdrop-blur-xl' />
       </div>
 
-      <div className="inset-0 fixed top-0 left-0 -z-10 ">
+      <div className="inset-0 fixed top-0 left-0 -z-10">
         <Component key={currentId} {...props} />
       </div>
 
       <LeftButton
         action={handleLeft}
         isDisabled={currentId === 1}
-        className='fixed top-1/2 translate-y-[-50%] sm:hidden bg-white/10 border border-white/30 text-base-content/70 ml-1 p-1 rounded-xl backdrop-blur-xl'
+        className='fixed top-1/2 sm:hidden bg-white/10 border border-white/30 text-base-content/70 ml-1 p-1 rounded-xl backdrop-blur-xl'
         size={23}
       />
       <RightButton
         action={handleRight}
         isDisabled={currentId === totalBackground}
-        className='fixed top-1/2 right-0 translate-y-[-50%] sm:hidden bg-white/10 border border-white/30 text-base-content/70 mr-1 p-1 rounded-xl backdrop-blur-xl'
+        className='fixed top-1/2 right-0 sm:hidden bg-white/10 border border-white/30 text-base-content/70 mr-1 p-1 rounded-xl backdrop-blur-xl'
         size={23}
       />
       <MobileControls
         handleSettingSidebar={handleSettingSidebar}
         handleCodeSidebar={handleCodeSidebar}
       />
-    </div>
-  )
-}
-
-const LeftButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
-  return (
-    <button
-      onClick={action}
-      className={cn(`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 disabled:opacity-40 
-        enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed`, className)}
-      disabled={isDisabled}
-    >
-      <ArrowLeftIcon size={size ?? 25} weight="bold" />
-    </button>
-  )
-}
-
-const RightButton = ({ action, isDisabled, className, size }: { action: () => void, isDisabled: boolean, className?: string, size?: number }) => {
-  return (
-    <button
-      onClick={action}
-      className={`enabled:active:scale-95 cursor-pointer enabled:hover:bg-base-content/20 disabled:opacity-40 
-        enabled:hover:ring-1 rounded-sm ring-base-content/40 transition-all disabled:cursor-not-allowed ${className}`}
-      disabled={isDisabled}
-    >
-      <ArrowRightIcon size={size ?? 25} weight="bold" />
-    </button>
-  )
-}
-
-const SettingsButton = ({ action, className }: { action: () => void, className?: string }) => {
-  return (
-    <button
-      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm text-base-content transition-colors ${className}`}
-      onClick={action}
-    >
-      <span className='block md:hidden'> <GearIcon weight='bold' size={23} /> </span>
-      <span className='md:block hidden'> Settings </span>
-    </button>
-  )
-}
-
-const CodeButton = ({ action, className }: { action: () => void, className?: string }) => {
-  return (
-    <button
-      className={`font-sans text-lg cursor-pointer hover:bg-base-content/20 p-2 rounded-sm text-base-content transition-colors ${className}`}
-      onClick={action}
-    >
-      <span className='block md:hidden'> <CodeIcon size={23} weight='bold' /> </span>
-      <span className='md:block hidden'> Code </span>
-    </button>
-  )
-}
-
-const MobileControls = ({ handleSettingSidebar, handleCodeSidebar }: { handleSettingSidebar: () => void; handleCodeSidebar: () => void }) => {
-  const [isClicked, setIsClicked] = useState(false);
-
-  return (
-    <div className='border border-white/30 rounded-xl fixed bottom-4 left-1/2 translate-x-[-50%] text-base-content/70
-      sm:hidden bg-white/10 backdrop-blur-lg
-    '>
-      {!isClicked && (
-        <CaretUpIcon className='left-1/2 translate-x-[-50%] top-[-25] animate-bounce absolute' weight='bold' size={24} />
-      )}
-
-      <SettingsButton
-        action={() => {
-          handleSettingSidebar();
-          setIsClicked(true);
-        }}
-      />
-
-      <CodeButton
-        action={() => {
-          handleCodeSidebar();
-          setIsClicked(true);
-        }}
-      />
+      <ToolButton
+        className='hidden sm:fixed bottom-4 left-1/2'
+        backgroundName={config.name}
+        onRecordingStateChange={setIsRecording}
+        onRegisterStop={(fn) => { stopRecordingRef.current = fn; }}
+       />
     </div>
   )
 }

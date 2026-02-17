@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon, LinkIcon } from '@phosphor-icons/react';
 import { MouseEvent, useEffect, useState } from "react"
 import { BundledLanguage, codeToHtml } from 'shiki';
+import { analytics } from '@/lib/analytics';
 
 type Props = {
   htmlCode: string;
@@ -16,6 +17,12 @@ type Props = {
 };
 
 export default function Code({ htmlCode, code, filename, dynamic, language, type, id, raw }: Props) {
+  backgroundId?: string;
+  backgroundName?: string;
+  codeType?: 'usage' | 'tsx' | 'jsx';
+};
+
+export default function Code({ htmlCode, code, filename, dynamic, language, backgroundId, backgroundName, codeType }: Props) {
   const [html, setHtml] = useState<string>(htmlCode)
 
   useEffect(() => {
@@ -35,6 +42,11 @@ export default function Code({ htmlCode, code, filename, dynamic, language, type
     } else {
       const rawURL = `http://localhost:3000/api/v1/raw?id=${id}&type=${type}`
       navigator.clipboard.writeText(rawURL)
+    }
+
+    // Track the copy event
+    if (codeType) {
+      analytics.codeCopy(backgroundId, backgroundName, codeType);
     }
     setTimeout(() => button.classList.remove('clicked'), 500);
   };

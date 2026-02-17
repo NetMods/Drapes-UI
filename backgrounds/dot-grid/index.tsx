@@ -1,202 +1,218 @@
-'use client'
-import { useEffect, useRef } from 'react';
+'use client';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface InteractiveDotGridProps {
   dotSpacing?: number;
   dotBaseSize?: number;
   influenceRadius?: number;
-  maxScale?: number;
+  displacementStrength?: number;
   backgroundColor?: string;
-  glowColor?: string;
   dotColor?: string;
-  activeDotColor?: string;
-  glowCoreColor?: string;
-  showGrid?: boolean;
-  numLayers?: number;
-  hiddots?: boolean;
+  mouseInteraction?: boolean;
+  shape?: 'circle' | 'triangle' | 'square';
 }
 
-const InteractiveDotGrid = ({
+// Parse hex color once, outside component
+function parseColor(color: string) {
+  if (color.startsWith('#') && color.length >= 7) {
+    return {
+      r: parseInt(color.slice(1, 3), 16),
+      g: parseInt(color.slice(3, 5), 16),
+      b: parseInt(color.slice(5, 7), 16),
+    };
+  }
+  return { r: 100, g: 100, b: 100 };
+}
+
+const DotGrid = ({
   dotSpacing = 30,
   dotBaseSize = 2,
   influenceRadius = 150,
-  maxScale = 8,
+  displacementStrength = 40,
   backgroundColor = '#0a0a0a',
-  glowColor = '#8b5cf6',
   dotColor = '#646464',
-  activeDotColor = '#a78bfa',
-  glowCoreColor = '#ffffff',
-  showGrid = true,
-  numLayers = 2,
-  hiddots = false,
+  mouseInteraction = true,
+  shape = 'circle',
 }: InteractiveDotGridProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationIdRef = useRef<number>(0);
   const mousePos = useRef({ x: -1000, y: -1000 });
   const lastMousePos = useRef({ x: -1000, y: -1000 });
-  const dotsRef = useRef<{ x: number; y: number; baseSize: number }[]>([]);
-  const animationIdRef = useRef<number>(0);
+  const dotsRef = useRef<{ x: number; y: number }[]>([]);
+
+  const propsRef = useRef({
+    dotSpacing,
+    dotBaseSize,
+    influenceRadius,
+    displacementStrength,
+    backgroundColor,
+    dotColor,
+    mouseInteraction,
+    shape,
+  });
+  propsRef.current = {
+    dotSpacing,
+    dotBaseSize,
+    influenceRadius,
+    displacementStrength,
+    backgroundColor,
+    dotColor,
+    mouseInteraction,
+    shape,
+  };
+
+  const rebuildDots = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const { dotSpacing: spacing } = propsRef.current;
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    const dots: { x: number; y: number }[] = [];
+    for (let x = spacing; x < w; x += spacing) {
+      for (let y = spacing; y < h; y += spacing) {
+        dots.push({ x, y });
+      }
+    }
+    dotsRef.current = dots;
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', {
-      alpha: false,
-      desynchronized: true
-    });
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
     if (!ctx) return;
 
-    const resize = () => {
+    const applySize = () => {
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = canvas.offsetWidth * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      ctx.scale(dpr, dpr);
-
-      dotsRef.current = [];
-      for (let x = dotSpacing; x < canvas.offsetWidth; x += dotSpacing) {
-        for (let y = dotSpacing; y < canvas.offsetHeight; y += dotSpacing) {
-          dotsRef.current.push({ x, y, baseSize: dotBaseSize });
-        }
-      }
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      rebuildDots();
+      lastMousePos.current = { x: -9999, y: -9999 };
     };
-    resize();
-    window.addEventListener('resize', resize);
+    applySize();
 
-    const influenceRadiusSq = influenceRadius * influenceRadius;
+    const ro = new ResizeObserver(applySize);
+    ro.observe(canvas);
 
-    // Parse colors once
-    const parseColor = (color: string) => {
-      if (color.startsWith('#')) {
-        const r = parseInt(color.slice(1, 3), 16);
-        const g = parseInt(color.slice(3, 5), 16);
-        const b = parseInt(color.slice(5, 7), 16);
-        return { r, g, b };
+    const drawShape = (
+      x: number,
+      y: number,
+      size: number,
+      s: 'circle' | 'triangle' | 'square',
+    ) => {
+      ctx.beginPath();
+      if (s === 'triangle') {
+        ctx.moveTo(x, y - size);
+        ctx.lineTo(x - size * 0.866, y + size * 0.5);
+        ctx.lineTo(x + size * 0.866, y + size * 0.5);
+        ctx.closePath();
+      } else if (s === 'square') {
+        ctx.rect(x - size, y - size, size * 2, size * 2);
+      } else {
+        ctx.arc(x, y, size, 0, Math.PI * 2);
       }
-      return { r: 100, g: 100, b: 100 };
+      ctx.fill();
     };
-    const baseColor = parseColor(dotColor);
 
     const animate = () => {
-      if (!ctx || !canvas) return;
-
+      const p = propsRef.current;
       const mx = mousePos.current.x;
       const my = mousePos.current.y;
-      const lastMx = lastMousePos.current.x;
-      const lastMy = lastMousePos.current.y;
+      const lx = lastMousePos.current.x;
+      const ly = lastMousePos.current.y;
 
-      // Skip frame if mouse hasn't moved significantly
-      const mouseMoved = Math.abs(mx - lastMx) > 2 || Math.abs(my - lastMy) > 2;
-
-      if (mouseMoved || lastMx === -1000) {
+      const moved = Math.abs(mx - lx) > 1 || Math.abs(my - ly) > 1;
+      if (moved || lx === -9999) {
         lastMousePos.current.x = mx;
         lastMousePos.current.y = my;
 
-        // Clear canvas
-        ctx.fillStyle = backgroundColor;
-        ctx.fillRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+        const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight;
+        const baseColor = parseColor(p.dotColor);
+        const irSq = p.influenceRadius * p.influenceRadius;
 
-        // Calculate visible bounds for optimization
-        const minX = mx - influenceRadius * 1.5;
-        const maxX = mx + influenceRadius * 1.5;
-        const minY = my - influenceRadius * 1.5;
-        const maxY = my + influenceRadius * 1.5;
+        ctx.fillStyle = p.backgroundColor;
+        ctx.fillRect(0, 0, w, h);
 
-        for (let i = 0; i < dotsRef.current.length; i++) {
-          const dot = dotsRef.current[i];
+        const dots = dotsRef.current;
+        const len = dots.length;
 
-          // Skip dots outside influence area for hiddots mode
-          if (hiddots) {
-            if (dot.x < minX || dot.x > maxX || dot.y < minY || dot.y > maxY) {
-              continue;
-            }
-          }
+        for (let i = 0; i < len; i++) {
+          const dot = dots[i];
+          const dx = dot.x - mx;
+          const dy = dot.y - my;
+          const distSq = dx * dx + dy * dy;
 
-          const dx = mx - dot.x;
-          const dy = my - dot.y;
-          const distanceSq = dx * dx + dy * dy;
-
-          if (hiddots && distanceSq >= influenceRadiusSq) {
-            continue;
-          }
-
+          let drawX = dot.x;
+          let drawY = dot.y;
           let scale = 1;
-          if (distanceSq < influenceRadiusSq && showGrid) {
-            const distance = Math.sqrt(distanceSq);
-            const influence = 1 - distance / influenceRadius;
-            scale = 1 + influence * influence * (maxScale - 1);
+
+          if (p.mouseInteraction && distSq < irSq && distSq > 1) {
+            const dist = Math.sqrt(distSq);
+            const inf = 1 - dist / p.influenceRadius;
+            const inf2 = inf * inf;
+
+            const disp = inf2 * p.displacementStrength;
+            const invDist = 1 / dist;
+            drawX += dx * invDist * disp;
+            drawY += dy * invDist * disp;
+            scale = 1 + inf2 * 2;
           }
 
-          const size = dot.baseSize * scale;
-          const glowIntensity = Math.min(1, (scale - 1) / (maxScale - 1));
-
-          // Reset shadow state explicitly
-          ctx.shadowBlur = 0;
-          ctx.shadowColor = 'transparent';
-
-          if (scale > 1.5) {
-            const gradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, size * numLayers);
-            const coreAlpha = Math.floor(glowIntensity * 0.3 * 255).toString(16).padStart(2, '0');
-            gradient.addColorStop(0, `${glowCoreColor}${coreAlpha}`);
-
-            for (let layer = 1; layer < numLayers; layer++) {
-              const layerOpacity = glowIntensity * (1 - layer / numLayers);
-              const layerStop = layer / numLayers;
-              const alpha = Math.floor(layerOpacity * 255).toString(16).padStart(2, '0');
-              gradient.addColorStop(layerStop, `${activeDotColor}${alpha}`);
-            }
-            gradient.addColorStop(1, glowColor);
-            ctx.fillStyle = gradient;
-
-            if (glowIntensity > 0.2) {
-              ctx.shadowBlur = 20 * glowIntensity * numLayers;
-              const shadowAlpha = Math.floor(glowIntensity * 255).toString(16).padStart(2, '0');
-              ctx.shadowColor = `${glowColor}${shadowAlpha}`;
-            }
-          } else {
-            const intensity = 1 + (scale - 1) * 0.4;
-            const r = Math.min(255, baseColor.r * intensity);
-            const g = Math.min(255, baseColor.g * intensity);
-            const b = Math.min(255, baseColor.b * intensity);
-            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-          }
-
-          ctx.beginPath();
-          ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2);
-          ctx.fill();
+          const size = p.dotBaseSize * scale;
+          const brightness = Math.min(2.5, 1 + (scale - 1) * 0.8);
+          const r = Math.min(255, baseColor.r * brightness) | 0;
+          const g = Math.min(255, baseColor.g * brightness) | 0;
+          const b = Math.min(255, baseColor.b * brightness) | 0;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          drawShape(drawX, drawY, size, p.shape);
         }
 
-        // Final cleanup
-        ctx.shadowBlur = 0;
-        ctx.shadowColor = 'transparent';
+        if (p.mouseInteraction && mx > 0 && my > 0) {
+          const cursorSize = p.dotBaseSize * 3;
+          const bright = Math.min(2.5, 2.6);
+          const r = Math.min(255, baseColor.r * bright) | 0;
+          const g = Math.min(255, baseColor.g * bright) | 0;
+          const b = Math.min(255, baseColor.b * bright) | 0;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          drawShape(mx, my, cursorSize, p.shape);
+        }
       }
 
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animationIdRef.current = requestAnimationFrame(animate);
 
-    const handleMouseMove = (e: MouseEvent) => {
+    // --- Pointer events (passive for performance) ---
+    const onMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       mousePos.current.x = e.clientX - rect.left;
       mousePos.current.y = e.clientY - rect.top;
     };
-
-    const handleMouseLeave = () => {
+    const onLeave = () => {
       mousePos.current.x = -1000;
       mousePos.current.y = -1000;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerleave', onLeave, { passive: true });
 
     return () => {
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
+      ro.disconnect();
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerleave', onLeave);
+      cancelAnimationFrame(animationIdRef.current);
     };
-  }, [dotSpacing, dotBaseSize, influenceRadius, maxScale, backgroundColor, glowColor, dotColor, activeDotColor, glowCoreColor, showGrid, numLayers, hiddots]);
+  }, [rebuildDots]);
+
+  useEffect(() => {
+    rebuildDots();
+    lastMousePos.current = { x: -9999, y: -9999 };
+  }, [dotSpacing, rebuildDots]);
 
   return (
     <canvas
@@ -208,10 +224,11 @@ const InteractiveDotGrid = ({
         width: '100%',
         height: '100%',
         zIndex: -10,
-        backgroundColor
+        backgroundColor,
+        touchAction: 'none',
       }}
     />
   );
-}
+};
 
-export default InteractiveDotGrid;
+export default DotGrid;
