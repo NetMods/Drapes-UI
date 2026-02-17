@@ -9,8 +9,7 @@ REGISTRY CONFIGURATION
 */}
 
 export const RegistryEntries = [
-  'animals+',
-  'kinetic-distortion+',
+  // 'kinetic-distortion+',
   'particles',
   'aura-ring+',
   'horizon-glow+',
@@ -40,6 +39,7 @@ export const RegistryEntries = [
   'snow-fall',
   'mosaic-flow',
   'lunar-ring',
+  'animals+',
   'plasma-wave',
   'cellular',
   'noise-field',
