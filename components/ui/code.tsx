@@ -11,18 +11,15 @@ type Props = {
   filename?: string;
   dynamic?: string;
   language?: string;
-  type?: string
-  id?: number
-  raw?: boolean
-};
-
-export default function Code({ htmlCode, code, filename, dynamic, language, type, id, raw }: Props) {
-  backgroundId?: string;
+  type?: string;
+  id?: number;
+  raw?: boolean;
+  backgroundId?: number;
   backgroundName?: string;
   codeType?: 'usage' | 'tsx' | 'jsx';
 };
 
-export default function Code({ htmlCode, code, filename, dynamic, language, backgroundId, backgroundName, codeType }: Props) {
+export default function Code({ htmlCode, code, filename, dynamic, language, type, id, raw, backgroundId, backgroundName, codeType }: Props) {
   const [html, setHtml] = useState<string>(htmlCode)
 
   useEffect(() => {

@@ -41,12 +41,12 @@ export const BackgroundCard = ({
   };
 
   const OpenPreview = () => {
-    analytics.cardPreview(config.id || '', config.name);
+    analytics.cardPreview(parseInt(config.id!), config.name);
     router.push(`/bg?id=${config.id}`);
   };
 
   const handleShowCode = () => {
-    analytics.cardCode(config.id || '', config.name);
+    analytics.cardCode(parseInt(config.id!), config.name);
     const data: CodeSidebarData = {
       id: parseInt(config.id!),
       name: config.name,

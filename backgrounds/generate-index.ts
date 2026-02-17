@@ -3,7 +3,7 @@ import { join } from 'path';
 import { RegistryEntries } from './registry.config';
 
 const quiet = process.argv.includes('--quiet');
-const log = quiet ? (..._args: unknown[]) => {} : console.log.bind(console);
+const log = quiet ? (..._args: unknown[]) => { } : console.log.bind(console);
 
 function kebabToPascal(str: string): string {
   return str
@@ -115,7 +115,7 @@ import { BackgroundConfig } from '@/lib/types';
 
 ${serverConfigImports}
 
-const configs: Omit<BackgroundConfig, 'id'>[] = [
+const configs: BackgroundConfig[] = [
 ${serverRegistryEntries}
 ]
 

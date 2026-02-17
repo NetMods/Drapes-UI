@@ -22,7 +22,7 @@ export const Collections = () => {
     // Track the favorite toggle
     if (background) {
       analytics.toggleFavorite(
-        id,
+        parseInt(id),
         background.config.name,
         isRemoving ? 'remove' : 'add'
       );
