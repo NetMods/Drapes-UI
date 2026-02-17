@@ -1,6 +1,6 @@
 import { CameraIcon, PlayIcon, StopCircleIcon, XIcon, WrenchIcon } from "@phosphor-icons/react"
 import { cn, captureScreenshot, getCanvasElement, startCanvasRecording, RecordingController } from "@/lib/utils"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 
 interface ToolButtonProps {
   className?: string;
@@ -8,6 +8,7 @@ interface ToolButtonProps {
   screenshotDelay?: number;
   maxRecordingDuration?: number;
   onRecordingStateChange?: (isRecording: boolean) => void;
+  onRegisterStop?: (stopFn: () => void) => void;
 }
 
 const ToolButton = ({
@@ -15,11 +16,25 @@ const ToolButton = ({
   backgroundName = 'background',
   screenshotDelay = 0,
   maxRecordingDuration = 30000,
-  onRecordingStateChange
+  onRecordingStateChange,
+  onRegisterStop
 }: ToolButtonProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const recorderRef = useRef<RecordingController | null>(null)
+
+  const stopRecording = () => {
+    if (recorderRef.current) {
+      recorderRef.current.stop();
+      recorderRef.current = null;
+      setIsRecording(false);
+      onRecordingStateChange?.(false);
+    }
+  };
+
+  useEffect(() => {
+    onRegisterStop?.(stopRecording);
+  });
 
   const handleScreenshot = async () => {
     const canvas = getCanvasElement();
@@ -36,11 +51,8 @@ const ToolButton = ({
   };
 
   const handleRecordToggle = () => {
-    if (isRecording && recorderRef.current) {
-      recorderRef.current.stop();
-      recorderRef.current = null;
-      setIsRecording(false);
-      onRecordingStateChange?.(false);
+    if (isRecording) {
+      stopRecording();
     } else {
       const canvas = getCanvasElement();
       const filename = `drapes-${backgroundName.toLowerCase().replace(/\s+/g, '-')}`;
@@ -64,7 +76,7 @@ const ToolButton = ({
   };
 
   const leftTools = [
-    { icon: CameraIcon, label: "Screenshot", onClick: handleScreenshot, disabled: isRecording },
+    { icon: CameraIcon, label: "Screenshot", onClick: handleScreenshot, disabled: false },
   ]
 
   const rightTools = [
