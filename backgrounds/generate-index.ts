@@ -2,6 +2,9 @@ import { existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { RegistryEntries } from './registry.config';
 
+const quiet = process.argv.includes('--quiet');
+const log = quiet ? (..._args: unknown[]) => { } : console.log.bind(console);
+
 function kebabToPascal(str: string): string {
   return str
     .split('-')
@@ -86,11 +89,44 @@ registerEntry.forEach((entry: BackgroundEntry, index) => {
 
   const outputPath = 'backgrounds/index.ts';
   writeFileSync(outputPath, content);
-  console.log(`✅ Generated ${outputPath} with ${backgrounds.length} backgrounds:`);
+  log(`✅ Generated ${outputPath} with ${backgrounds.length} backgrounds:`);
   backgrounds.forEach((bg, idx) => {
     const newBadge = bg.isNew ? ' [NEW]' : '';
-    console.log(`   ${idx + 1}. ${bg.componentName} (${bg.folderName})${newBadge}`);
+    log(`   ${idx + 1}. ${bg.componentName} (${bg.folderName})${newBadge}`);
   });
+
+  // Generate server-side index (configs only, no React components)
+  const serverConfigImports = backgrounds
+    .map(bg => {
+      const configVarName = bg.componentName.charAt(0).toLowerCase() + bg.componentName.slice(1) + 'Config';
+      return `import ${configVarName} from '${bg.relativePath}/config';`;
+    })
+    .join('\n');
+
+  const serverRegistryEntries = backgrounds
+    .map((bg, idx) => {
+      const configName = bg.componentName.charAt(0).toLowerCase() + bg.componentName.slice(1) + 'Config';
+      return `  { ...${configName}, id: '${idx + 1}' },`;
+    })
+    .join('\n');
+
+  const serverContent = `import { serverRegistry } from '@/lib/server-registry';
+import { BackgroundConfig } from '@/lib/types';
+
+${serverConfigImports}
+
+const configs: BackgroundConfig[] = [
+${serverRegistryEntries}
+]
+
+configs.forEach((config) => {
+  serverRegistry.register(config as BackgroundConfig);
+})
+`;
+
+  const serverOutputPath = 'backgrounds/server-index.ts';
+  writeFileSync(serverOutputPath, serverContent);
+  log(`✅ Generated ${serverOutputPath} (server-safe, configs only)`);
 }
 
 generateIndexFile();

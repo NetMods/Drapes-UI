@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon } from '@phosphor-icons/react';
+import { FolderSimpleIcon, ClipboardTextIcon, FileIcon, CheckIcon, LinkIcon } from '@phosphor-icons/react';
 import { MouseEvent, useEffect, useState } from "react"
 import { BundledLanguage, codeToHtml } from 'shiki';
 import { analytics } from '@/lib/analytics';
@@ -11,12 +11,15 @@ type Props = {
   filename?: string;
   dynamic?: string;
   language?: string;
-  backgroundId?: string;
+  type?: string;
+  id?: number;
+  raw?: boolean;
+  backgroundId?: number;
   backgroundName?: string;
   codeType?: 'usage' | 'tsx' | 'jsx';
 };
 
-export default function Code({ htmlCode, code, filename, dynamic, language, backgroundId, backgroundName, codeType }: Props) {
+export default function Code({ htmlCode, code, filename, dynamic, language, type, id, raw, backgroundId, backgroundName, codeType }: Props) {
   const [html, setHtml] = useState<string>(htmlCode)
 
   useEffect(() => {
@@ -28,23 +31,27 @@ export default function Code({ htmlCode, code, filename, dynamic, language, back
     }
   }, [htmlCode, dynamic])
 
-  const copyCode = (e: MouseEvent<HTMLButtonElement>) => {
+  const copyData = (e: MouseEvent<HTMLButtonElement>, raw?: boolean) => {
     const button = e.currentTarget;
     button.classList.add('clicked');
-    navigator.clipboard.writeText(code);
+    if (!raw && raw === undefined) {
+      navigator.clipboard.writeText(code)
+    } else {
+      const rawURL = `http://localhost:3000/api/v1/raw?id=${id}&type=${type}`
+      navigator.clipboard.writeText(rawURL)
+    }
 
     // Track the copy event
     if (codeType) {
       analytics.codeCopy(backgroundId, backgroundName, codeType);
     }
-
     setTimeout(() => button.classList.remove('clicked'), 500);
   };
 
   return (
     <div className='bg-base-100/30 rounded-lg'>
       <div
-        className={cn('flex overflow-hidden justify-between items-center px-4 py-1.5 pb-1 border-b',
+        className={cn('flex overflow-hidden justify-between items-center px-2 py-1.5 pb-1 border-b',
           'border-white/15 transition-all bg-base-100/10 backdrop-blur-3xl rounded-t-lg')}
       >
         {filename &&
@@ -70,13 +77,29 @@ export default function Code({ htmlCode, code, filename, dynamic, language, back
             ))}
           </div>
         }
-        <button
-          onClick={copyCode}
-          className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
-        >
-          <ClipboardTextIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
-          <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
-        </button>
+        <div className='flex justify-center items-center gap-0.5'>
+          {
+            raw &&
+            <button
+              onClick={(event: MouseEvent<HTMLButtonElement>) => {
+                copyData(event, true)
+              }}
+              className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
+            >
+              <LinkIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
+              <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
+            </button>
+          }
+          <button
+            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+              copyData(event)
+            }}
+            className="text-white cursor-pointer p-1 rounded-lg hover:bg-base-content/20 transition-colors group"
+          >
+            <ClipboardTextIcon size={17} weight='bold' className="group-[.clicked]:hidden" />
+            <CheckIcon size={17} weight='bold' className="hidden group-[.clicked]:block" />
+          </button>
+        </div>
       </div>
       {html ? (
         <div

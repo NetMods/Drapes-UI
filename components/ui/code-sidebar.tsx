@@ -8,7 +8,7 @@ import { CodeIcon, EyeIcon } from '@phosphor-icons/react/dist/ssr';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
 export interface CodeSidebarData {
-  id?: string;
+  id: number
   name: string;
   usage: string;
   rawUsage: string;
@@ -179,6 +179,9 @@ export function CodeSidebar() {
                     filename={activeTab === 'js' ? 'app/components/ui/background.jsx' : 'app/components/ui/background.tsx'}
                     htmlCode={activeTab === 'js' ? data.js : data.ts}
                     code={activeTab === 'js' ? data.rawjs : data.rawts}
+                    id={data.id}
+                    type={activeTab}
+                    raw
                     backgroundId={data.id}
                     backgroundName={data.name}
                     codeType={activeTab === 'js' ? 'jsx' : 'tsx'}

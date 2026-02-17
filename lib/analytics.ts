@@ -19,7 +19,7 @@ export const trackEvent = (
 
 export const analytics = {
   // Track when a user clicks on a background card preview
-  cardPreview: (backgroundId: string, backgroundName: string) => {
+  cardPreview: (backgroundId: number, backgroundName: string) => {
     trackEvent('background_preview', {
       background_id: backgroundId,
       background_name: backgroundName,
@@ -28,7 +28,7 @@ export const analytics = {
   },
 
   // Track when a user clicks the Code button
-  cardCode: (backgroundId: string, backgroundName: string) => {
+  cardCode: (backgroundId: number, backgroundName: string) => {
     trackEvent('background_code_view', {
       background_id: backgroundId,
       background_name: backgroundName,
@@ -38,7 +38,7 @@ export const analytics = {
 
   // Track when a user copies code
   codeCopy: (
-    backgroundId: string | undefined,
+    backgroundId: number | undefined,
     backgroundName: string | undefined,
     codeType: 'usage' | 'tsx' | 'jsx'
   ) => {
@@ -51,7 +51,7 @@ export const analytics = {
   },
 
   // Track when a user toggles favorite
-  toggleFavorite: (backgroundId: string, backgroundName: string, action: 'add' | 'remove') => {
+  toggleFavorite: (backgroundId: number, backgroundName: string, action: 'add' | 'remove') => {
     trackEvent('favorite_toggle', {
       background_id: backgroundId,
       background_name: backgroundName,
