@@ -2,6 +2,8 @@ import { registry } from '@/lib/registry';
 import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
+import Animals from './animals'
+import KineticDistortion from './kinetic-distortion'
 import Particles from './particles'
 import AuraRing from './aura-ring'
 import HorizonGlow from './horizon-glow'
@@ -41,6 +43,8 @@ import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
 
 //import config
+import animalsConfig from './animals/config';
+import kineticDistortionConfig from './kinetic-distortion/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -80,6 +84,8 @@ import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 
 const registerEntry: BackgroundEntry[] = [
+  // { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
+  // { config: animalsConfig, component: Animals, isNew: true },
   { config: particlesConfig, component: Particles },
   { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: horizonGlowConfig, component: HorizonGlow, isNew: true },

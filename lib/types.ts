@@ -25,16 +25,20 @@ export interface BackgroundConfig {
 export interface Control {
   key: string;
   label: string;
-  type: 'slider' | 'color' | 'select' | 'toggle' | 'media-input';
+  type: 'slider' | 'color' | 'select' | 'toggle' | 'media-input' | 'text-input' | 'download';
   min?: number;
   max?: number;
   step?: number;
   options?: string[];
   defaultValue: any;
   description?: string;
+  placeholder?: string;
+  maxLength?: number;
   mediaTypeKey?: string;
   defaultImage?: string;
   defaultVideo?: string;
+  downloadUrlKey?: string;
+  downloadUrls?: Record<string, string>;
 }
 
 
