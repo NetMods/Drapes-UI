@@ -20,19 +20,20 @@ import DottedSurface from './dotted-surface'
 import LiquidWarp from './liquid-warp'
 import CyberGrid from './cyber-grid'
 import DistortedRipple from './distorted-ripple'
+import CrtEffect from './crt-effect'
 import CosmicNoise from './cosmic-noise'
 import ChromaticSpiral from './chromatic-spiral'
 import FluidLines from './fluid-lines'
 import BitmapNoise from './bitmap-noise'
 import Matrix from './matrix'
-import PlasmaWave from './plasma-wave'
+import Spirals from './spirals'
 import SolarFlare from './solar-flare'
 import DotGrid from './dot-grid'
 import VortexTwist from './vortex-twist'
 import SnowFall from './snow-fall'
 import MosaicFlow from './mosaic-flow'
 import LunarRing from './lunar-ring'
-import Spirals from './spirals'
+import PlasmaWave from './plasma-wave'
 import Cellular from './cellular'
 import NoiseField from './noise-field'
 import Kaleidoscope from './kaleidoscope'
@@ -60,19 +61,20 @@ import dottedSurfaceConfig from './dotted-surface/config';
 import liquidWarpConfig from './liquid-warp/config';
 import cyberGridConfig from './cyber-grid/config';
 import distortedRippleConfig from './distorted-ripple/config';
+import crtEffectConfig from './crt-effect/config';
 import cosmicNoiseConfig from './cosmic-noise/config';
 import chromaticSpiralConfig from './chromatic-spiral/config';
 import fluidLinesConfig from './fluid-lines/config';
 import bitmapNoiseConfig from './bitmap-noise/config';
 import matrixConfig from './matrix/config';
-import plasmaWaveConfig from './plasma-wave/config';
+import spiralsConfig from './spirals/config';
 import solarFlareConfig from './solar-flare/config';
 import dotGridConfig from './dot-grid/config';
 import vortexTwistConfig from './vortex-twist/config';
 import snowFallConfig from './snow-fall/config';
 import mosaicFlowConfig from './mosaic-flow/config';
 import lunarRingConfig from './lunar-ring/config';
-import spiralsConfig from './spirals/config';
+import plasmaWaveConfig from './plasma-wave/config';
 import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
 import kaleidoscopeConfig from './kaleidoscope/config';
@@ -100,19 +102,20 @@ const registerEntry: BackgroundEntry[] = [
   { config: liquidWarpConfig, component: LiquidWarp },
   { config: cyberGridConfig, component: CyberGrid },
   { config: distortedRippleConfig, component: DistortedRipple },
+  { config: crtEffectConfig, component: CrtEffect, isNew: true },
   { config: cosmicNoiseConfig, component: CosmicNoise },
   { config: chromaticSpiralConfig, component: ChromaticSpiral },
   { config: fluidLinesConfig, component: FluidLines },
   { config: bitmapNoiseConfig, component: BitmapNoise },
   { config: matrixConfig, component: Matrix },
-  { config: plasmaWaveConfig, component: PlasmaWave },
+  { config: spiralsConfig, component: Spirals },
   { config: solarFlareConfig, component: SolarFlare },
   { config: dotGridConfig, component: DotGrid },
   { config: vortexTwistConfig, component: VortexTwist },
   { config: snowFallConfig, component: SnowFall },
   { config: mosaicFlowConfig, component: MosaicFlow },
   { config: lunarRingConfig, component: LunarRing },
-  { config: spiralsConfig, component: Spirals },
+  { config: plasmaWaveConfig, component: PlasmaWave },
   { config: cellularConfig, component: Cellular },
   { config: noiseFieldConfig, component: NoiseField },
   { config: kaleidoscopeConfig, component: Kaleidoscope },

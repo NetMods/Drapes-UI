@@ -67,6 +67,7 @@ interface AnimalAnimationProps {
 
 function AnimalAnimation({ animal = "turkey" }: AnimalAnimationProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedConfig = SPRITE_DATA[animal.toLowerCase()] || SPRITE_DATA["sheep"];
 
