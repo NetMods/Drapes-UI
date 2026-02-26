@@ -2,8 +2,7 @@ import { registry } from '@/lib/registry';
 import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
-import Animals from './animals'
-import KineticDistortion from './kinetic-distortion'
+import EyeFloaters from './eye-floaters'
 import Particles from './particles'
 import AuraRing from './aura-ring'
 import HorizonGlow from './horizon-glow'
@@ -25,6 +24,7 @@ import CosmicNoise from './cosmic-noise'
 import ChromaticSpiral from './chromatic-spiral'
 import FluidLines from './fluid-lines'
 import BitmapNoise from './bitmap-noise'
+import GameOfLife from './game-of-life'
 import Matrix from './matrix'
 import Spirals from './spirals'
 import SolarFlare from './solar-flare'
@@ -33,6 +33,7 @@ import VortexTwist from './vortex-twist'
 import SnowFall from './snow-fall'
 import MosaicFlow from './mosaic-flow'
 import LunarRing from './lunar-ring'
+import Animals from './animals'
 import PlasmaWave from './plasma-wave'
 import Cellular from './cellular'
 import NoiseField from './noise-field'
@@ -43,8 +44,7 @@ import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
 
 //import config
-import animalsConfig from './animals/config';
-import kineticDistortionConfig from './kinetic-distortion/config';
+import eyeFloatersConfig from './eye-floaters/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -66,6 +66,7 @@ import cosmicNoiseConfig from './cosmic-noise/config';
 import chromaticSpiralConfig from './chromatic-spiral/config';
 import fluidLinesConfig from './fluid-lines/config';
 import bitmapNoiseConfig from './bitmap-noise/config';
+import gameOfLifeConfig from './game-of-life/config';
 import matrixConfig from './matrix/config';
 import spiralsConfig from './spirals/config';
 import solarFlareConfig from './solar-flare/config';
@@ -74,6 +75,7 @@ import vortexTwistConfig from './vortex-twist/config';
 import snowFallConfig from './snow-fall/config';
 import mosaicFlowConfig from './mosaic-flow/config';
 import lunarRingConfig from './lunar-ring/config';
+import animalsConfig from './animals/config';
 import plasmaWaveConfig from './plasma-wave/config';
 import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
@@ -84,8 +86,7 @@ import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: animalsConfig, component: Animals, isNew: true },
-  { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
+  { config: eyeFloatersConfig, component: EyeFloaters, isNew: true },
   { config: particlesConfig, component: Particles },
   { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: horizonGlowConfig, component: HorizonGlow, isNew: true },
@@ -107,6 +108,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: chromaticSpiralConfig, component: ChromaticSpiral },
   { config: fluidLinesConfig, component: FluidLines },
   { config: bitmapNoiseConfig, component: BitmapNoise },
+  { config: gameOfLifeConfig, component: GameOfLife },
   { config: matrixConfig, component: Matrix },
   { config: spiralsConfig, component: Spirals },
   { config: solarFlareConfig, component: SolarFlare },
@@ -115,6 +117,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: snowFallConfig, component: SnowFall },
   { config: mosaicFlowConfig, component: MosaicFlow },
   { config: lunarRingConfig, component: LunarRing },
+  { config: animalsConfig, component: Animals, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: cellularConfig, component: Cellular },
   { config: noiseFieldConfig, component: NoiseField },

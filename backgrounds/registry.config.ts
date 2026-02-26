@@ -10,6 +10,7 @@ REGISTRY CONFIGURATION
 
 export const RegistryEntries = [
   // 'kinetic-distortion+',
+  'eye-floaters+',
   'particles',
   'aura-ring+',
   'horizon-glow+',
@@ -31,6 +32,7 @@ export const RegistryEntries = [
   'chromatic-spiral',
   'fluid-lines',
   'bitmap-noise',
+  'game-of-life',
   'matrix',
   'spirals',
   'solar-flare',

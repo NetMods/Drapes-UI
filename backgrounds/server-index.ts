@@ -1,8 +1,7 @@
 import { serverRegistry } from '@/lib/server-registry';
 import { BackgroundConfig } from '@/lib/types';
 
-import animalsConfig from './animals/config';
-import kineticDistortionConfig from './kinetic-distortion/config';
+import eyeFloatersConfig from './eye-floaters/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -24,6 +23,7 @@ import cosmicNoiseConfig from './cosmic-noise/config';
 import chromaticSpiralConfig from './chromatic-spiral/config';
 import fluidLinesConfig from './fluid-lines/config';
 import bitmapNoiseConfig from './bitmap-noise/config';
+import gameOfLifeConfig from './game-of-life/config';
 import matrixConfig from './matrix/config';
 import spiralsConfig from './spirals/config';
 import solarFlareConfig from './solar-flare/config';
@@ -32,6 +32,7 @@ import vortexTwistConfig from './vortex-twist/config';
 import snowFallConfig from './snow-fall/config';
 import mosaicFlowConfig from './mosaic-flow/config';
 import lunarRingConfig from './lunar-ring/config';
+import animalsConfig from './animals/config';
 import plasmaWaveConfig from './plasma-wave/config';
 import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
@@ -42,29 +43,29 @@ import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 
 const configs: BackgroundConfig[] = [
-  { ...animalsConfig, id: '1' },
-  { ...kineticDistortionConfig, id: '2' },
-  { ...particlesConfig, id: '3' },
-  { ...auraRingConfig, id: '4' },
-  { ...horizonGlowConfig, id: '5' },
-  { ...ditherStudioConfig, id: '6' },
-  { ...mistConfig, id: '7' },
-  { ...neonHighwayConfig, id: '8' },
-  { ...asciiStudioConfig, id: '9' },
-  { ...waveColumnsConfig, id: '10' },
-  { ...halftoneStudioConfig, id: '11' },
-  { ...neuralFieldConfig, id: '12' },
-  { ...fractalTreeConfig, id: '13' },
-  { ...badTelevisionConfig, id: '14' },
-  { ...dottedSurfaceConfig, id: '15' },
-  { ...liquidWarpConfig, id: '16' },
-  { ...cyberGridConfig, id: '17' },
-  { ...distortedRippleConfig, id: '18' },
-  { ...crtEffectConfig, id: '19' },
-  { ...cosmicNoiseConfig, id: '20' },
-  { ...chromaticSpiralConfig, id: '21' },
-  { ...fluidLinesConfig, id: '22' },
-  { ...bitmapNoiseConfig, id: '23' },
+  { ...eyeFloatersConfig, id: '1' },
+  { ...particlesConfig, id: '2' },
+  { ...auraRingConfig, id: '3' },
+  { ...horizonGlowConfig, id: '4' },
+  { ...ditherStudioConfig, id: '5' },
+  { ...mistConfig, id: '6' },
+  { ...neonHighwayConfig, id: '7' },
+  { ...asciiStudioConfig, id: '8' },
+  { ...waveColumnsConfig, id: '9' },
+  { ...halftoneStudioConfig, id: '10' },
+  { ...neuralFieldConfig, id: '11' },
+  { ...fractalTreeConfig, id: '12' },
+  { ...badTelevisionConfig, id: '13' },
+  { ...dottedSurfaceConfig, id: '14' },
+  { ...liquidWarpConfig, id: '15' },
+  { ...cyberGridConfig, id: '16' },
+  { ...distortedRippleConfig, id: '17' },
+  { ...crtEffectConfig, id: '18' },
+  { ...cosmicNoiseConfig, id: '19' },
+  { ...chromaticSpiralConfig, id: '20' },
+  { ...fluidLinesConfig, id: '21' },
+  { ...bitmapNoiseConfig, id: '22' },
+  { ...gameOfLifeConfig, id: '23' },
   { ...matrixConfig, id: '24' },
   { ...spiralsConfig, id: '25' },
   { ...solarFlareConfig, id: '26' },
@@ -73,14 +74,15 @@ const configs: BackgroundConfig[] = [
   { ...snowFallConfig, id: '29' },
   { ...mosaicFlowConfig, id: '30' },
   { ...lunarRingConfig, id: '31' },
-  { ...plasmaWaveConfig, id: '32' },
-  { ...cellularConfig, id: '33' },
-  { ...noiseFieldConfig, id: '34' },
-  { ...kaleidoscopeConfig, id: '35' },
-  { ...nebulaConfig, id: '36' },
-  { ...winterForestConfig, id: '37' },
-  { ...fireflyEffectConfig, id: '38' },
-  { ...pipesConfig, id: '39' },
+  { ...animalsConfig, id: '32' },
+  { ...plasmaWaveConfig, id: '33' },
+  { ...cellularConfig, id: '34' },
+  { ...noiseFieldConfig, id: '35' },
+  { ...kaleidoscopeConfig, id: '36' },
+  { ...nebulaConfig, id: '37' },
+  { ...winterForestConfig, id: '38' },
+  { ...fireflyEffectConfig, id: '39' },
+  { ...pipesConfig, id: '40' },
 ]
 
 configs.forEach((config) => {
