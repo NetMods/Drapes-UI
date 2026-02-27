@@ -2,7 +2,6 @@ import { registry } from '@/lib/registry';
 import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
-import EyeFloaters from './eye-floaters'
 import Particles from './particles'
 import AuraRing from './aura-ring'
 import HorizonGlow from './horizon-glow'
@@ -42,9 +41,10 @@ import Nebula from './nebula'
 import WinterForest from './winter-forest'
 import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
+import EyeFloaters from './eye-floaters'
+import Orbital from './orbital'
 
 //import config
-import eyeFloatersConfig from './eye-floaters/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -84,9 +84,10 @@ import nebulaConfig from './nebula/config';
 import winterForestConfig from './winter-forest/config';
 import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
+import eyeFloatersConfig from './eye-floaters/config';
+import orbitalConfig from './orbital/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: eyeFloatersConfig, component: EyeFloaters, isNew: true },
   { config: particlesConfig, component: Particles },
   { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: horizonGlowConfig, component: HorizonGlow, isNew: true },
@@ -126,6 +127,8 @@ const registerEntry: BackgroundEntry[] = [
   { config: winterForestConfig, component: WinterForest },
   { config: fireflyEffectConfig, component: FireflyEffect },
   { config: pipesConfig, component: Pipes },
+  { config: eyeFloatersConfig, component: EyeFloaters, isNew: true },
+  { config: orbitalConfig, component: Orbital, isNew: true },
 ]
 
 registerEntry.forEach((entry: BackgroundEntry, index) => {

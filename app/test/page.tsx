@@ -16,9 +16,6 @@ interface OrbitalBackgroundProps {
   sizeRatio?: number;
 }
 
-// --- SHADERS ---
-
-// Vertex shader for drawing the dots
 const vsPoints = `
   attribute vec2 a_position;
   attribute vec4 a_color;
@@ -39,7 +36,6 @@ const vsPoints = `
   }
 `;
 
-// Fragment shader for making the points circular
 const fsPoints = `
   precision mediump float;
   varying vec4 v_color;
@@ -52,7 +48,6 @@ const fsPoints = `
   }
 `;
 
-// Vertex shader for the full-screen post-processing quad
 const vsQuad = `
   attribute vec2 a_position;
   varying vec2 v_texCoord;
@@ -63,7 +58,6 @@ const vsQuad = `
   }
 `;
 
-// Fragment shader applying the exact paper/grain math from the original JS
 const fsQuad = `
   precision highp float;
   varying vec2 v_texCoord;
@@ -116,7 +110,6 @@ const OrbitalBackground = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  // Handle Resize
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
@@ -131,7 +124,6 @@ const OrbitalBackground = ({
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
-  // WebGL Render Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || dimensions.width === 0 || dimensions.height === 0) return;
@@ -148,7 +140,6 @@ const OrbitalBackground = ({
     canvas.style.width = `${w}px`;
     canvas.style.height = `${h}px`;
 
-    // --- Helper to compile shaders ---
     const createShader = (type: number, source: string) => {
       const shader = gl.createShader(type)!;
       gl.shaderSource(shader, source);
@@ -176,7 +167,6 @@ const OrbitalBackground = ({
     gl.attachShader(quadProgram, fsQ);
     gl.linkProgram(quadProgram);
 
-    // --- Generate Points (Exact matching logic) ---
     const rand = seededRandom(seed);
     const cx = w * centerX;
     const cy = h * centerY;
@@ -244,12 +234,10 @@ const OrbitalBackground = ({
         const dotRadius = (lineWidth * (0.2 + rand() * 0.5)) / 2;
         const size = Math.max(0.5, dotRadius) * 2.0;
 
-        // Base dot
         positions.push(x * dpr, y * dpr);
         colors.push(r / 255, g / 255, b / 255, alpha);
         sizes.push(size * dpr);
 
-        // Stray dot
         if (rand() < 0.05) {
           const straySpread = (rand() - 0.5) * lineWidth * 4.5;
           const strayRadius = radius + spacingNudge + straySpread;
@@ -271,9 +259,6 @@ const OrbitalBackground = ({
       }
     }
 
-    // --- WebGL Buffers & FBO Setup ---
-
-    // 1. Setup Framebuffer (Off-screen texture)
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w * dpr, h * dpr, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -285,7 +270,6 @@ const OrbitalBackground = ({
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
 
-    // 2. Upload Point Data
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -298,15 +282,11 @@ const OrbitalBackground = ({
     gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sizes), gl.STATIC_DRAW);
 
-    // 3. Upload Quad Data (Full screen)
     const quadPositions = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
     const quadBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, quadPositions, gl.STATIC_DRAW);
 
-    // --- Rendering ---
-
-    // PASS 1: Draw Points to FBO
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.viewport(0, 0, w * dpr, h * dpr);
     gl.clearColor(245 / 255, 242 / 255, 237 / 255, 1.0); // #f5f2ed background
@@ -335,7 +315,6 @@ const OrbitalBackground = ({
     gl.drawArrays(gl.POINTS, 0, positions.length / 2);
     gl.disable(gl.BLEND);
 
-    // PASS 2: Render FBO to Screen with Post-Processing
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, w * dpr, h * dpr);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -355,7 +334,6 @@ const OrbitalBackground = ({
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-    // --- Cleanup to prevent memory leaks ---
     return () => {
       gl.deleteBuffer(positionBuffer);
       gl.deleteBuffer(colorBuffer);
@@ -371,6 +349,12 @@ const OrbitalBackground = ({
       gl.deleteShader(fsQ);
     };
   }, [dimensions, centerX, centerY, seed, sizeRatio]);
+
+  (async () => {
+    const { captureCanvasScreenshot } = await import('@/lib/utils');
+    await captureCanvasScreenshot(canvasRef, "orbital.webp");
+  })()
+
 
   return (
     <div

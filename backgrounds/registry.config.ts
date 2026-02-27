@@ -10,7 +10,6 @@ REGISTRY CONFIGURATION
 
 export const RegistryEntries = [
   // 'kinetic-distortion+',
-  'eye-floaters+',
   'particles',
   'aura-ring+',
   'horizon-glow+',
@@ -50,4 +49,6 @@ export const RegistryEntries = [
   'winter-forest',
   'firefly-effect',
   'pipes',
+  'eye-floaters+',
+  'orbital+',
 ];
