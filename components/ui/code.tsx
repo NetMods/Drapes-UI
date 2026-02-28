@@ -37,7 +37,8 @@ export default function Code({ htmlCode, code, filename, dynamic, language, type
     if (!raw && raw === undefined) {
       navigator.clipboard.writeText(code)
     } else {
-      const rawURL = `http://localhost:3000/api/v1/raw?id=${id}&type=${type}`
+      const domain = process.env.NODE_ENV === "production" ? "drapes.cc" : "localhost:3000"
+      const rawURL = `http://${domain}/api/v1/raw?id=${id}&type=${type}`
       navigator.clipboard.writeText(rawURL)
     }
 
