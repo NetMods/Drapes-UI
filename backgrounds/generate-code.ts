@@ -126,7 +126,7 @@ async function processFile(file: string, highlighter: Awaited<ReturnType<typeof 
     let defaultProps: any;
     try {
       defaultProps = new Function(`return ${defaultPropsStr}`)();
-      console.error(`✓ Found default props`);
+      log(`✓ Found default props`);
     } catch (err) {
       console.error(`✗ Failed to parse defaultProps with Function constructor:`, err);
       return;
