@@ -308,12 +308,7 @@ const FloaterWorms = ({
     showClouds, cloudColor, cloudOpacity
   ]);
 
-  (async () => {
-    const { captureCanvasScreenshot } = await import('@/lib/utils');
-    await captureCanvasScreenshot(canvasRef, "eye-floaters.webp");
-  })()
-
-
+  
   return (
     <canvas
       ref={canvasRef}
