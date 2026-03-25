@@ -33,8 +33,7 @@ interface AsciiProps {
   objectFit?: ObjectFit;
   fontSize?: number;
   colorTheme?: ColorTheme;
-  inverted?: boolean;
-  brightness?: number;
+  filledBlocks?: boolean;
   contrast?: number;
   highlights?: number;
   midtones?: number;
@@ -74,20 +73,18 @@ uniform sampler2D u_charTexture; // Texture containing the font atlas
 uniform float u_numChars;      // Total number of characters in the set
 uniform vec2 u_resolution;     // Canvas resolution in pixels
 uniform vec2 u_gridSize;       // Size of one grid cell (font width, font height)
-uniform bool u_inverted;
 uniform bool u_colored;
+uniform bool u_filledBlocks;   // true: colored squares with character cutout, false: colored characters on bg
 uniform vec3 u_solidColor;     // RGB color if not colored
 uniform vec3 u_bgColor;        // Background color
 uniform vec2 u_mediaResolution; // Resolution of the source media
 uniform int u_objectFit;       // 0: fill, 1: contain, 2: cover
 
-uniform float u_brightness;
 uniform float u_contrast;
 uniform float u_highlights;
 uniform float u_midtones;
 
 vec3 applyColorCorrection(vec3 color) {
-    float b = u_brightness / 100.0;
     float c = (u_contrast + 100.0) / 100.0;
     float cSqu = c * c;
 
@@ -102,7 +99,6 @@ vec3 applyColorCorrection(vec3 color) {
 
     vec3 val = color;
     val = (val - 0.5) * cSqu + 0.5;
-    val += b;
     val = max(val, vec3(0.0));
     val = pow(val, vec3(gamma));
     val = mix(val, val * h, step(0.5, val));
@@ -177,7 +173,6 @@ void main() {
 
     // 3. Determine Character
     float luminance = getLuminance(mediaColor.rgb);
-    if (u_inverted) luminance = 1.0 - luminance;
     luminance = clamp(luminance, 0.0, 0.99);
     
     float charIndex = floor(luminance * u_numChars);
@@ -195,7 +190,12 @@ void main() {
     
     // 5. Final Color
     vec3 fgColor = u_colored ? mediaColor.rgb : u_solidColor;
-    vec3 finalColor = mix(u_bgColor, fgColor, shape);
+    vec3 finalColor;
+    if (u_filledBlocks) {
+        finalColor = mix(fgColor, u_bgColor, shape);
+    } else {
+        finalColor = mix(u_bgColor, fgColor, shape);
+    }
     
     outColor = vec4(finalColor, 1.0);
 }
@@ -241,8 +241,7 @@ const AsciiStudio = ({
   objectFit = "contain",
   fontSize = 14,
   colorTheme = "colorful",
-  inverted = false,
-  brightness = 0,
+  filledBlocks = true,
   contrast = 0,
   highlights = 0,
   midtones = 0,
@@ -270,7 +269,7 @@ const AsciiStudio = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = 1;
     const scaledFontSize = fontSize * dpr;
     ctx.font = `${scaledFontSize}px "Courier New", monospace`;
 
@@ -318,7 +317,7 @@ const AsciiStudio = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl2", { alpha: false });
+    const gl = canvas.getContext("webgl2", { alpha: false, preserveDrawingBuffer: true });
     if (!gl) return;
     glRef.current = gl;
 
@@ -338,13 +337,12 @@ const AsciiStudio = ({
       u_numChars: gl.getUniformLocation(program, "u_numChars"),
       u_resolution: gl.getUniformLocation(program, "u_resolution"),
       u_gridSize: gl.getUniformLocation(program, "u_gridSize"),
-      u_inverted: gl.getUniformLocation(program, "u_inverted"),
       u_colored: gl.getUniformLocation(program, "u_colored"),
+      u_filledBlocks: gl.getUniformLocation(program, "u_filledBlocks"),
       u_solidColor: gl.getUniformLocation(program, "u_solidColor"),
       u_bgColor: gl.getUniformLocation(program, "u_bgColor"),
       u_mediaResolution: gl.getUniformLocation(program, "u_mediaResolution"),
       u_objectFit: gl.getUniformLocation(program, "u_objectFit"),
-      u_brightness: gl.getUniformLocation(program, "u_brightness"),
       u_contrast: gl.getUniformLocation(program, "u_contrast"),
       u_highlights: gl.getUniformLocation(program, "u_highlights"),
       u_midtones: gl.getUniformLocation(program, "u_midtones"),
@@ -419,7 +417,7 @@ const AsciiStudio = ({
 
       const canvas = canvasRef.current;
       if (canvas) {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = 1;
         const { width, height } = canvas.getBoundingClientRect();
         const w = width * dpr;
         const h = height * dpr;
@@ -442,14 +440,13 @@ const AsciiStudio = ({
       gl.uniform1f(u.u_numChars, charDataRef.current.numChars);
       gl.uniform2f(u.u_resolution, canvasRef.current!.width, canvasRef.current!.height);
       gl.uniform2f(u.u_gridSize, charDataRef.current.width, charDataRef.current.height);
-      gl.uniform1i(u.u_inverted, inverted ? 1 : 0);
 
       const theme = THEME_COLORS[colorTheme];
       gl.uniform1i(u.u_colored, theme.useOriginalColors ? 1 : 0);
       gl.uniform3f(u.u_solidColor, theme.fg[0], theme.fg[1], theme.fg[2]);
       gl.uniform3f(u.u_bgColor, theme.bg[0], theme.bg[1], theme.bg[2]);
+      gl.uniform1i(u.u_filledBlocks, filledBlocks ? 1 : 0);
 
-      gl.uniform1f(u.u_brightness, brightness);
       gl.uniform1f(u.u_contrast, contrast);
       gl.uniform1f(u.u_highlights, highlights);
       gl.uniform1f(u.u_midtones, midtones);
@@ -480,7 +477,7 @@ const AsciiStudio = ({
     return () => {
       cancelAnimationFrame(reqIdRef.current);
     }
-  }, [mediaType, asciiMode, objectFit, fontSize, colorTheme, inverted, brightness, contrast, highlights, midtones, source]);
+  }, [mediaType, asciiMode, objectFit, fontSize, colorTheme, filledBlocks, contrast, highlights, midtones, source]);
 
   // 4. Source Handling
   useEffect(() => {

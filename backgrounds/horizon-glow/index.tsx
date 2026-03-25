@@ -64,7 +64,7 @@ const HorizonGlow = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2');
+    const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true });
     if (!gl) {
       console.error('WebGL 2 not supported');
       return;
@@ -119,7 +119,7 @@ const HorizonGlow = ({
 
         // Calculate Glow
         // We use u_intensity to determine the brightness/thickness
-        vec4 glow = u_intensity / abs(p.y + wave);
+        vec4 glow = u_intensity / (abs(p.y + wave) + 0.01);
 
         // Compress high values to avoid artifacts (tanh)
         vec3 glowColor = tanh(glow.rgb);

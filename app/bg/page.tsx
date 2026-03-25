@@ -93,12 +93,23 @@ export default function Page() {
 
   return (
     <div>
-      <div className="flex justify-between items-center p-1 text-base-content/70 max-sm:justify-center">
+      <div className="flex justify-between items-center p-1 text-base-content/70">
         <SettingsButton action={handleSettingSidebar} className='max-sm:hidden backdrop-blur-xl' />
 
-        <div className="flex justify-center gap-3 items-center max-sm:w-full">
+        <div className="flex justify-center gap-3 items-center max-sm:flex-1 max-sm:justify-start">
           <LeftButton action={handleLeft} isDisabled={currentId === 1} className='max-sm:hidden p-2 backdrop-blur-xl' />
-          <div className="max-sm:bg-white/10 py-0.5 rounded backdrop-blur-xl font-serif text-[1.3rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center">{config.name}</div>
+          <div className="max-sm:bg-white/10 py-0.5 rounded backdrop-blur-xl font-serif text-[1.5rem] md:text-2xl lg:text-3xl w-full md:w-60 flex justify-center items-center max-sm:justify-between max-sm:px-2">
+            <span>
+              {config.name}
+            </span>
+            <ToolButton
+              mobile
+              className='sm:hidden'
+              backgroundName={config.name}
+              onRecordingStateChange={setIsRecording}
+              onRegisterStop={(fn) => { stopRecordingRef.current = fn; }}
+            />
+          </div>
           <RightButton action={handleRight} isDisabled={currentId === totalBackground} className='max-sm:hidden p-2 backdrop-blur-xl' />
         </div>
 
@@ -125,12 +136,14 @@ export default function Page() {
         handleSettingSidebar={handleSettingSidebar}
         handleCodeSidebar={handleCodeSidebar}
       />
-      <ToolButton
-        className='hidden sm:fixed bottom-4 left-1/2'
-        backgroundName={config.name}
-        onRecordingStateChange={setIsRecording}
-        onRegisterStop={(fn) => { stopRecordingRef.current = fn; }}
-       />
+      <div className="max-sm:hidden">
+        <ToolButton
+          className='sm:fixed bottom-4 left-1/2'
+          backgroundName={config.name}
+          onRecordingStateChange={setIsRecording}
+          onRegisterStop={(fn) => { stopRecordingRef.current = fn; }}
+        />
+      </div>
     </div>
   )
 }

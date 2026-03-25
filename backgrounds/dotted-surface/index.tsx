@@ -111,7 +111,7 @@ const DottedSurface = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', { alpha: true, antialias: true });
+    const gl = canvas.getContext('webgl', { alpha: true, antialias: true, preserveDrawingBuffer: true });
     if (!gl) return;
 
     const createShader = (type: number, source: string) => {

@@ -33,7 +33,7 @@ const Cellular = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2');
+    const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true });
     if (!gl) {
       console.error('WebGL 2 is not supported by your browser.');
       return;

@@ -311,7 +311,7 @@ const HalftoneStudio = ({
     const srcH = sourceElem instanceof HTMLVideoElement ? sourceElem.videoHeight : sourceElem.height;
     if (srcW === 0 || srcH === 0) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = 1;
     const rect = canvas.getBoundingClientRect();
     const width = rect.width * dpr;
     const height = rect.height * dpr;

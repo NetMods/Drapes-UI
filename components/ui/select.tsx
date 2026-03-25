@@ -42,7 +42,7 @@ export const Select = ({ label, value, onChange, options, description }: SelectP
             <CaretDownIcon weight="bold" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </button>
           {isOpen && (
-            <div className="absolute right-0 mt-1 bg-base-100 border border-base-content/10 rounded-lg shadow-lg z-50 min-w-[120px] overflow-hidden">
+            <div className="absolute right-0 mt-1 bg-base-content/5 backdrop-blur-xl border border-base-content/10 rounded-lg shadow-lg z-50 w-full overflow-hidden">
               {options.map((option) => (
                 <button
                   key={option}

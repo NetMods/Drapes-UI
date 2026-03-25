@@ -2,8 +2,6 @@ import { registry } from '@/lib/registry';
 import { BackgroundConfig, BackgroundEntry } from '@/lib/types';
 
 //import components
-import Animals from './animals'
-import KineticDistortion from './kinetic-distortion'
 import Particles from './particles'
 import AuraRing from './aura-ring'
 import HorizonGlow from './horizon-glow'
@@ -33,6 +31,7 @@ import VortexTwist from './vortex-twist'
 import SnowFall from './snow-fall'
 import MosaicFlow from './mosaic-flow'
 import LunarRing from './lunar-ring'
+import Animals from './animals'
 import PlasmaWave from './plasma-wave'
 import Cellular from './cellular'
 import NoiseField from './noise-field'
@@ -43,8 +42,6 @@ import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
 
 //import config
-import animalsConfig from './animals/config';
-import kineticDistortionConfig from './kinetic-distortion/config';
 import particlesConfig from './particles/config';
 import auraRingConfig from './aura-ring/config';
 import horizonGlowConfig from './horizon-glow/config';
@@ -74,6 +71,7 @@ import vortexTwistConfig from './vortex-twist/config';
 import snowFallConfig from './snow-fall/config';
 import mosaicFlowConfig from './mosaic-flow/config';
 import lunarRingConfig from './lunar-ring/config';
+import animalsConfig from './animals/config';
 import plasmaWaveConfig from './plasma-wave/config';
 import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
@@ -84,8 +82,6 @@ import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 
 const registerEntry: BackgroundEntry[] = [
-  { config: animalsConfig, component: Animals, isNew: true },
-  { config: kineticDistortionConfig, component: KineticDistortion, isNew: true },
   { config: particlesConfig, component: Particles },
   { config: auraRingConfig, component: AuraRing, isNew: true },
   { config: horizonGlowConfig, component: HorizonGlow, isNew: true },
@@ -115,6 +111,7 @@ const registerEntry: BackgroundEntry[] = [
   { config: snowFallConfig, component: SnowFall },
   { config: mosaicFlowConfig, component: MosaicFlow },
   { config: lunarRingConfig, component: LunarRing },
+  { config: animalsConfig, component: Animals, isNew: true },
   { config: plasmaWaveConfig, component: PlasmaWave },
   { config: cellularConfig, component: Cellular },
   { config: noiseFieldConfig, component: NoiseField },

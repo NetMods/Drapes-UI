@@ -230,7 +230,7 @@ const DistortedRipple = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext('webgl');
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
     if (!gl) return;
 
     const createShader = (type: number, source: string) => {
