@@ -16,7 +16,7 @@ export const RegistryEntries = [
   'dither-studio',
   'mist',
   'neon-highway',
-  'ascii-studio+',
+  // 'ascii-studio+',
   'wave-columns',
   'halftone-studio+',
   'neural-field',
