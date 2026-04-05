@@ -82,10 +82,13 @@ export const BackgroundCard = ({
                 'w-full h-full object-cover',
                 isHovered && 'hidden'
               )}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
               onClick={OpenPreview}
               alt={config.name}
             />
-            <div>
+            <div className="absolute inset-0">
               {isHovered && <Component {...config.defaultProps} />}
             </div>
           </div>

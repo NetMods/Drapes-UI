@@ -37,11 +37,13 @@ import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
 import kaleidoscopeConfig from './kaleidoscope/config';
 import nebulaConfig from './nebula/config';
+import backgroundTreeConfig from './background-tree/config';
 import winterForestConfig from './winter-forest/config';
 import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 import eyeFloatersConfig from './eye-floaters/config';
 import orbitalConfig from './orbital/config';
+import threeBodyConfig from './three-body/config';
 
 const configs: BackgroundConfig[] = [
   { ...particlesConfig, id: '1' },
@@ -80,11 +82,13 @@ const configs: BackgroundConfig[] = [
   { ...noiseFieldConfig, id: '34' },
   { ...kaleidoscopeConfig, id: '35' },
   { ...nebulaConfig, id: '36' },
-  { ...winterForestConfig, id: '37' },
-  { ...fireflyEffectConfig, id: '38' },
-  { ...pipesConfig, id: '39' },
-  { ...eyeFloatersConfig, id: '40' },
-  { ...orbitalConfig, id: '41' },
+  { ...backgroundTreeConfig, id: '37' },
+  { ...winterForestConfig, id: '38' },
+  { ...fireflyEffectConfig, id: '39' },
+  { ...pipesConfig, id: '40' },
+  { ...eyeFloatersConfig, id: '41' },
+  { ...orbitalConfig, id: '42' },
+  { ...threeBodyConfig, id: '43' },
 ]
 
 configs.forEach((config) => {

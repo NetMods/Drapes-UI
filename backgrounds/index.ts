@@ -38,11 +38,13 @@ import Cellular from './cellular'
 import NoiseField from './noise-field'
 import Kaleidoscope from './kaleidoscope'
 import Nebula from './nebula'
+import BackgroundTree from './background-tree'
 import WinterForest from './winter-forest'
 import FireflyEffect from './firefly-effect'
 import Pipes from './pipes'
 import EyeFloaters from './eye-floaters'
 import Orbital from './orbital'
+import ThreeBody from './three-body'
 
 //import config
 import particlesConfig from './particles/config';
@@ -81,11 +83,13 @@ import cellularConfig from './cellular/config';
 import noiseFieldConfig from './noise-field/config';
 import kaleidoscopeConfig from './kaleidoscope/config';
 import nebulaConfig from './nebula/config';
+import backgroundTreeConfig from './background-tree/config';
 import winterForestConfig from './winter-forest/config';
 import fireflyEffectConfig from './firefly-effect/config';
 import pipesConfig from './pipes/config';
 import eyeFloatersConfig from './eye-floaters/config';
 import orbitalConfig from './orbital/config';
+import threeBodyConfig from './three-body/config';
 
 const registerEntry: BackgroundEntry[] = [
   { config: particlesConfig, component: Particles },
@@ -124,11 +128,13 @@ const registerEntry: BackgroundEntry[] = [
   { config: noiseFieldConfig, component: NoiseField },
   { config: kaleidoscopeConfig, component: Kaleidoscope },
   { config: nebulaConfig, component: Nebula },
+  { config: backgroundTreeConfig, component: BackgroundTree, isNew: true },
   { config: winterForestConfig, component: WinterForest },
   { config: fireflyEffectConfig, component: FireflyEffect },
   { config: pipesConfig, component: Pipes },
   { config: eyeFloatersConfig, component: EyeFloaters, isNew: true },
   { config: orbitalConfig, component: Orbital, isNew: true },
+  { config: threeBodyConfig, component: ThreeBody, isNew: true },
 ]
 
 registerEntry.forEach((entry: BackgroundEntry, index) => {

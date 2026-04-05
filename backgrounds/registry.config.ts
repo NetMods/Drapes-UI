@@ -46,9 +46,11 @@ export const RegistryEntries = [
   'noise-field',
   'kaleidoscope',
   'nebula',
+  'background-tree+',
   'winter-forest',
   'firefly-effect',
   'pipes',
   'eye-floaters+',
   'orbital+',
+  'three-body+',
 ];
