@@ -389,7 +389,6 @@ const DitherStudio = ({
       alpha: true,
       premultipliedAlpha: false,
       antialias: false,
-      preserveDrawingBuffer: true,
     });
 
     if (!gl) {

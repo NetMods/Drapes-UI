@@ -54,7 +54,7 @@ const Bitmap = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
+    const gl = canvas.getContext('webgl', {});
 
     if (!gl) {
       console.error('WebGL not supported');

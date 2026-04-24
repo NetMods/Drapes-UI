@@ -1,5 +1,5 @@
 import { CameraIcon, PlayIcon, StopCircleIcon, XIcon, WrenchIcon } from "@phosphor-icons/react"
-import { cn, captureScreenshot, getCanvasElement, startCanvasRecording, RecordingController } from "@/lib/utils"
+import { cn, captureScreenshot, getCanvasElement, startCanvasRecording, isRecordingSupported, RecordingController } from "@/lib/utils"
 import { useState, useRef, useEffect } from "react"
 
 interface ToolButtonProps {
@@ -9,7 +9,6 @@ interface ToolButtonProps {
   maxRecordingDuration?: number;
   onRecordingStateChange?: (isRecording: boolean) => void;
   onRegisterStop?: (stopFn: () => void) => void;
-  mobile?: boolean;
 }
 
 const ToolButton = ({
@@ -18,8 +17,7 @@ const ToolButton = ({
   screenshotDelay = 0,
   maxRecordingDuration = 30000,
   onRecordingStateChange,
-  onRegisterStop,
-  mobile = false,
+  onRegisterStop
 }: ToolButtonProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
@@ -56,6 +54,12 @@ const ToolButton = ({
     if (isRecording) {
       stopRecording();
     } else {
+      const { supported, reason } = isRecordingSupported();
+      if (!supported) {
+        window.alert(reason ?? 'Recording is not supported in this browser.');
+        return;
+      }
+
       const canvas = getCanvasElement();
       const filename = `drapes-${backgroundName.toLowerCase().replace(/\s+/g, '-')}`;
 
@@ -76,30 +80,6 @@ const ToolButton = ({
       }
     }
   };
-
-  if (mobile) {
-    return (
-      <div className={cn(className, "flex items-center gap-1")}>
-        <button
-          onClick={handleScreenshot}
-          title="Screenshot"
-          className="p-2 rounded-md cursor-pointer hover:bg-white/10 backdrop-blur-lg text-base-content/70 transition-all duration-200"
-        >
-          <CameraIcon weight="duotone" size={23} />
-        </button>
-        <button
-          onClick={handleRecordToggle}
-          title={isRecording ? "Stop Recording" : "Record"}
-          className={cn(
-            "p-2 rounded-md cursor-pointer hover:bg-white/10 backdrop-blur-lg transition-all duration-200",
-            isRecording ? "text-red-500 bg-red-500/20 animate-pulse" : "text-base-content/70"
-          )}
-        >
-          {isRecording ? <StopCircleIcon weight="duotone" size={23} /> : <PlayIcon weight="duotone" size={23} />}
-        </button>
-      </div>
-    )
-  }
 
   const leftTools = [
     { icon: CameraIcon, label: "Screenshot", onClick: handleScreenshot, disabled: false },

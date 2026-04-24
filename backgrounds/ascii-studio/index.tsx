@@ -317,7 +317,7 @@ const AsciiStudio = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl2", { alpha: false, preserveDrawingBuffer: true });
+    const gl = canvas.getContext("webgl2", { alpha: false });
     if (!gl) return;
     glRef.current = gl;
 

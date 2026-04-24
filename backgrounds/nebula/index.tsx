@@ -37,7 +37,7 @@ const Nebula = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true }) || canvas.getContext('webgl', { preserveDrawingBuffer: true });
+    const gl = canvas.getContext('webgl2', {}) || canvas.getContext('webgl', {});
     if (!gl) return;
 
     const vertexShaderSource = `

@@ -46,6 +46,13 @@ export const captureCanvasScreenshot = async (
 };
 
 
+const get2KDimensions = (): { width: number; height: number } => {
+  const isMobilePortrait = window.innerWidth < window.innerHeight;
+  return isMobilePortrait
+    ? { width: 1440, height: 2560 }
+    : { width: 2560, height: 1440 };
+};
+
 export interface ScreenCaptureOptions {
   delay?: number;
   filename?: string;
@@ -73,8 +80,16 @@ export const captureScreenshot = async (
   }
 
   try {
+    const { width, height } = get2KDimensions();
+    const offscreen = document.createElement('canvas');
+    offscreen.width = width;
+    offscreen.height = height;
+    const ctx = offscreen.getContext('2d');
+    if (!ctx) throw new Error('Could not get 2D context for offscreen canvas');
+    ctx.drawImage(canvas, 0, 0, width, height);
+
     const mimeType = `image/${format}`;
-    const dataURL = canvas.toDataURL(mimeType, quality);
+    const dataURL = offscreen.toDataURL(mimeType, quality);
 
     const link = document.createElement('a');
     link.download = `${filename}.${format}`;
@@ -105,6 +120,26 @@ export interface RecordingController {
   isRecording: () => boolean;
 }
 
+export const isRecordingSupported = (): { supported: boolean; reason?: string } => {
+  if (typeof window === 'undefined') return { supported: false, reason: 'Server-side environment' };
+
+  const canvas = document.createElement('canvas');
+  if (typeof canvas.captureStream !== 'function') {
+    return { supported: false, reason: 'canvas.captureStream() is not supported in this browser' };
+  }
+
+  if (typeof MediaRecorder === 'undefined') {
+    return { supported: false, reason: 'MediaRecorder API is not available in this browser' };
+  }
+
+  // Check the exact codec used by startCanvasRecording
+  if (!MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+    return { supported: false, reason: 'Recording is not supported in this browser. Try Chrome instead.' };
+  }
+
+  return { supported: true };
+};
+
 export const startCanvasRecording = (
   canvas: HTMLCanvasElement | null,
   options: RecordingOptions = {},
@@ -124,7 +159,20 @@ export const startCanvasRecording = (
   let isActive = true;
   const chunks: Blob[] = [];
 
-  const stream = canvas.captureStream(frameRate);
+  const { width, height } = get2KDimensions();
+  const offscreen = document.createElement('canvas');
+  offscreen.width = width;
+  offscreen.height = height;
+  const ctx = offscreen.getContext('2d')!;
+
+  let rafId: number;
+  const copyFrame = () => {
+    ctx.drawImage(canvas, 0, 0, width, height);
+    rafId = requestAnimationFrame(copyFrame);
+  };
+  rafId = requestAnimationFrame(copyFrame);
+
+  const stream = offscreen.captureStream(frameRate);
   const mediaRecorder = new MediaRecorder(stream, {
     mimeType: 'video/webm;codecs=vp9'
   });
@@ -137,6 +185,7 @@ export const startCanvasRecording = (
 
   mediaRecorder.onstop = () => {
     isActive = false;
+    cancelAnimationFrame(rafId);
     const blob = new Blob(chunks, { type: 'video/webm' });
     const url = URL.createObjectURL(blob);
 
@@ -170,7 +219,6 @@ export const startCanvasRecording = (
   };
 };
 
-// For this to work in webgl canvas, u need to have this in bg - canvas.getContext('webgl', { preserveDrawingBuffer: true });
 /*
 (async () => {
   const { captureCanvasScreenshot } = await import('@/lib/utils');

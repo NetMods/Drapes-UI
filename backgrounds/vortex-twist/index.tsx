@@ -46,7 +46,7 @@ const VortexTwist = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2', { preserveDrawingBuffer: true });
+    const gl = canvas.getContext('webgl2', {});
     if (!gl) return;
 
     const vsSource = `#version 300 es
