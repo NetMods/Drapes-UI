@@ -139,7 +139,7 @@ const AuraRing = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false });
+    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: false, preserveDrawingBuffer: true });
     if (!gl) {
       console.error('WebGL2 is not supported by your browser.');
       return;

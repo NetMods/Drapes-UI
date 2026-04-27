@@ -37,7 +37,7 @@ const MosaicFlow = ({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext('webgl', {});
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
     if (!gl) {
       console.error('WebGL not supported');
       return;
