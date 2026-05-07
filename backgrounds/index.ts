@@ -8,7 +8,6 @@ import HorizonGlow from './horizon-glow'
 import DitherStudio from './dither-studio'
 import Mist from './mist'
 import NeonHighway from './neon-highway'
-import AsciiStudio from './ascii-studio'
 import WaveColumns from './wave-columns'
 import HalftoneStudio from './halftone-studio'
 import NeuralField from './neural-field'
@@ -48,7 +47,6 @@ import horizonGlowConfig from './horizon-glow/config';
 import ditherStudioConfig from './dither-studio/config';
 import mistConfig from './mist/config';
 import neonHighwayConfig from './neon-highway/config';
-import asciiStudioConfig from './ascii-studio/config';
 import waveColumnsConfig from './wave-columns/config';
 import halftoneStudioConfig from './halftone-studio/config';
 import neuralFieldConfig from './neural-field/config';
@@ -88,7 +86,6 @@ const registerEntry: BackgroundEntry[] = [
   { config: ditherStudioConfig, component: DitherStudio },
   { config: mistConfig, component: Mist },
   { config: neonHighwayConfig, component: NeonHighway },
-  { config: asciiStudioConfig, component: AsciiStudio, isNew: true },
   { config: waveColumnsConfig, component: WaveColumns },
   { config: halftoneStudioConfig, component: HalftoneStudio, isNew: true },
   { config: neuralFieldConfig, component: NeuralField },

@@ -375,8 +375,8 @@ const HalftoneStudio = ({
     const gl = canvas.getContext('webgl', {
       alpha: true,
       premultipliedAlpha: false,
-      preserveDrawingBuffer: true,
       antialias: false,
+      preserveDrawingBuffer: true,
     });
 
     if (!gl) {
