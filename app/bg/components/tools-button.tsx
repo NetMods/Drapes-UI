@@ -156,7 +156,7 @@ const ToolButton = ({
     <div
       className={cn(
         className,
-        "flex items-center justify-center md:-translate-x-1/2",
+        "flex items-center justify-center sm:-translate-x-1/2",
       )}
     >
       {leftTools.map((item, index) => (
